@@ -705,23 +705,39 @@ export default function ConfigurationDetails({
   console.log("formData", formData);
 
   // Update columns when board selection changes
+  // useEffect(() => {
+  //   if (formData.boardId && boardDetails) {
+  //     const selectedBoard = boardDetails.find(
+  //       (board) => board.id === formData.boardId
+  //     );
+  //     setColumns(selectedBoard?.columns || []);
+  //     // Reset fields and update board name when board changes
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       boardName: selectedBoard?.name || "",
+  //       fields: [
+  //         {
+  //           columnId: "",
+  //           columnName: "",
+  //           isEditable: true,
+  //         },
+  //       ],
+  //     }));
+  //   } else {
+  //     setColumns([]);
+  //   }
+  // }, [formData.boardId, boardDetails]);
+
   useEffect(() => {
     if (formData.boardId && boardDetails) {
       const selectedBoard = boardDetails.find(
         (board) => board.id === formData.boardId
       );
       setColumns(selectedBoard?.columns || []);
-      // Reset fields and update board name when board changes
+      // Only update boardName, preserve existing fields
       setFormData((prev) => ({
         ...prev,
         boardName: selectedBoard?.name || "",
-        fields: [
-          {
-            columnId: "",
-            columnName: "",
-            isEditable: true,
-          },
-        ],
       }));
     } else {
       setColumns([]);
@@ -880,36 +896,38 @@ export default function ConfigurationDetails({
 
   const handleSubmit = async () => {
     try {
-      // Filter out empty fields
+      // Validate fields
       const validFields = formData.fields.filter(
         (field) => field.columnId && field.columnName
       );
-
       if (validFields.length === 0) {
         alert("Please select at least one field");
         return;
       }
 
-      // Prepare FormData for file upload
-      const submissionData = new FormData();
-      submissionData.append("boardId", formData.boardId);
-      submissionData.append("boardName", formData.boardName);
-      submissionData.append("description", formData.description);
-      submissionData.append("subDomain", formData.subDomain);
-      submissionData.append("fields", JSON.stringify(validFields));
-      submissionData.append("logo", "nulll");
-      // if (formData.logo) {
-      //   submissionData.append("logo", formData.logo);
-      // }
+      // Validate subdomain format
+      if (!/^[a-z0-9-]+(\.[a-z0-9-]+)*$/.test(formData.subDomain)) {
+        alert("Please enter a valid subdomain (e.g., 'tickets.example.com')");
+        return;
+      }
 
-      // Call update API
-      await CustomizationApi.updateCustomization(submissionData);
+      // Prepare payload
+      const payload = {
+        boardId: formData.boardId,
+        boardName: formData.boardName,
+        description: formData.description,
+        subDomain: formData.subDomain,
+        fields: validFields, // Send as array (not stringified)
+        logo: formData.logo || null, // Ensure proper null handling
+      };
 
-      // Notify parent to refresh data and exit edit mode
+      // Call API
+      await CustomizationApi.updateCustomization(payload);
+      alert("Settings saved successfully!");
       onSave();
     } catch (error) {
       console.error("Update failed:", error);
-      alert("Failed to save changes. Please try again.");
+      alert(`Failed to save changes: ${error.message}`);
     }
   };
   return (
