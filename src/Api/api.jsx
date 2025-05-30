@@ -27,7 +27,7 @@ const CredentialApi = {
    */
   getAllCredentials: async () => {
     try {
-      const response = await api.get("/");
+      const response = await api.get("/credentials/");
       return response.data;
     } catch (error) {
       console.error("Error fetching credentials:", error);
