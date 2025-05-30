@@ -13,6 +13,7 @@
     "stop": "kill-port 8301 && kill-port 4049 && kill-port 4040"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@mondaycom/apps-sdk": "^2.1.2",
     "@vibe/core": "^3.19.0",
     "lucide-react": "^0.511.0",
@@ -42,12 +43,12 @@
     "concurrently": "^5.2.0",
     "cross-port-killer": "^1.2.1",
     "eslint-config-react-app": "^7.0.1",
+    "postcss": "^8.4.31",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "sass": "^1.54.8",
-    "vite": "^6.2.2",
-    "postcss": "^8.4.31",
-    "tailwindcss": "^3.3.3"
+    "tailwindcss": "^3.3.3",
+    "vite": "^6.2.2"
   },
   "type": "module"
 }
