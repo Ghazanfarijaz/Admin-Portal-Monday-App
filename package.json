@@ -16,8 +16,10 @@
     "@heroicons/react": "^2.2.0",
     "@mondaycom/apps-sdk": "^2.1.2",
     "@vibe/core": "^3.19.0",
+    "framer-motion": "^12.16.0",
     "lucide-react": "^0.511.0",
     "monday-sdk-js": "^0.5.5",
+    "prop-types": "^15.8.1",
     "react-router-dom": "^7.6.0"
   },
   "eslintConfig": {

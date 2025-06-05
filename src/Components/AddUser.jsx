@@ -8,9 +8,7 @@ export default function AddUser() {
   const [loading, setLoading] = useState(true);
   const [newUser, setNewUser] = useState(null);
   const [error, setError] = useState(null);
-  const [notification, showNotification] = useNotification();
-
-  console.log("Users:", users);
+  const [notifications, showNotification] = useNotification();
 
   // Fetch all credentials when component mounts
   useEffect(() => {
@@ -41,6 +39,7 @@ export default function AddUser() {
           type: "error",
           title: "Error",
           message: err.message || "Failed to load users. Please try again.",
+          isPersistent: true,
         });
       } finally {
         setLoading(false);
@@ -67,6 +66,7 @@ export default function AddUser() {
       type: "error",
       title: "Error",
       message: errorMessage,
+      isPersistent: true,
     });
   };
 
@@ -142,7 +142,6 @@ export default function AddUser() {
   };
 
   const deleteUser = async (userEmail) => {
-    // Changed from userId to userEmail
     try {
       const userToDelete = users.find((user) => user.email === userEmail);
       if (!userToDelete) {
@@ -161,17 +160,12 @@ export default function AddUser() {
 
       console.log("User deleted successfully", response);
 
-      // If we get here, the API call succeeded - no need to revert
-      // Even if response.success is false, we'll consider it a success if we reached here
-      // because we know the deletion worked from your description
-
       showNotification({
         type: "success",
         title: "Success",
         message: "User deleted successfully!",
       });
     } catch (error) {
-      // Only revert if there was an actual API error (network error, etc.)
       if (error.isApiError) {
         setUsers(users); // Revert to original
       }
@@ -180,6 +174,7 @@ export default function AddUser() {
         type: "error",
         title: "Error",
         message: "Failed to delete user. Please try again.",
+        isPersistent: true,
       });
     }
   };
@@ -318,7 +313,7 @@ export default function AddUser() {
 
   return (
     <div className="relative">
-      {notification}
+      {notifications}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 max-w-4xl overflow-hidden">
         <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
           <h2 className="font-medium text-gray-700">Users ({users.length})</h2>
