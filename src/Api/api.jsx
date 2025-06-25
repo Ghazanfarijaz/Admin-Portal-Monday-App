@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/credentials";
+// const API_BASE_URL = import.meta.env.VITE_DEPLOYED_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Create axios instance with default config
 const api = axios.create({
@@ -10,15 +10,6 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 });
-
-// Add request interceptor to include auth token if available
-// api.interceptors.request.use((config) => {
-//   const token = localStorage.getItem('authToken');
-//   if (token) {
-//     config.headers.Authorization = `Bearer ${token}`;
-//   }
-//   return config;
-// });
 
 const CredentialApi = {
   /**

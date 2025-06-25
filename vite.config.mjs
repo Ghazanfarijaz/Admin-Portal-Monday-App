@@ -12,7 +12,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 8301,
-    allowedHosts: [".apps-tunnel.monday.app"],
+    allowedHosts: [".apps-tunnel.monday.app", ".ngrok-free.app"],
   },
   css: {
     postcss: {
