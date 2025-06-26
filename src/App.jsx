@@ -9,17 +9,12 @@ const monday = mondaySdk();
 
 const App = () => {
   const [context, setContext] = useState();
-  const [sessionToken, setSessionToken] = useState();
 
   useEffect(() => {
     monday.execute("valueCreatedForUser");
 
     monday.listen("context", (res) => {
       setContext(res.data);
-    });
-
-    monday.listen("sessionToken", (res) => {
-      setSessionToken(res.data);
     });
   }, []);
 

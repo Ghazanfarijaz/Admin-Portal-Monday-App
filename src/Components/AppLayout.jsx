@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import AddUser from "./AddUser";
 import Configuration from "./Configuration";
 import ConfigurationDetails from "./ConfigurationDetails";
-import CustomizationData from "../Api/CustomizationData.jsx";
-import CustomizationApi from "../Api/CustomizationManagement.jsx";
+import CustomizationData from "../api/CustomizationData.js";
+import CustomizationApi from "../api/CustomizationManagement.js";
 import mondaySdk from "monday-sdk-js";
 const monday = mondaySdk();
 

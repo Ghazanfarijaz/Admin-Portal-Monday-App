@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import CustomizationApi from "../Api/CustomizationManagement";
+import CustomizationApi from "../api/CustomizationManagement";
 import { useNotification } from "../Ui/Notification";
 
 export default function ConfigurationDetails({

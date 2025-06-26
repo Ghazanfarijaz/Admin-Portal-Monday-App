@@ -1,14 +1,4 @@
-import axios from "axios";
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+import axiosInstance from "../utils/axiosInstance";
 
 const CustomizationApi = {
   /**
@@ -17,7 +7,7 @@ const CustomizationApi = {
    */
   getCustomization: async () => {
     try {
-      const response = await api.get("/customization/");
+      const response = await axiosInstance.get("/customization/");
       return response.data.data;
     } catch (error) {
       console.error("Error fetching customization:", error);
@@ -32,7 +22,10 @@ const CustomizationApi = {
    */
   addCustomization: async (customizationData) => {
     try {
-      const response = await api.post("/customization/", customizationData);
+      const response = await axiosInstance.post(
+        "/customization/",
+        customizationData
+      );
       return response.data;
     } catch (error) {
       console.error("Error adding customization:", error);
@@ -47,7 +40,10 @@ const CustomizationApi = {
    */
   updateCustomization: async (customizationData) => {
     try {
-      const response = await api.put("/customization/", customizationData);
+      const response = await axiosInstance.put(
+        "/customization/",
+        customizationData
+      );
       return response.data;
     } catch (error) {
       console.error("Error updating customization:", error);
@@ -61,7 +57,7 @@ const CustomizationApi = {
    */
   deleteCustomization: async () => {
     try {
-      await api.delete("/customization/");
+      await axiosInstance.delete("/customization/");
       console.log("Customization deleted successfully");
       return true;
     } catch (error) {

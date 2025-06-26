@@ -1,39 +1,53 @@
 import { useQuery } from "@tanstack/react-query";
 import mondaySdk from "monday-sdk-js";
+import { authAPIs } from "../api/auth";
 
 // Monday SDK initialization
 const monday = mondaySdk();
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const AuthProvider = ({ children }) => {
-  const { data, isPending, isError, error } = useQuery({
+  const { isPending, isError, error } = useQuery({
     queryKey: ["monday-slug"],
     queryFn: async () => {
       try {
-        const query = `query {
-                            account{
-                                slug
-                            }
-                        }`;
+        const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
 
-        const response = await monday.api(query);
+        const authResponse = await authAPIs.checkUserAuth({ slug: userSlug });
 
-        return response.data.account.slug;
+        if (authResponse?.action === "do_oauth") {
+          // Redirect the user to the auth URL, this will unload the app, but they will be redirected back
+          // when auth is complete.
+          console.log("Redirecting to auth", authResponse.authUrl);
+          window.location = authResponse.authUrl;
+          // Don't return, we're redirecting. If we return, the app has to handle a load of extra
+          // logic to not try and deal with this "error" class.
+          while (true) {
+            await delay(3000);
+            console.log("Waiting for auth redirect, still...");
+          }
+        }
+
+        return authResponse;
       } catch (error) {
-        console.error("Error fetching account slug:", error);
+        console.error("Error Authenticating User: ", error);
         throw new Error("Authentication Failed!");
       }
     },
   });
 
   if (isPending) {
-    return <div>Loading...</div>;
+    return (
+      <div className="text-white h-screen w-screen flex justify-center items-center">
+        Loading...
+      </div>
+    );
   }
 
   if (isError) {
     return <div>{error.message || "Authentication Failed!"}</div>;
   }
-
-  console.log("Account slug:", data);
 
   return <>{children}</>;
 };

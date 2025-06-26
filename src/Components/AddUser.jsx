@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Check, X, Plus } from "lucide-react";
-import CredentialApi from "../Api/api";
+import CredentialApi from "../api";
 import { useNotification } from "../Ui/Notification";
 
 export default function AddUser() {
