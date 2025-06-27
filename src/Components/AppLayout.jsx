@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
-import AddUser from "./AddUser";
 import Configuration from "./Configuration";
 import ConfigurationDetails from "./ConfigurationDetails";
-import CustomizationData from "../api/CustomizationData.js";
-import CustomizationApi from "../api/CustomizationManagement.js";
+import customizationAPIs from "../api/customization.js";
 import mondaySdk from "monday-sdk-js";
+import UsersList from "./UsersList.jsx";
 const monday = mondaySdk();
 
 export default function AppLayout() {
@@ -24,7 +23,7 @@ export default function AppLayout() {
 
   const GetBoardDetails = async () => {
     try {
-      const response = await CustomizationData.getAllBoards({
+      const response = await customizationAPIs.getAllBoards({
         monday,
       });
       console.log("get the board response:", response);
@@ -43,7 +42,7 @@ export default function AppLayout() {
   // New function to fetch customization data
   const getCustomizationData = async () => {
     try {
-      const response = await CustomizationApi.getCustomization();
+      const response = await customizationAPIs.getCustomization();
       console.log("get customization response:", response);
 
       if (!response) {
@@ -118,7 +117,7 @@ export default function AppLayout() {
       {/* Main Content */}
       <div className="flex-1">
         {activeTab === "userData" ? (
-          <AddUser />
+          <UsersList />
         ) : isEditing ? (
           <ConfigurationDetails
             onSave={handleSaveChanges}
