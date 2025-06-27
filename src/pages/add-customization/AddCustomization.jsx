@@ -85,7 +85,6 @@ const AddCustomization = () => {
     },
 
     onSuccess: () => {
-      console.log("Customization added successfully");
       queryClient.invalidateQueries({ queryKey: ["customizationData"] });
       navigate("/", { replace: true });
     },
