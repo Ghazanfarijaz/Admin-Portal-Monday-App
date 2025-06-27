@@ -1,113 +1,168 @@
-import { useState } from "react";
+import { Link } from "react-router-dom";
+import mondaySdk from "monday-sdk-js";
+import { useQueries } from "@tanstack/react-query";
+import customizationAPIs from "../api/customization";
+import { authAPIs } from "../api/auth";
+import CustomizationSkeleton from "./CustomizationSkeleton";
 
-export default function Configuration({ onEdit, customization }) {
-  console.log("Configuration customization:", customization);
+const monday = mondaySdk();
 
-  if (!customization) {
+export default function Configuration({ activeTab }) {
+  // Fetch board details and customization data using react-query
+  const { boardDetails, customization } = useQueries({
+    queries: [
+      {
+        queryKey: ["boardDetails"],
+        queryFn: () =>
+          customizationAPIs.getAllBoards({
+            monday,
+          }),
+        enabled: activeTab === "configuration",
+      },
+      {
+        queryKey: ["customizationData"],
+        queryFn: async () => {
+          const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
+
+          return customizationAPIs.getCustomization({
+            slug: userSlug,
+          });
+        },
+        enabled: activeTab === "configuration",
+      },
+    ],
+    combine: (results) => {
+      const [boardDetailsResult, customizationResult] = results;
+
+      return {
+        boardDetails: {
+          data: boardDetailsResult.data,
+          isError: boardDetailsResult.isError,
+          error: boardDetailsResult.error,
+          isPending: boardDetailsResult.isPending,
+        },
+
+        customization: {
+          data: customizationResult.data,
+          isError: customizationResult.isError,
+          error: customizationResult.error,
+          isPending: customizationResult.isPending,
+        },
+      };
+    },
+  });
+
+  if (boardDetails.isError || customization.isError) {
+    console.error("Error fetching data:", {
+      boardDetailsError: boardDetails.error || "Failed to fetch board details",
+      customizationError:
+        customization.error || "Failed to fetch customization data",
+    });
+
     return (
-      <div className="bg-white rounded shadow-sm border border-gray-200 p-6 max-w-4xl">
-        <div className="space-y-8">
-          <p>Loading customization data...</p>
-        </div>
+      <div className="bg-white rounded shadow-sm border border-gray-200 p-6 max-w-4xl flex flex-col gap-8">
+        <p className="text-red-500">
+          Failed to load customization settings. Please try again later.
+        </p>
       </div>
     );
   }
 
+  if (boardDetails.isPending || customization.isPending) {
+    return <CustomizationSkeleton />;
+  }
+
   return (
-    <div className="bg-white rounded shadow-sm border border-gray-200 p-6 max-w-4xl ">
-      <div className="space-y-8">
-        {/* Board Section */}
-        <div>
-          <h2 className="text-gray-800 font-medium mb-3">Board</h2>
-          <div className="flex">
-            <div className="w-1/2 pr-2">
-              <div className="flex border border-gray-300 rounded">
-                <div className="p-2 flex-grow">{customization.boardName}</div>
-                <div className="p-2 text-gray-400 border-l border-gray-300">
-                  Board
-                </div>
-              </div>
+    <div className="bg-white rounded shadow-sm border border-gray-200 p-6 max-w-4xl flex flex-col gap-8">
+      {customization.data ? (
+        <>
+          {/* Board Section */}
+          <div className="flex flex-col gap-2">
+            <h2 className="text-gray-800 font-semibold text-lg">Board</h2>
+            <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[48px] max-w-[450px] flex items-center">
+              {customization.boardName}
             </div>
           </div>
-        </div>
 
-        {/* Fields Section */}
-        <div>
-          <h2 className="text-gray-800 font-medium mb-3">Fields</h2>
-          <div className="space-y-2">
-            {customization.fields?.map((field) => (
-              <div key={field.columnId} className="w-1/2 pr-2">
-                <div className="flex border border-gray-300 rounded">
-                  <div className="p-2 flex-grow">{field.columnName}</div>
-                  <div className="p-2 text-gray-400 border-l border-gray-300">
-                    Field From Board
+          {/* Fields Section */}
+          <div className="flex flex-col gap-2">
+            <h2 className="text-gray-800 font-semibold text-lg">Fields</h2>
+            <div className="flex flex-col gap-4">
+              {customization.fields?.map((field) => (
+                <div key={field.columnId} className="w-1/2 pr-2">
+                  <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[48px] max-w-[450px] flex items-center">
+                    {field.columnName}
                   </div>
+                  {field.isEditable && (
+                    <div className="text-sm text-gray-500 mt-1">(Editable)</div>
+                  )}
                 </div>
-                {field.isEditable && (
-                  <div className="text-sm text-gray-500 mt-1">(Editable)</div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Logo Section */}
-        <div>
-          <h2 className="text-gray-800 font-medium mb-3">Logo</h2>
-          {customization.logo ? (
-            <div className="w-24 h-24 rounded overflow-hidden">
-              <img
-                // src={`data:image/png;base64,${customization.logo}`}
-                src={customization.logo}
-                alt="Board logo"
-                className="w-full h-full object-contain"
-              />
+              ))}
             </div>
-          ) : (
-            <div className="w-24 h-24 bg-red-500 rounded flex items-center justify-center">
-              <svg
-                width="60"
-                height="60"
-                viewBox="0 0 60 60"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M30 10C25 10 20 15 18 30C16 15 10 15 10 25C10 35 20 45 30 50C40 45 50 35 50 25C50 15 44 15 42 30C40 15 35 10 30 10Z"
-                  fill="white"
+          </div>
+
+          {/* Logo Section */}
+          <div className="flex flex-col gap-2">
+            <h2 className="text-gray-800 font-semibold text-lg">Logo</h2>
+            {customization.logo ? (
+              <div className="w-24 h-24 rounded overflow-hidden">
+                <img
+                  // src={`data:image/png;base64,${customization.logo}`}
+                  src={customization.logo}
+                  alt="Board logo"
+                  className="w-full h-full object-contain"
                 />
-                <circle cx="20" cy="38" r="8" fill="white" />
-              </svg>
+              </div>
+            ) : (
+              <p className="text-gray-400">No logo uploaded yet.</p>
+            )}
+          </div>
+
+          {/* Description Section */}
+          <div className="flex flex-col gap-2">
+            <h2 className="text-gray-800 font-semibold text-lg">Description</h2>
+            <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-fit min-h-[100px]">
+              {customization.description ? (
+                <p>{customization.description}</p>
+              ) : (
+                <p className="text-gray-400">No Description added yet.</p>
+              )}
             </div>
-          )}
-        </div>
-
-        {/* Description Section */}
-        <div>
-          <h2 className="text-gray-800 font-medium mb-3">Description</h2>
-          <div className="border border-gray-300 rounded p-2 w-full h-24">
-            {customization.description || "Lorem ipsum dolor"}
           </div>
-        </div>
 
-        {/* Sub-Domain Section */}
-        <div>
-          <h2 className="text-gray-800 font-medium mb-3">Sub-Domain</h2>
-          <div className="border border-gray-300 rounded p-2 w-full">
-            {customization.subDomain || "abc.subdomain.com"}
+          {/* Sub-Domain Section */}
+          <div className="flex flex-col gap-2">
+            <h2 className="text-gray-800 font-medium mb-3">Sub-Domain</h2>
+            <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[48px] max-w-[450px] flex items-center">
+              {customization.subDomain ? (
+                <p>{customization.description}</p>
+              ) : (
+                <p className="text-gray-400">N/A</p>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Edit Button */}
-        <div>
-          <button
-            onClick={onEdit}
-            className="bg-[#007F9B] text-white font-medium px-4 py-2 rounded hover:bg-[#007F9B]/80"
+          <Link
+            to={`/edit-customization/${customization.slug}`}
+            className="bg-[#007F9B] text-white font-medium px-4 py-2 w-fit rounded hover:bg-[#007F9B]/80"
           >
             Edit Details
-          </button>
-        </div>
-      </div>
+          </Link>
+        </>
+      ) : (
+        <>
+          <p className="text-gray-500">
+            No customization settings found. <br /> Please add your
+            customization settings to personalize your board.
+          </p>
+          <Link
+            to="/add-customization"
+            className="bg-[#007F9B] text-white font-medium px-4 py-2 w-fit rounded hover:bg-[#007F9B]/80"
+          >
+            Add Customization
+          </Link>
+        </>
+      )}
     </div>
   );
 }
