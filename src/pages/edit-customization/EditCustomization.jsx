@@ -129,6 +129,7 @@ const EditCustomization = () => {
       formRef.current.setValues({
         selectedBoardId: customization.boardId,
         fields: customization.fields.map((field) => ({
+          tempId: Math.random().toString(36).substring(2, 10),
           id: field.columnId,
           title: field.columnName,
           isEditable: field.isEditable || false,
