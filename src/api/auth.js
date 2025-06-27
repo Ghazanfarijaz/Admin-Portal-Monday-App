@@ -22,7 +22,7 @@ export const authAPIs = {
   // Check User Auth
   checkUserAuth: async ({ slug }) => {
     try {
-      const response = await axiosInstance.post("/auth/check-auth", {
+      const response = await axiosInstance.post("/monday/check-auth", {
         slug,
       });
 
