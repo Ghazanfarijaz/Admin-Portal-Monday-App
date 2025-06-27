@@ -1,8 +1,13 @@
 import { Skeleton } from "@mantine/core";
 
-const CustomizationSkeleton = () => {
+const CustomizationSkeleton = ({ type }) => {
   return (
-    <div className="bg-white rounded shadow-sm border border-gray-200 p-6 max-w-4xl flex flex-col gap-8">
+    <div
+      className={`${
+        type !== "add-customization" &&
+        "bg-white rounded shadow-sm border border-gray-200 p-6 max-w-4xl"
+      }  flex flex-col gap-8`}
+    >
       {/* Board Section */}
       <div className="flex flex-col gap-2">
         <Skeleton width={100} height={25} radius={2} />

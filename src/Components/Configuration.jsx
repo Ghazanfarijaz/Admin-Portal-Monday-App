@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import mondaySdk from "monday-sdk-js";
-import { useQueries } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import customizationAPIs from "../api/customization";
 import { authAPIs } from "../api/auth";
 import CustomizationSkeleton from "./CustomizationSkeleton";
@@ -9,55 +9,25 @@ const monday = mondaySdk();
 
 export default function Configuration({ activeTab }) {
   // Fetch board details and customization data using react-query
-  const { boardDetails, customization } = useQueries({
-    queries: [
-      {
-        queryKey: ["boardDetails"],
-        queryFn: () =>
-          customizationAPIs.getAllBoards({
-            monday,
-          }),
-        enabled: activeTab === "configuration",
-      },
-      {
-        queryKey: ["customizationData"],
-        queryFn: async () => {
-          const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
+  const {
+    data: customization,
+    isError,
+    error,
+    isPending,
+  } = useQuery({
+    queryKey: ["customizationData"],
+    queryFn: async () => {
+      const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
 
-          return customizationAPIs.getCustomization({
-            slug: userSlug,
-          });
-        },
-        enabled: activeTab === "configuration",
-      },
-    ],
-    combine: (results) => {
-      const [boardDetailsResult, customizationResult] = results;
-
-      return {
-        boardDetails: {
-          data: boardDetailsResult.data,
-          isError: boardDetailsResult.isError,
-          error: boardDetailsResult.error,
-          isPending: boardDetailsResult.isPending,
-        },
-
-        customization: {
-          data: customizationResult.data,
-          isError: customizationResult.isError,
-          error: customizationResult.error,
-          isPending: customizationResult.isPending,
-        },
-      };
+      return customizationAPIs.getCustomization({
+        slug: userSlug,
+      });
     },
+    enabled: activeTab === "configuration",
   });
 
-  if (boardDetails.isError || customization.isError) {
-    console.error("Error fetching data:", {
-      boardDetailsError: boardDetails.error || "Failed to fetch board details",
-      customizationError:
-        customization.error || "Failed to fetch customization data",
-    });
+  if (isError) {
+    console.error(error.message || "Failed to fetch customization data");
 
     return (
       <div className="bg-white rounded shadow-sm border border-gray-200 p-6 max-w-4xl flex flex-col gap-8">
@@ -68,13 +38,13 @@ export default function Configuration({ activeTab }) {
     );
   }
 
-  if (boardDetails.isPending || customization.isPending) {
+  if (isPending) {
     return <CustomizationSkeleton />;
   }
 
   return (
     <div className="bg-white rounded shadow-sm border border-gray-200 p-6 max-w-4xl flex flex-col gap-8">
-      {customization.data ? (
+      {customization ? (
         <>
           {/* Board Section */}
           <div className="flex flex-col gap-2">
@@ -132,10 +102,10 @@ export default function Configuration({ activeTab }) {
 
           {/* Sub-Domain Section */}
           <div className="flex flex-col gap-2">
-            <h2 className="text-gray-800 font-medium mb-3">Sub-Domain</h2>
+            <h2 className="text-gray-800 font-medium">Sub-Domain</h2>
             <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[48px] max-w-[450px] flex items-center">
               {customization.subDomain ? (
-                <p>{customization.description}</p>
+                <p>{customization.subDomain}</p>
               ) : (
                 <p className="text-gray-400">N/A</p>
               )}

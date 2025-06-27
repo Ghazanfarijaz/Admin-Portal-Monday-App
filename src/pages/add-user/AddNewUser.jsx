@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { userAPIs } from "../../api/users";
 import { authAPIs } from "../../api/auth";
 import mondaySdk from "monday-sdk-js";
+import { ChevronLeft } from "lucide-react";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -60,7 +61,16 @@ const AddNewUser = () => {
 
   return (
     <div className="flex flex-col gap-8 p-12 bg-gray-50 min-h-screen w-screen">
-      <h1 className="text-2xl font-bold text-gray-800">Add New User</h1>
+      <div className="flex flex-col gap-3">
+        <Link
+          to={"/"}
+          className="text-gray-600 font-medium flex items-center gap-1"
+        >
+          <ChevronLeft size={20} />
+          <p>Go Back</p>
+        </Link>
+        <h1 className="text-2xl font-bold text-gray-800">Add New User</h1>
+      </div>
       <div className="border border-gray-200 p-8 bg-white rounded-lg shadow-sm flex flex-col gap-6">
         <h2 className="text-xl font-bold text-gray-800">User Details</h2>
         <form

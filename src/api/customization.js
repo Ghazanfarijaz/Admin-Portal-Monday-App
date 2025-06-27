@@ -27,7 +27,9 @@ const customizationAPIs = {
       return response.data;
     } catch (error) {
       console.error("Error adding customization:", error);
-      throw error;
+      throw new Error(
+        error.response?.data?.message || `Failed to add customization settings`
+      );
     }
   },
 
@@ -41,7 +43,10 @@ const customizationAPIs = {
       return response.data;
     } catch (error) {
       console.error("Error updating customization:", error);
-      throw error;
+      throw new Error(
+        error.response?.data?.message ||
+          `Failed to update customization settings`
+      );
     }
   },
 
@@ -55,12 +60,16 @@ const customizationAPIs = {
       return true;
     } catch (error) {
       console.error("Error deleting customization:", error);
-      throw error;
+      throw new Error(
+        error.response?.data?.message ||
+          `Failed to delete customization settings`
+      );
     }
   },
 
   getAllBoards: async ({ monday }) => {
-    const query = `
+    try {
+      const query = `
       query {
         boards {
           name
@@ -72,8 +81,12 @@ const customizationAPIs = {
         }
       }
     `;
-    const response = await monday.api(query);
-    return response.data.boards;
+      const response = await monday.api(query);
+      return response.data.boards;
+    } catch (error) {
+      console.error("Error fetching boards:", error);
+      throw new Error(error.message || `Failed to fetch boards`);
+    }
   },
 };
 
