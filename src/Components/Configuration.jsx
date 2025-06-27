@@ -113,7 +113,7 @@ export default function Configuration({ activeTab }) {
           </div>
 
           <Link
-            to={`/edit-customization/${customization.slug}`}
+            to={`/edit-customization`}
             className="bg-[#007F9B] text-white font-medium px-4 py-2 w-fit rounded hover:bg-[#007F9B]/80"
           >
             Edit Details
