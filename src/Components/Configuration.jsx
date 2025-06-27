@@ -59,7 +59,7 @@ export default function Configuration({ activeTab }) {
             <h2 className="text-gray-800 font-semibold text-lg">Fields</h2>
             <div className="flex flex-col gap-4">
               {customization.fields?.map((field) => (
-                <div key={field.columnId} className="w-1/2 pr-2">
+                <div key={field.columnId}>
                   <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[48px] max-w-[450px] flex items-center">
                     {field.columnName}
                   </div>
