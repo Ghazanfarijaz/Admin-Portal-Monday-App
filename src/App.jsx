@@ -1,24 +1,18 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import "./App.css";
 import mondaySdk from "monday-sdk-js";
 import "@vibe/core/tokens";
 
-import AppLayout from "./Components/AppLayout";
+import { Outlet } from "react-router-dom";
 
 const monday = mondaySdk();
 
 const App = () => {
-  const [context, setContext] = useState();
-
   useEffect(() => {
     monday.execute("valueCreatedForUser");
-
-    monday.listen("context", (res) => {
-      setContext(res.data);
-    });
   }, []);
 
-  return <AppLayout context={context} />;
+  return <Outlet />;
 };
 
 export default App;
