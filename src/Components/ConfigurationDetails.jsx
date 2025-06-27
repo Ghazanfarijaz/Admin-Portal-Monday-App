@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
-import CustomizationApi from "../api/CustomizationManagement";
 import { useNotification } from "../Ui/Notification";
+import customizationAPIs from "../api/customization";
 
 export default function ConfigurationDetails({
   onSave,
@@ -275,7 +275,7 @@ export default function ConfigurationDetails({
       };
 
       // Call API
-      await CustomizationApi.updateCustomization(payload);
+      await customizationAPIs.updateCustomization(payload);
 
       showNotification({
         type: "success",
