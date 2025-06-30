@@ -77,11 +77,32 @@ const customizationAPIs = {
           columns {
             id
             title
+            type
           }
         }
       }
     `;
       const response = await monday.api(query);
+
+      // Go Through all the boards and filter out the columns of types
+      // ["board_relation", "mirror","button", "dependency", "formula", "auto_number", "progress"]
+
+      response.data.boards = response.data.boards.map((board) => {
+        board.columns = board.columns.filter(
+          (column) =>
+            ![
+              "board_relation",
+              "mirror",
+              "button",
+              "dependency",
+              "formula",
+              "auto_number",
+              "progress",
+            ].includes(column.type)
+        );
+        return board;
+      });
+
       return response.data.boards;
     } catch (error) {
       console.error("Error fetching boards:", error);
