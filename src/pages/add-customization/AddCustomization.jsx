@@ -1,6 +1,6 @@
 import mondaySdk from "monday-sdk-js";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Group, Select, Textarea } from "@mantine/core";
+import { Group, Select, Switch, Textarea } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, Plus, X } from "lucide-react";
@@ -72,6 +72,7 @@ const AddCustomization = () => {
         fields: customizationForm.values.fields.map((field) => ({
           columnId: field.id,
           columnName: field.title,
+          isEditable: field.isEditable || false,
         })),
         logo: customizationForm.values.logo,
         description: customizationForm.values.description,
@@ -213,6 +214,21 @@ const AddCustomization = () => {
                   >
                     <X size={20} className="text-red-500" />
                   </button>
+
+                  <Switch
+                    checked={field.isEditable}
+                    label="Editable"
+                    onChange={(event) => {
+                      customizationForm.setFieldValue(
+                        "fields",
+                        customizationForm.values.fields.map((f) =>
+                          f.tempId === field.tempId
+                            ? { ...f, isEditable: event.currentTarget.checked }
+                            : f
+                        )
+                      );
+                    }}
+                  />
                 </div>
               ))}
 
