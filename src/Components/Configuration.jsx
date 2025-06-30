@@ -63,8 +63,10 @@ export default function Configuration({ activeTab }) {
                   <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[48px] max-w-[450px] flex items-center">
                     {field.columnName}
                   </div>
-                  {field.isEditable && (
-                    <div className="text-sm text-gray-500 mt-1">(Editable)</div>
+                  {field.isEditable ? (
+                    <p className="text-sm text-gray-500 mt-1">(Editable)</p>
+                  ) : (
+                    <p className="text-sm text-gray-500 mt-1">(Not Editable)</p>
                   )}
                 </div>
               ))}

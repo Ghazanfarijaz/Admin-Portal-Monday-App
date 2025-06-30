@@ -7,7 +7,7 @@ import { authAPIs } from "../../api/auth";
 import CustomizationSkeleton from "../../Components/CustomizationSkeleton";
 import { useForm } from "@mantine/form";
 import { useEffect, useRef, useState } from "react";
-import { Group, Select, Textarea } from "@mantine/core";
+import { Group, Select, Switch, Textarea } from "@mantine/core";
 import LogoInput from "../../Components/LogoInput";
 
 // Monday SDK initialization
@@ -99,6 +99,7 @@ const EditCustomization = () => {
         fields: customizationForm.values.fields.map((field) => ({
           columnId: field.id,
           columnName: field.title,
+          isEditable: field.isEditable || false,
         })),
         logo: customizationForm.values.logo,
         description: customizationForm.values.description,
@@ -163,7 +164,7 @@ const EditCustomization = () => {
           Customization Details
         </h2>
 
-        {isPending || isLoading ? (
+        {isPending || isLoading || updateCustomization.isPending ? (
           <CustomizationSkeleton type="add-customization" />
         ) : (
           <form
@@ -258,6 +259,20 @@ const EditCustomization = () => {
                   >
                     <X size={20} className="text-red-500" />
                   </button>
+                  <Switch
+                    checked={field.isEditable}
+                    label="Editable"
+                    onChange={(event) => {
+                      customizationForm.setFieldValue(
+                        "fields",
+                        customizationForm.values.fields.map((f) =>
+                          f.tempId === field.tempId
+                            ? { ...f, isEditable: event.currentTarget.checked }
+                            : f
+                        )
+                      );
+                    }}
+                  />
                 </div>
               ))}
 
