@@ -205,10 +205,10 @@ const UsersList = () => {
           No users found. Click "Add New User" to create one.
         </div>
       ) : (
-        <div className="rounded-lg shadow-sm border border-gray-200">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-200 bg-gray-50">
+        <div className="rounded-lg shadow-sm border border-gray-200 h-full max-h-[400px] overflow-hidden">
+          <table className="w-full table-fixed">
+            <thead className="static top-0">
+              <tr className="border-b border-gray-200 bg-gray-50 rounded-t-lg">
                 <th className="text-left py-3 px-4 font-medium text-gray-600">
                   User Name
                 </th>
@@ -223,106 +223,115 @@ const UsersList = () => {
                 </th>
               </tr>
             </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr
-                  key={user.id}
-                  className="border-b border-gray-200 hover:bg-gray-50"
-                >
-                  <td className="py-3 px-4">
-                    {user.editing ? (
-                      <input
-                        type="text"
-                        value={user.name}
-                        onChange={(e) =>
-                          updateUserField(user.id, "name", e.target.value)
-                        }
-                        className="w-full outline-none p-2 border rounded-md border-gray-300 focus:border-blue-500"
-                        placeholder="Enter name"
-                      />
-                    ) : (
-                      <div className="cursor-pointer py-1">{user.name}</div>
-                    )}
-                  </td>
-                  <td className="py-3 px-4">
-                    {user.editing ? (
-                      <input
-                        type="email"
-                        value={user.email}
-                        onChange={(e) =>
-                          updateUserField(user.id, "email", e.target.value)
-                        }
-                        className="w-full outline-none p-2 border rounded-md border-gray-300 disabled:border-gray-200 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400"
-                        placeholder="Enter email"
-                        disabled={user.editing}
-                      />
-                    ) : (
-                      <div className="cursor-pointer py-1">{user.email}</div>
-                    )}
-                  </td>
-                  <td className="py-3 px-4">
-                    {user.editing ? (
-                      <div className="flex items-center">
+          </table>
+
+          <div className="max-h-[400px] overflow-y-auto">
+            <table className="w-full table-fixed relative">
+              <tbody>
+                {users.map((user) => (
+                  <tr
+                    key={user.id}
+                    className="border-b border-gray-200 hover:bg-gray-50"
+                  >
+                    <td className="py-3 px-4">
+                      {user.editing ? (
                         <input
                           type="text"
-                          value={user.password}
+                          value={user.name}
                           onChange={(e) =>
-                            updateUserField(user.id, "password", e.target.value)
+                            updateUserField(user.id, "name", e.target.value)
                           }
                           className="w-full outline-none p-2 border rounded-md border-gray-300 focus:border-blue-500"
-                          placeholder="Enter password"
+                          placeholder="Enter name"
                         />
-                        <button
-                          onClick={generatePassword}
-                          className="ml-2 text-sm text-blue-500 hover:text-blue-700 whitespace-nowrap"
-                        >
-                          Generate
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="cursor-pointer py-1">••••••••••••</div>
-                    )}
-                  </td>
-                  <td className="py-3 px-4">
-                    {user.editing ? (
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => updateUser.mutate(user.id)}
-                          className="p-1 text-green-500 hover:text-green-700"
-                          title="Save"
-                        >
-                          <Check size={20} />
-                        </button>
-                        <button
-                          onClick={() => cancelEditing(user.id)}
-                          className="p-1 text-red-500 hover:text-red-700"
-                          title="Cancel"
-                        >
-                          <X size={20} />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => deleteUser.mutate(user.id)}
-                          className="text-red-500 hover:text-red-700"
-                          title="Delete"
-                        >
-                          <Trash2 size={24} />
-                        </button>
-                        <button
-                          className="text-gray-400 hover:text-gray-500"
-                          onClick={() => startEditing(user.id)}
-                        >
-                          <PencilOff size={20} />
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      ) : (
+                        <div className="cursor-pointer py-1">{user.name}</div>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
+                      {user.editing ? (
+                        <input
+                          type="email"
+                          value={user.email}
+                          onChange={(e) =>
+                            updateUserField(user.id, "email", e.target.value)
+                          }
+                          className="w-full outline-none p-2 border rounded-md border-gray-300 disabled:border-gray-200 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400"
+                          placeholder="Enter email"
+                          disabled={user.editing}
+                        />
+                      ) : (
+                        <div className="cursor-pointer py-1">{user.email}</div>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
+                      {user.editing ? (
+                        <div className="flex items-center">
+                          <input
+                            type="text"
+                            value={user.password}
+                            onChange={(e) =>
+                              updateUserField(
+                                user.id,
+                                "password",
+                                e.target.value
+                              )
+                            }
+                            className="w-full outline-none p-2 border rounded-md border-gray-300 focus:border-blue-500"
+                            placeholder="Enter password"
+                          />
+                          <button
+                            onClick={generatePassword}
+                            className="ml-2 text-sm text-blue-500 hover:text-blue-700 whitespace-nowrap"
+                          >
+                            Generate
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="cursor-pointer py-1">••••••••••••</div>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
+                      {user.editing ? (
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => updateUser.mutate(user.id)}
+                            className="p-1 text-green-500 hover:text-green-700"
+                            title="Save"
+                          >
+                            <Check size={20} />
+                          </button>
+                          <button
+                            onClick={() => cancelEditing(user.id)}
+                            className="p-1 text-red-500 hover:text-red-700"
+                            title="Cancel"
+                          >
+                            <X size={20} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => deleteUser.mutate(user.id)}
+                            className="text-red-500 hover:text-red-700"
+                            title="Delete"
+                          >
+                            <Trash2 size={24} />
+                          </button>
+                          <button
+                            className="text-gray-400 hover:text-gray-500"
+                            onClick={() => startEditing(user.id)}
+                          >
+                            <PencilOff size={20} />
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
