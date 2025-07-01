@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import customizationAPIs from "../api/customization";
 import { authAPIs } from "../api/auth";
 import CustomizationSkeleton from "./CustomizationSkeleton";
+import { Info, LinkIcon } from "lucide-react";
+import { Tooltip } from "@mantine/core";
 
 const monday = mondaySdk();
 
@@ -102,15 +104,25 @@ export default function Configuration({ activeTab }) {
             </div>
           </div>
 
-          {/* Sub-Domain Section */}
+          {/* Link Section */}
           <div className="flex flex-col gap-2">
-            <h2 className="text-gray-800 font-medium">Sub-Domain</h2>
-            <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[48px] max-w-[450px] flex items-center">
-              {customization.subDomain ? (
-                <p>{customization.subDomain}</p>
-              ) : (
-                <p className="text-gray-400">N/A</p>
-              )}
+            <div className="flex items-center gap-2">
+              <h2 className="text-gray-800 font-medium">User Portal</h2>
+              <Tooltip label="This is the link to your user portal. You can share this with your users to access the board.">
+                <div className="hover:cursor-pointer">
+                  <Info size={16} className="text-gray-500" />
+                </div>
+              </Tooltip>
+            </div>
+            <div className="flex items-center gap-2">
+              <LinkIcon size={18} className="text-gray-500" />
+              <Link
+                to={`https://${customization.subDomain}.lucieup.com`}
+                target="_blank"
+                className="text-blue-500 hover:text-blue-600 hover:underline"
+              >
+                {`https://${customization.subDomain}.lucieup.com`}
+              </Link>
             </div>
           </div>
 
