@@ -84,7 +84,7 @@ export default function Configuration({ activeTab }) {
                   // src={`data:image/png;base64,${customization.logo}`}
                   src={customization.logo}
                   alt="Board logo"
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-cover"
                 />
               </div>
             ) : (

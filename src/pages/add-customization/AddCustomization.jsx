@@ -66,21 +66,30 @@ const AddCustomization = () => {
         (board) => board.id === customizationForm.values.selectedBoardId
       );
 
-      const API_DATA = {
-        boardId: selectedBoard?.id,
-        boardName: selectedBoard?.name,
-        fields: customizationForm.values.fields.map((field) => ({
-          columnId: field.id,
-          columnName: field.title,
-          isEditable: field.isEditable || false,
-        })),
-        logo: customizationForm.values.logo,
-        description: customizationForm.values.description,
-        subDomain: userSlug,
-      };
+      const formData = new FormData();
+
+      // Append the Fields in formData
+      formData.append("boardId", selectedBoard?.id);
+      formData.append("boardName", selectedBoard?.name);
+      formData.append(
+        "fields",
+        JSON.stringify(
+          customizationForm.values.fields.map((field) => ({
+            columnId: field.id,
+            columnName: field.title,
+            isEditable: field.isEditable || false,
+          }))
+        )
+      );
+      formData.append(
+        "description",
+        customizationForm.values.description || ""
+      );
+      formData.append("subDomain", userSlug);
+      formData.append("image", customizationForm.values.logo);
 
       return customizationAPIs.addCustomization({
-        customizationData: API_DATA,
+        customizationData: formData,
         slug: userSlug,
       });
     },

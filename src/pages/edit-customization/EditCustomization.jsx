@@ -93,21 +93,49 @@ const EditCustomization = () => {
         (board) => board.id === customizationForm.values.selectedBoardId
       );
 
-      const API_DATA = {
-        boardId: selectedBoard?.id,
-        boardName: selectedBoard?.name,
-        fields: customizationForm.values.fields.map((field) => ({
-          columnId: field.id,
-          columnName: field.title,
-          isEditable: field.isEditable || false,
-        })),
-        logo: customizationForm.values.logo,
-        description: customizationForm.values.description,
-        subDomain: userSlug,
-      };
+      const formData = new FormData();
+
+      // Append the Fields in formData
+      formData.append("boardId", selectedBoard?.id);
+      formData.append("boardName", selectedBoard?.name);
+      formData.append(
+        "fields",
+        JSON.stringify(
+          customizationForm.values.fields.map((field) => ({
+            columnId: field.id,
+            columnName: field.title,
+            isEditable: field.isEditable || false,
+          }))
+        )
+      );
+      formData.append(
+        "description",
+        customizationForm.values.description || ""
+      );
+      formData.append("subDomain", userSlug);
+      // Append the Logo if it exists and is a File
+      if (
+        customizationForm.values.logo &&
+        customizationForm.values.logo instanceof Blob
+      ) {
+        formData.append("image", customizationForm.values.logo);
+      }
+
+      // const API_DATA = {
+      //   boardId: selectedBoard?.id,
+      //   boardName: selectedBoard?.name,
+      //   fields: customizationForm.values.fields.map((field) => ({
+      //     columnId: field.id,
+      //     columnName: field.title,
+      //     isEditable: field.isEditable || false,
+      //   })),
+      //   logo: customizationForm.values.logo,
+      //   description: customizationForm.values.description,
+      //   subDomain: userSlug,
+      // };
 
       return customizationAPIs.updateCustomization({
-        customizationData: API_DATA,
+        customizationData: formData,
         slug: userSlug,
       });
     },

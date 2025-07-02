@@ -1,5 +1,6 @@
 import { Group } from "@mantine/core";
 import React from "react";
+import imageCompression from "browser-image-compression";
 
 const LogoInput = ({ value, onLogoChange }) => {
   const [logo, setLogo] = React.useState(null);
@@ -7,9 +8,38 @@ const LogoInput = ({ value, onLogoChange }) => {
 
   React.useEffect(() => {
     if (value) {
-      setLogo(value);
+      // Check if the value is a valid URL
+      if (value instanceof Blob) {
+        const imageURL = URL.createObjectURL(value);
+        setLogo(imageURL);
+      } else {
+        setLogo(value);
+      }
     }
   }, [value]);
+
+  const handleUploadImage = async (imageFile) => {
+    const options = {
+      maxSizeMB: 0.1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    };
+
+    if (!imageFile) {
+      console.error("No image file provided");
+      return;
+    }
+
+    try {
+      const compressedFile = await imageCompression(imageFile, options);
+      const imageURL = URL.createObjectURL(compressedFile);
+      setLogo(imageURL);
+
+      onLogoChange(compressedFile);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <Group gap={8} className="!flex-col !items-start">
@@ -22,24 +52,14 @@ const LogoInput = ({ value, onLogoChange }) => {
           <img
             src={logo}
             alt="Board logo"
-            className="w-[120px] h-[120px] object-contain rounded-lg"
+            className="w-[120px] h-[120px] object-cover rounded-lg"
           />
         )}
         <input
           id="logo-input"
           type="file"
           accept="image/*"
-          onChange={(e) => {
-            const file = e.target.files[0];
-            if (file) {
-              const reader = new FileReader();
-              reader.onloadend = () => {
-                setLogo(reader.result);
-                onLogoChange(reader.result);
-              };
-              reader.readAsDataURL(file);
-            }
-          }}
+          onChange={async (e) => handleUploadImage(e.target.files[0])}
           onDragEnter={() => setDragActive(true)}
           onDragLeave={() => setDragActive(false)}
           onDragOver={(e) => {
@@ -55,15 +75,10 @@ const LogoInput = ({ value, onLogoChange }) => {
             e.preventDefault();
             e.stopPropagation();
             setDragActive(false);
-            const file = e.dataTransfer.files[0];
-            if (file) {
-              const reader = new FileReader();
-              reader.onloadend = () => {
-                setLogo(reader.result);
-                onLogoChange(reader.result);
-              };
-              reader.readAsDataURL(file);
-            }
+            if (e.dataTransfer.files.length === 0) return;
+
+            // Handle file drop
+            handleUploadImage(e.dataTransfer.files[0]);
           }}
           hidden
         />

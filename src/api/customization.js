@@ -22,7 +22,12 @@ const customizationAPIs = {
     try {
       const response = await axiosInstance.post(
         `/customization/addCustomization?slug=${slug}`,
-        customizationData
+        customizationData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
       return response.data;
     } catch (error) {
@@ -38,7 +43,12 @@ const customizationAPIs = {
     try {
       const response = await axiosInstance.put(
         `/customization/updateCustomization?slug=${slug}`,
-        customizationData
+        customizationData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
       return response.data;
     } catch (error) {
