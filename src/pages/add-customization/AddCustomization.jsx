@@ -124,7 +124,7 @@ const AddCustomization = () => {
           Customization Details
         </h2>
 
-        {isPending ? (
+        {isPending || addCustomization.isPending ? (
           <CustomizationSkeleton type="add-customization" />
         ) : (
           <form
