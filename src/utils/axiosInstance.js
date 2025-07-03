@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API_BASE_URL =
-  "https://e1f95-service-23360785-a4c1a002.us.monday.app/api";
+  "https://beb15-service-23360785-a4c1a002.us.monday.app/api";
 // const API_BASE_URL = "http://localhost:8080/api";
 
 const axiosInstance = axios.create({
