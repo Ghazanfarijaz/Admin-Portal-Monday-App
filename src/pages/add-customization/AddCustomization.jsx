@@ -1,6 +1,6 @@
 import mondaySdk from "monday-sdk-js";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Group, Select, Switch, Textarea } from "@mantine/core";
+import { Group, Select, Switch, Textarea, Tooltip } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, Plus, X } from "lucide-react";
@@ -23,6 +23,7 @@ const AddCustomization = () => {
       fields: [],
       description: "",
       logo: null,
+      allowNewValueCreation: false,
     },
 
     validate: {
@@ -87,6 +88,10 @@ const AddCustomization = () => {
       );
       formData.append("subDomain", userSlug);
       formData.append("image", customizationForm.values.logo);
+      formData.append(
+        "allowNewValueCreation",
+        customizationForm.values.allowNewValueCreation
+      );
 
       return customizationAPIs.addCustomization({
         customizationData: formData,
@@ -163,15 +168,30 @@ const AddCustomization = () => {
 
             {/* Fields Section */}
             <Group gap={8} className="!flex-col !items-start">
-              <p className="text-gray-800 font-semibold text-lg">Fields</p>
+              <div className="flex items-center justify-between flex-wrap gap-6 w-full pb-2 mb-2 border-b border-gray-200">
+                <p className="text-gray-800 font-semibold text-lg">Fields</p>
+                <Tooltip
+                  label="If Allowed, it will allow the external users on to create new values for some columns such as 'Status', 'Dropdown' etc. - if the value is not present in the column options."
+                  refProp="rootRef"
+                  withArrow
+                  multiline
+                  w={220}
+                  transitionProps={{ duration: 200 }}
+                >
+                  <Switch
+                    label="Allow New Value Creation"
+                    checked={customizationForm.values.allowNewValueCreation}
+                    onChange={(event) => {
+                      customizationForm.setFieldValue(
+                        "allowNewValueCreation",
+                        event.currentTarget.checked
+                      );
+                    }}
+                  />
+                </Tooltip>
+              </div>
               {customizationForm.values.fields.length === 0 && (
                 <p className="text-gray-400">No fields added yet.</p>
-              )}
-
-              {customizationForm.errors.fields && (
-                <p className="text-red-500 text-sm">
-                  {customizationForm.errors.fields}
-                </p>
               )}
 
               {/* Existing Fields */}
@@ -240,6 +260,12 @@ const AddCustomization = () => {
                   />
                 </div>
               ))}
+
+              {customizationForm.errors.fields && (
+                <p className="text-red-500 text-sm">
+                  {customizationForm.errors.fields}
+                </p>
+              )}
 
               <button
                 type="button"

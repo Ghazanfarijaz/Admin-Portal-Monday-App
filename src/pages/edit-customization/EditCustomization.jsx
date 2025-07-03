@@ -7,7 +7,7 @@ import { authAPIs } from "../../api/auth";
 import CustomizationSkeleton from "../../Components/CustomizationSkeleton";
 import { useForm } from "@mantine/form";
 import { useEffect, useRef, useState } from "react";
-import { Group, Select, Switch, Textarea } from "@mantine/core";
+import { Group, Select, Switch, Textarea, Tooltip } from "@mantine/core";
 import LogoInput from "../../Components/LogoInput";
 
 // Monday SDK initialization
@@ -29,6 +29,7 @@ const EditCustomization = () => {
       fields: [],
       description: "",
       logo: null,
+      allowNewValueCreation: false,
     },
 
     validate: {
@@ -113,6 +114,12 @@ const EditCustomization = () => {
         customizationForm.values.description || ""
       );
       formData.append("subDomain", userSlug);
+
+      formData.append(
+        "allowNewValueCreation",
+        customizationForm.values.allowNewValueCreation
+      );
+
       // Append the Logo if it exists and is a File
       if (
         customizationForm.values.logo &&
@@ -165,6 +172,8 @@ const EditCustomization = () => {
         })),
         description: customization.description || "",
         logo: customization.logo || null,
+        allowNewValueCreation:
+          customization.allowNewValueCreation === "true" ? true : false,
       });
       setIsLoading(false);
     }
@@ -227,15 +236,31 @@ const EditCustomization = () => {
 
             {/* Fields Section */}
             <Group gap={8} className="!flex-col !items-start">
-              <p className="text-gray-800 font-semibold text-lg">Fields</p>
+              <div className="flex items-center justify-between flex-wrap gap-6 w-full pb-2 mb-2 border-b border-gray-200">
+                <p className="text-gray-800 font-semibold text-lg">Fields</p>
+                <Tooltip
+                  label="If Allowed, it will allow the external users on to create new values for some columns such as 'Status', 'Dropdown' etc. - if the value is not present in the column options."
+                  refProp="rootRef"
+                  withArrow
+                  multiline
+                  w={220}
+                  transitionProps={{ duration: 200 }}
+                >
+                  <Switch
+                    label="Allow New Value Creation"
+                    checked={customizationForm.values.allowNewValueCreation}
+                    onChange={(event) => {
+                      customizationForm.setFieldValue(
+                        "allowNewValueCreation",
+                        event.currentTarget.checked
+                      );
+                    }}
+                  />
+                </Tooltip>
+              </div>
+
               {customizationForm.values.fields.length === 0 && (
                 <p className="text-gray-400">No fields added yet.</p>
-              )}
-
-              {customizationForm.errors.fields && (
-                <p className="text-red-500 text-sm">
-                  {customizationForm.errors.fields}
-                </p>
               )}
 
               {/* Existing Fields */}
@@ -303,6 +328,12 @@ const EditCustomization = () => {
                   />
                 </div>
               ))}
+
+              {customizationForm.errors.fields && (
+                <p className="text-red-500 text-sm">
+                  {customizationForm.errors.fields}
+                </p>
+              )}
 
               <button
                 type="button"
