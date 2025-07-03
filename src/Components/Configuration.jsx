@@ -5,7 +5,7 @@ import customizationAPIs from "../api/customization";
 import { authAPIs } from "../api/auth";
 import CustomizationSkeleton from "./CustomizationSkeleton";
 import { Info, LinkIcon } from "lucide-react";
-import { Tooltip } from "@mantine/core";
+import { Switch, Tooltip } from "@mantine/core";
 
 const monday = mondaySdk();
 
@@ -58,7 +58,23 @@ export default function Configuration({ activeTab }) {
 
           {/* Fields Section */}
           <div className="flex flex-col gap-2">
-            <h2 className="text-gray-800 font-semibold text-lg">Fields</h2>
+            <div className="flex items-center justify-between flex-wrap gap-6 w-full pb-2 mb-2 border-b border-gray-200">
+              <p className="text-gray-800 font-semibold text-lg">Fields</p>
+              <Tooltip
+                label="It allows the external users on to create new values for some columns such as 'Status', 'Dropdown' etc. - if the value is not present in the column options."
+                refProp="rootRef"
+                withArrow
+                multiline
+                w={220}
+                transitionProps={{ duration: 200 }}
+              >
+                <Switch
+                  label="Allow New Value Creation"
+                  checked={customization.allowNewValueCreation === "true"}
+                  disabled
+                />
+              </Tooltip>
+            </div>
             <div className="flex flex-col gap-4">
               {customization.fields?.map((field) => (
                 <div key={field.columnId}>
