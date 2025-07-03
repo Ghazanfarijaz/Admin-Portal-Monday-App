@@ -297,6 +297,7 @@ const AddCustomization = () => {
               onLogoChange={(newLogo) => {
                 customizationForm.setFieldValue("logo", newLogo);
               }}
+              error={customizationForm.errors.logo}
             />
 
             {/* Description Section */}

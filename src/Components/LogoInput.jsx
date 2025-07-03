@@ -2,7 +2,7 @@ import { Group, Loader } from "@mantine/core";
 import React from "react";
 import imageCompression from "browser-image-compression";
 
-const LogoInput = ({ value, onLogoChange }) => {
+const LogoInput = ({ value, onLogoChange, error = "" }) => {
   const [logo, setLogo] = React.useState(null);
   const [dragActive, setDragActive] = React.useState(false);
   const [isCompressing, setIsCompressing] = React.useState(false);
@@ -136,6 +136,7 @@ const LogoInput = ({ value, onLogoChange }) => {
           </label>
         )}
       </div>
+      {error && <p className="text-red-500 text-sm">{error}</p>}
       <span className="text-xs text-gray-500">
         (Max size: 5MB, Recommended size: 540x540 px)
       </span>
