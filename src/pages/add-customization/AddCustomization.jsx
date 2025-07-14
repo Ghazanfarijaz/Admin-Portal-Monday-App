@@ -121,8 +121,8 @@ const AddCustomization = () => {
   }
 
   return (
-    <div className="flex flex-col gap-8 p-12 bg-gray-50 w-full h-full">
-      <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-8 p-12 bg-white w-full h-full">
+      <div className="flex flex-col gap-2">
         <Link
           to={"/"}
           className="text-gray-600 font-medium flex items-center gap-1"
@@ -130,21 +130,41 @@ const AddCustomization = () => {
           <ChevronLeft size={20} />
           <p>Go Back</p>
         </Link>
-        <h1 className="text-2xl font-bold text-gray-800">Add Customization</h1>
+        <h1 className="text-2xl font-bold text-gray-800 leading-none">
+          Add Customization
+        </h1>
       </div>
 
-      <div className="border border-gray-200 p-8 bg-white rounded-lg shadow-sm flex flex-col gap-6">
-        <h2 className="text-xl font-bold text-gray-800">
-          Customization Details
-        </h2>
-
-        {isPending || addCustomization.isPending ? (
-          <CustomizationSkeleton type="add-customization" />
-        ) : (
-          <form
-            onSubmit={customizationForm.onSubmit(addCustomization.mutate)}
-            className="flex flex-col gap-8"
-          >
+      {isPending || addCustomization.isPending ? (
+        <CustomizationSkeleton type="edit-customization" />
+      ) : (
+        <form
+          onSubmit={customizationForm.onSubmit(addCustomization.mutate)}
+          className="bg-white max-w-4xl flex flex-col gap-5"
+        >
+          <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
+            {/* Logo Section */}
+            <LogoInput
+              value={customizationForm.values.logo}
+              onLogoChange={(newLogo) => {
+                customizationForm.setFieldValue("logo", newLogo);
+              }}
+              error={customizationForm.errors.logo}
+            />
+            {/* Description Section */}
+            <Textarea
+              label="Description"
+              classNames={{
+                input: "!bg-gray-100 !border !border-gray-300 !rounded-lg",
+                label: "!text-gray-800 !mb-3 !font-semibold !text-lg",
+              }}
+              placeholder="Enter a brief description"
+              {...customizationForm.getInputProps("description")}
+              autosize
+              minRows={4}
+            />
+          </div>
+          <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
             {/* Board Section */}
             <Select
               label="Board"
@@ -165,31 +185,11 @@ const AddCustomization = () => {
               placeholder="Select a board"
               {...customizationForm.getInputProps("selectedBoardId")}
             />
-
             {/* Fields Section */}
             <Group gap={8} className="!flex-col !items-start">
-              <div className="flex items-center justify-between flex-wrap gap-6 w-full pb-2 mb-2 border-b border-gray-200">
-                <p className="text-gray-800 font-semibold text-lg">Fields</p>
-                <Tooltip
-                  label="If Allowed, it will allow the external users on to create new values for some columns such as 'Status', 'Dropdown' etc. - if the value is not present in the column options."
-                  refProp="rootRef"
-                  withArrow
-                  multiline
-                  w={220}
-                  transitionProps={{ duration: 200 }}
-                >
-                  <Switch
-                    label="Allow New Value Creation"
-                    checked={customizationForm.values.allowNewValueCreation}
-                    onChange={(event) => {
-                      customizationForm.setFieldValue(
-                        "allowNewValueCreation",
-                        event.currentTarget.checked
-                      );
-                    }}
-                  />
-                </Tooltip>
-              </div>
+              <h2 className="text-gray-800 font-semibold text-lg mb-1 leading-none">
+                Fields
+              </h2>
               {customizationForm.values.fields.length === 0 && (
                 <p className="text-gray-400">No fields added yet.</p>
               )}
@@ -252,7 +252,10 @@ const AddCustomization = () => {
                         "fields",
                         customizationForm.values.fields.map((f) =>
                           f.tempId === field.tempId
-                            ? { ...f, isEditable: event.currentTarget.checked }
+                            ? {
+                                ...f,
+                                isEditable: event.currentTarget.checked,
+                              }
                             : f
                         )
                       );
@@ -287,41 +290,42 @@ const AddCustomization = () => {
                 }
               >
                 <Plus size={20} />
-                <p>Add Field</p>
+                <p className="text-md">Add New Field</p>
               </button>
             </Group>
-
-            {/* Logo Section */}
-            <LogoInput
-              value={customizationForm.values.logo}
-              onLogoChange={(newLogo) => {
-                customizationForm.setFieldValue("logo", newLogo);
-              }}
-              error={customizationForm.errors.logo}
-            />
-
-            {/* Description Section */}
-            <Textarea
-              label="Description"
-              classNames={{
-                input: "!bg-gray-100 !border !border-gray-300 !rounded-lg",
-                label: "!text-gray-800 !mb-2 !font-semibold !text-lg",
-              }}
-              placeholder="Enter a brief description"
-              {...customizationForm.getInputProps("description")}
-              autosize
-              minRows={4}
-            />
-
-            <button
-              type="submit"
-              className="flex items-center gap-1 bg-[#007F9B] text-white px-4 py-2 rounded-lg hover:bg-[#20768a] transition-colors mt-2 disabled:bg-gray-300 w-fit"
+          </div>
+          <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
+            <h2 className="text-gray-800 font-semibold text-lg leading-none">
+              Systems Flags
+            </h2>
+            <Tooltip
+              label="If Allowed, it will allow the external users on to create new values for some columns such as 'Status', 'Dropdown' etc. - if the value is not present in the column options."
+              refProp="rootRef"
+              withArrow
+              multiline
+              w={220}
+              transitionProps={{ duration: 200 }}
             >
-              Save Customization
-            </button>
-          </form>
-        )}
-      </div>
+              <Switch
+                label="Allow user to create new values in Status, Dropdown columns"
+                checked={customizationForm.values.allowNewValueCreation}
+                onChange={(event) => {
+                  customizationForm.setFieldValue(
+                    "allowNewValueCreation",
+                    event.currentTarget.checked
+                  );
+                }}
+              />
+            </Tooltip>
+          </div>
+          <button
+            type="submit"
+            className="flex items-center gap-1 bg-[#007F9B] text-white px-4 py-2 rounded-lg hover:bg-[#20768a] transition-colors mt-2 disabled:bg-gray-300 w-fit"
+          >
+            Save Customization
+          </button>
+        </form>
+      )}
     </div>
   );
 };
