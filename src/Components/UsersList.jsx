@@ -327,7 +327,7 @@ const UsersList = () => {
 
       <Link
         to="/add-new-user"
-        className="flex items-center text-blue-500 hover:text-blue-700 font-medium"
+        className="flex items-center text-[#007F9B] font-medium"
       >
         <Plus size={18} className="mr-1" />
         Add New User
