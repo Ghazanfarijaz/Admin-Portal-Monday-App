@@ -15,7 +15,7 @@ export default function Configuration({ activeTab }) {
     data: customization,
     isError,
     error,
-    isPending,
+    isFetching,
   } = useQuery({
     queryKey: ["customizationData"],
     queryFn: async () => {
@@ -40,7 +40,7 @@ export default function Configuration({ activeTab }) {
     );
   }
 
-  if (isPending) {
+  if (isFetching) {
     return <CustomizationSkeleton type="view-customization" />;
   }
 
