@@ -48,9 +48,12 @@ const CustomizationSkeleton = ({ type }) => {
         </div>
       </div>
       <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
-        <div className="flex flex-col gap-3">
-          <Skeleton width={100} height={25} radius={2} />
-          <Skeleton width={270} height={25} radius={2} />
+        <Skeleton width={120} height={25} radius={2} />
+        <div className="flex flex-col gap-2">
+          <Skeleton width={350} height={25} radius={4} />
+          <Skeleton width={270} height={25} radius={4} />
+          <Skeleton width={230} height={25} radius={4} />
+          <Skeleton width={300} height={25} radius={4} />
         </div>
       </div>
 
