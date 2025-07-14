@@ -131,7 +131,7 @@ export default function Configuration({ activeTab }) {
               <h2 className="text-gray-800 font-semibold text-lg leading-none">
                 Board
               </h2>
-              <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[48px] max-w-[450px] flex items-center">
+              <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center">
                 {customization.boardName}
               </div>
             </div>

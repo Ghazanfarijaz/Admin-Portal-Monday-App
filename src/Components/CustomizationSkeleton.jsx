@@ -18,20 +18,20 @@ const CustomizationSkeleton = ({ type }) => {
         {/* Description Section */}
         <div className="flex flex-col gap-2">
           <Skeleton width={150} height={25} radius={2} />
-          <Skeleton className="!w-full !h-[100px]  !rounded-lg" />
+          <Skeleton className="!w-full !h-[100px] !rounded-lg" />
         </div>
 
         {/* Sub domain */}
         <div className="flex flex-col gap-2">
           <Skeleton width={120} height={25} radius={2} />
-          <Skeleton className="!w-full !max-w-[450px] !h-[48px] !rounded-lg" />
+          <Skeleton className="!w-full !max-w-[450px] !h-[42px] !rounded-lg" />
         </div>
       </div>
       <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
         {/* Board Section */}
         <div className="flex flex-col gap-2">
           <Skeleton width={100} height={25} radius={2} />
-          <Skeleton className="!w-full !max-w-[450px] !h-[48px] !rounded-lg" />
+          <Skeleton className="!w-full !max-w-[450px] !h-[42px] !rounded-lg" />
         </div>
 
         {/* Fields Section */}
@@ -41,7 +41,7 @@ const CustomizationSkeleton = ({ type }) => {
             {Array.from({ length: 3 }).map((_, index) => (
               <Skeleton
                 key={index}
-                className="!w-full !max-w-[450px] !h-[48px] !rounded-lg"
+                className="!w-full !max-w-[450px] !h-[42px] !rounded-lg"
               />
             ))}
           </div>
