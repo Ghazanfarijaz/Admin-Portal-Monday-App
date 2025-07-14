@@ -6,25 +6,25 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("userData");
 
   return (
-    <div className="flex flex-col gap-4 p-12 bg-white h-full w-full">
+    <div className="flex flex-col gap-8 p-12 bg-white h-full w-full">
       {/* Top Header */}
-      <div className="w-full flex items-center gap-4 bg-white pb-4 border-b">
+      <div className="w-full flex items-center gap-4 bg-white">
         <button
-          className={`p-[8px_12px] min-w-[130px] rounded-lg font-medium text-base ${
+          className={`p-[8px_12px] rounded-full font-medium text-base ${
             activeTab === "userData"
               ? "bg-[#007F9B] text-white"
-              : "text-[#007F9B] border border-[#007F9B] bg-white"
-          }`}
+              : "text-[#007F9B] bg-white hover:bg-gray-50"
+          } border-2 border-[#007F9B] transition-all hover:shadow-lg duration-300`}
           onClick={() => setActiveTab("userData")}
         >
           User Data
         </button>
         <button
-          className={`p-[8px_12px] min-w-[130px] rounded-lg font-medium text-base ${
+          className={`p-[8px_12px] rounded-full font-medium text-base ${
             activeTab === "configuration"
               ? "bg-[#007F9B] text-white"
-              : "text-[#007F9B] border border-[#007F9B] bg-white"
-          }`}
+              : "text-[#007F9B] bg-white hover:bg-gray-50"
+          } border-2 border-[#007F9B] transition-all hover:shadow-lg duration-300`}
           onClick={() => setActiveTab("configuration")}
         >
           Configuration
