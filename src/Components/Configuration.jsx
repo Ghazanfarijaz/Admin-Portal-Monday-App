@@ -4,8 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import customizationAPIs from "../api/customization";
 import { authAPIs } from "../api/auth";
 import CustomizationSkeleton from "./CustomizationSkeleton";
-import { Info, LinkIcon } from "lucide-react";
-import { Switch, Tooltip } from "@mantine/core";
+import { LinkIcon } from "lucide-react";
+import { CopyButton, Switch, Tooltip } from "@mantine/core";
 
 const monday = mondaySdk();
 
@@ -41,25 +41,132 @@ export default function Configuration({ activeTab }) {
   }
 
   if (isPending) {
-    return <CustomizationSkeleton />;
+    return <CustomizationSkeleton type="view-customization" />;
   }
 
   return (
-    <div className="bg-white rounded shadow-sm border border-gray-200 p-6 max-w-4xl flex flex-col gap-8">
+    <div className="bg-white max-w-4xl flex flex-col gap-5">
       {customization ? (
         <>
-          {/* Board Section */}
-          <div className="flex flex-col gap-2">
-            <h2 className="text-gray-800 font-semibold text-lg">Board</h2>
-            <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[48px] max-w-[450px] flex items-center">
-              {customization.boardName}
+          <div className="flex justify-end">
+            <Link
+              to={`/edit-customization`}
+              className="bg-[#007F9B] text-white font-medium px-4 py-2 w-fit rounded hover:bg-[#007F9B]/80"
+            >
+              Edit Details
+            </Link>
+          </div>
+
+          <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
+            {/* Logo Section */}
+            <div className="flex flex-col gap-3">
+              <h2 className="text-gray-800 font-semibold text-lg leading-none">
+                Logo
+              </h2>
+              {customization.logo ? (
+                <div className="w-24 h-24 rounded overflow-hidden">
+                  <img
+                    // src={`data:image/png;base64,${customization.logo}`}
+                    src={customization.logo}
+                    alt="Board logo"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <p className="text-gray-400">No logo uploaded yet.</p>
+              )}
+            </div>
+
+            {/* Description Section */}
+            <div className="flex flex-col gap-3">
+              <h2 className="text-gray-800 font-semibold text-lg leading-none">
+                Description
+              </h2>
+              <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-fit min-h-[100px]">
+                {customization.description ? (
+                  <p>{customization.description}</p>
+                ) : (
+                  <p className="text-gray-400">No Description added yet.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Link Section */}
+            <div className="flex flex-col gap-3">
+              <h2 className="text-gray-800 font-semibold text-lg leading-none">
+                User Portal
+              </h2>
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <LinkIcon size={18} className="text-[#007F9B] rotate-45" />
+                  <Link
+                    to={`https://${customization.subDomain}.lucieup.com`}
+                    target="_blank"
+                    className="text-[#323338AD] hover:underline text-sm"
+                  >
+                    {`https://${customization.subDomain}.lucieup.com`}
+                  </Link>
+                </div>
+
+                <CopyButton
+                  value={`https://${customization.subDomain}.lucieup.com`}
+                  timeout={3000}
+                >
+                  {({ copied, copy }) => (
+                    <button
+                      type="button"
+                      className="bg-[#007F9B] p-[12px_16px] rounded-md text-white text-sm"
+                      onClick={copy}
+                    >
+                      {copied ? "Copied" : "Copy URL"}
+                    </button>
+                  )}
+                </CopyButton>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
+            {/* Board Section */}
+            <div className="flex flex-col gap-3">
+              <h2 className="text-gray-800 font-semibold text-lg leading-none">
+                Board
+              </h2>
+              <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[48px] max-w-[450px] flex items-center">
+                {customization.boardName}
+              </div>
+            </div>
+
+            {/* Fields Section */}
+            <div className="flex flex-col gap-3">
+              <h2 className="text-gray-800 font-semibold text-lg leading-none">
+                Fields
+              </h2>
+              <div className="flex flex-col gap-3">
+                {customization.fields?.map((field) => (
+                  <div key={field.columnId}>
+                    <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[48px] max-w-[450px] flex items-center">
+                      {field.columnName}
+                    </div>
+                    {field.isEditable ? (
+                      <p className="text-[12px] text-gray-500 mt-1">
+                        (Editable)
+                      </p>
+                    ) : (
+                      <p className="text-[12px] text-gray-500 mt-1">
+                        (Not Editable)
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Fields Section */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between flex-wrap gap-6 w-full pb-2 mb-2 border-b border-gray-200">
-              <p className="text-gray-800 font-semibold text-lg">Fields</p>
+          <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
+            <div className="flex flex-col gap-3">
+              <h2 className="text-gray-800 font-semibold text-lg leading-none">
+                Systems Flags
+              </h2>
               <Tooltip
                 label="It allows the external users on to create new values for some columns such as 'Status', 'Dropdown' etc. - if the value is not present in the column options."
                 refProp="rootRef"
@@ -69,85 +176,13 @@ export default function Configuration({ activeTab }) {
                 transitionProps={{ duration: 200 }}
               >
                 <Switch
-                  label="Allow New Value Creation"
+                  label="Allow user to create new values in Status, Dropdown columns"
                   checked={customization.allowNewValueCreation === "true"}
                   disabled
                 />
               </Tooltip>
             </div>
-            <div className="flex flex-col gap-4">
-              {customization.fields?.map((field) => (
-                <div key={field.columnId}>
-                  <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[48px] max-w-[450px] flex items-center">
-                    {field.columnName}
-                  </div>
-                  {field.isEditable ? (
-                    <p className="text-sm text-gray-500 mt-1">(Editable)</p>
-                  ) : (
-                    <p className="text-sm text-gray-500 mt-1">(Not Editable)</p>
-                  )}
-                </div>
-              ))}
-            </div>
           </div>
-
-          {/* Logo Section */}
-          <div className="flex flex-col gap-2">
-            <h2 className="text-gray-800 font-semibold text-lg">Logo</h2>
-            {customization.logo ? (
-              <div className="w-24 h-24 rounded overflow-hidden">
-                <img
-                  // src={`data:image/png;base64,${customization.logo}`}
-                  src={customization.logo}
-                  alt="Board logo"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ) : (
-              <p className="text-gray-400">No logo uploaded yet.</p>
-            )}
-          </div>
-
-          {/* Description Section */}
-          <div className="flex flex-col gap-2">
-            <h2 className="text-gray-800 font-semibold text-lg">Description</h2>
-            <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-fit min-h-[100px]">
-              {customization.description ? (
-                <p>{customization.description}</p>
-              ) : (
-                <p className="text-gray-400">No Description added yet.</p>
-              )}
-            </div>
-          </div>
-
-          {/* Link Section */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <h2 className="text-gray-800 font-medium">User Portal</h2>
-              <Tooltip label="This is the link to your user portal. You can share this with your users to access the board.">
-                <div className="hover:cursor-pointer">
-                  <Info size={16} className="text-gray-500" />
-                </div>
-              </Tooltip>
-            </div>
-            <div className="flex items-center gap-2">
-              <LinkIcon size={18} className="text-gray-500" />
-              <Link
-                to={`https://${customization.subDomain}.lucieup.com`}
-                target="_blank"
-                className="text-blue-500 hover:text-blue-600 hover:underline"
-              >
-                {`https://${customization.subDomain}.lucieup.com`}
-              </Link>
-            </div>
-          </div>
-
-          <Link
-            to={`/edit-customization`}
-            className="bg-[#007F9B] text-white font-medium px-4 py-2 w-fit rounded hover:bg-[#007F9B]/80"
-          >
-            Edit Details
-          </Link>
         </>
       ) : (
         <>
