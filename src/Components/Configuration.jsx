@@ -144,7 +144,7 @@ export default function Configuration({ activeTab }) {
               <div className="flex flex-col gap-3">
                 {customization.fields?.map((field) => (
                   <div key={field.columnId}>
-                    <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[48px] max-w-[450px] flex items-center">
+                    <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center">
                       {field.columnName}
                     </div>
                     {field.isEditable ? (
@@ -163,10 +163,10 @@ export default function Configuration({ activeTab }) {
           </div>
 
           <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
-            <div className="flex flex-col gap-3">
-              <h2 className="text-gray-800 font-semibold text-lg leading-none">
-                Systems Flags
-              </h2>
+            <h2 className="text-gray-800 font-semibold text-lg leading-none">
+              Systems Flags
+            </h2>
+            <div className="flex flex-col gap-2">
               <Tooltip
                 label="It allows the external users on to create new values for some columns such as 'Status', 'Dropdown' etc. - if the value is not present in the column options."
                 refProp="rootRef"
@@ -179,6 +179,58 @@ export default function Configuration({ activeTab }) {
                   label="Allow user to create new values in Status, Dropdown columns"
                   checked={customization.allowNewValueCreation === "true"}
                   disabled
+                />
+              </Tooltip>
+
+              <Tooltip
+                label="When enabled, users will only see items where their email matches in the selected email column. You’ll be prompted to choose the column after turning this on."
+                refProp="rootRef"
+                withArrow
+                multiline
+                w={220}
+                transitionProps={{ duration: 200 }}
+              >
+                <Switch
+                  label="Enable email-based item visibility restriction"
+                  checked={customization.filterItemsByEmail}
+                  disabled
+                  className="!w-fit"
+                />
+              </Tooltip>
+              {customization.filterItemsByEmail && (
+                <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center text-gray-500">
+                  {JSON.parse(customization.selectedEmailColumn)?.title ||
+                    "No email column selected"}
+                </div>
+              )}
+              <Tooltip
+                label="When enabled, external users will be able to sign up and create their own accounts."
+                refProp="rootRef"
+                withArrow
+                multiline
+                w={220}
+                transitionProps={{ duration: 200 }}
+              >
+                <Switch
+                  label="Allow External Users to Sign Up"
+                  checked={customization.allowUserSignup}
+                  disabled
+                  className="!w-fit"
+                />
+              </Tooltip>
+              <Tooltip
+                label="When enabled, external users will be able to create new items in the board."
+                refProp="rootRef"
+                withArrow
+                multiline
+                w={220}
+                transitionProps={{ duration: 200 }}
+              >
+                <Switch
+                  label="Allow External Users to Create New Items"
+                  checked={customization.allowUsersToCreateNewItems}
+                  disabled
+                  className="!w-fit"
                 />
               </Tooltip>
             </div>

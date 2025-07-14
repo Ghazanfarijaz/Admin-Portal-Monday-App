@@ -24,6 +24,13 @@ const AddCustomization = () => {
       description: "",
       logo: null,
       allowNewValueCreation: false,
+      filterItemsByEmail: false,
+      selectedEmailColumn: {
+        id: "",
+        title: "",
+      },
+      allowUserSignup: false,
+      allowUsersToCreateNewItems: false,
     },
 
     validate: {
@@ -40,6 +47,15 @@ const AddCustomization = () => {
           : null,
 
       logo: (value) => (value ? null : "Logo is required!"),
+      selectedEmailColumn: (value) => {
+        if (
+          customizationForm.values.filterItemsByEmail &&
+          (!value.id || !value.title)
+        ) {
+          return "Email column is required when filtering by email!";
+        }
+        return null;
+      },
     },
   });
 
@@ -91,6 +107,25 @@ const AddCustomization = () => {
       formData.append(
         "allowNewValueCreation",
         customizationForm.values.allowNewValueCreation
+      );
+      formData.append(
+        "filterItemsByEmail",
+        customizationForm.values.filterItemsByEmail
+      );
+
+      formData.append(
+        "selectedEmailColumn",
+        JSON.stringify(customizationForm.values.selectedEmailColumn)
+      );
+
+      formData.append(
+        "allowUserSignup",
+        customizationForm.values.allowUserSignup
+      );
+
+      formData.append(
+        "allowUsersToCreateNewItems",
+        customizationForm.values.allowUsersToCreateNewItems
       );
 
       return customizationAPIs.addCustomization({
@@ -298,25 +333,126 @@ const AddCustomization = () => {
             <h2 className="text-gray-800 font-semibold text-lg leading-none">
               Systems Flags
             </h2>
-            <Tooltip
-              label="If Allowed, it will allow the external users on to create new values for some columns such as 'Status', 'Dropdown' etc. - if the value is not present in the column options."
-              refProp="rootRef"
-              withArrow
-              multiline
-              w={220}
-              transitionProps={{ duration: 200 }}
-            >
-              <Switch
-                label="Allow user to create new values in Status, Dropdown columns"
-                checked={customizationForm.values.allowNewValueCreation}
-                onChange={(event) => {
-                  customizationForm.setFieldValue(
-                    "allowNewValueCreation",
-                    event.currentTarget.checked
-                  );
-                }}
-              />
-            </Tooltip>
+            <div className="flex flex-col gap-2">
+              <Tooltip
+                label="If Allowed, it will allow the external users on to create new values for some columns such as 'Status', 'Dropdown' etc. - if the value is not present in the column options."
+                refProp="rootRef"
+                withArrow
+                multiline
+                w={220}
+                transitionProps={{ duration: 200 }}
+              >
+                <Switch
+                  label="Allow user to create new values in Status, Dropdown columns"
+                  checked={customizationForm.values.allowNewValueCreation}
+                  onChange={(event) => {
+                    customizationForm.setFieldValue(
+                      "allowNewValueCreation",
+                      event.currentTarget.checked
+                    );
+                  }}
+                />
+              </Tooltip>
+              <Tooltip
+                label="When enabled, users will only see items where their email matches in the selected email column. You’ll be prompted to choose the column after turning this on."
+                refProp="rootRef"
+                withArrow
+                multiline
+                w={220}
+                transitionProps={{ duration: 200 }}
+              >
+                <Switch
+                  label="Enable email-based item visibility restriction"
+                  checked={customizationForm.values.filterItemsByEmail}
+                  onChange={(event) => {
+                    customizationForm.setFieldValue(
+                      "filterItemsByEmail",
+                      event.currentTarget.checked
+                    );
+
+                    if (!event.currentTarget.checked) {
+                      customizationForm.setFieldValue("selectedEmailColumn", {
+                        id: "",
+                        title: "",
+                      });
+                    }
+                  }}
+                  className="!w-fit"
+                />
+              </Tooltip>
+              {customizationForm.values.filterItemsByEmail && (
+                <Select
+                  classNames={{
+                    root: "!w-full !max-w-[450px]",
+                    input:
+                      "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
+                  }}
+                  data={boardDetails
+                    ?.find(
+                      (board) =>
+                        board.id === customizationForm.values.selectedBoardId
+                    )
+                    ?.columns.filter((column) => column.type === "email")
+                    .map((column) => ({
+                      value: column.id,
+                      label: column.title,
+                    }))}
+                  searchable
+                  allowDeselect={false}
+                  withCheckIcon={false}
+                  maxDropdownHeight={200}
+                  placeholder="Select an email column"
+                  value={customizationForm.values.selectedEmailColumn.id}
+                  onChange={(_, option) => {
+                    customizationForm.setFieldValue("selectedEmailColumn", {
+                      id: option.value,
+                      title: option.label,
+                    });
+                  }}
+                  error={customizationForm.errors.selectedEmailColumn}
+                />
+              )}
+              <Tooltip
+                label="When enabled, external users will be able to sign up and create their own accounts."
+                refProp="rootRef"
+                withArrow
+                multiline
+                w={220}
+                transitionProps={{ duration: 200 }}
+              >
+                <Switch
+                  label="Allow External Users to Sign Up"
+                  checked={customizationForm.values.allowUserSignup}
+                  onChange={(event) => {
+                    customizationForm.setFieldValue(
+                      "allowUserSignup",
+                      event.currentTarget.checked
+                    );
+                  }}
+                  className="!w-fit"
+                />
+              </Tooltip>
+              <Tooltip
+                label="When enabled, external users will be able to create new items in the board."
+                refProp="rootRef"
+                withArrow
+                multiline
+                w={220}
+                transitionProps={{ duration: 200 }}
+              >
+                <Switch
+                  label="Allow External Users to Create New Items"
+                  checked={customizationForm.values.allowUsersToCreateNewItems}
+                  onChange={(event) => {
+                    customizationForm.setFieldValue(
+                      "allowUsersToCreateNewItems",
+                      event.currentTarget.checked
+                    );
+                  }}
+                  className="!w-fit"
+                />
+              </Tooltip>
+            </div>
           </div>
           <button
             type="submit"
