@@ -63,7 +63,7 @@ const LogoInput = ({ value, onLogoChange, error = "" }) => {
   };
 
   return (
-    <Group gap={8} className="!flex-col !items-start">
+    <Group gap={12} className="!flex-col !items-start">
       <p className="text-gray-800 font-semibold text-lg">
         {logo ? "Logo" : "Upload Logo"}
       </p>
@@ -79,7 +79,11 @@ const LogoInput = ({ value, onLogoChange, error = "" }) => {
           </div>
         )}
         {isCompressing && (
-          <div className="w-[120px] h-[120px] object-cover rounded-lg absolute top-0 left-0 flex justify-center items-center bg-black/30 backdrop-blur-sm">
+          <div
+            className={`${
+              logo ? "w-[120px] rounded-lg" : "w-[330px] rounded-md"
+            } h-[120px] object-cover absolute top-0 left-0 flex justify-center items-center bg-black/30 backdrop-blur-sm`}
+          >
             <Loader size="sm" />
           </div>
         )}
@@ -110,7 +114,7 @@ const LogoInput = ({ value, onLogoChange, error = "" }) => {
           }}
           hidden
         />
-        {isCompressing ? (
+        {isCompressing && logo ? (
           <div className="bg-[#007f9b6b] text-white px-4 py-2 rounded-md cursor-not-allowed">
             Loading...
           </div>
