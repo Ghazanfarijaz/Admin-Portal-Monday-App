@@ -5,7 +5,7 @@ import customizationAPIs from "../api/customization";
 import { authAPIs } from "../api/auth";
 import CustomizationSkeleton from "./CustomizationSkeleton";
 import { LinkIcon } from "lucide-react";
-import { CopyButton, Switch, Tooltip } from "@mantine/core";
+import { CopyButton, Group, Radio, Switch, Tooltip } from "@mantine/core";
 
 const monday = mondaySdk();
 
@@ -166,7 +166,7 @@ export default function Configuration({ activeTab }) {
             <h2 className="text-gray-800 font-semibold text-lg leading-none">
               Systems Flags
             </h2>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               <Tooltip
                 label="It allows the external users on to create new values for some columns such as 'Status', 'Dropdown' etc. - if the value is not present in the column options."
                 refProp="rootRef"
@@ -182,42 +182,62 @@ export default function Configuration({ activeTab }) {
                 />
               </Tooltip>
 
-              <Tooltip
-                label="When enabled, users will only see items where their email matches in the selected email column. You’ll be prompted to choose the column after turning this on."
-                refProp="rootRef"
-                withArrow
-                multiline
-                w={220}
-                transitionProps={{ duration: 200 }}
+              <div className="flex flex-col gap-1">
+                <Tooltip
+                  label="When enabled, users will only see items where their email matches in the selected email column. You’ll be prompted to choose the column after turning this on."
+                  refProp="rootRef"
+                  withArrow
+                  multiline
+                  w={220}
+                  transitionProps={{ duration: 200 }}
+                >
+                  <Switch
+                    label="Enable email-based item visibility restriction"
+                    checked={customization.filterItemsByEmail}
+                    disabled
+                    className="!w-fit"
+                  />
+                </Tooltip>
+                {customization.filterItemsByEmail && (
+                  <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center text-gray-500">
+                    {JSON.parse(customization.selectedEmailColumn)?.title ||
+                      "No email column selected"}
+                  </div>
+                )}
+              </div>
+              <Radio.Group
+                name="signUpMethod"
+                label="Sign Up Method"
+                withAsterisk
+                value={customization.signUpMethod}
               >
-                <Switch
-                  label="Enable email-based item visibility restriction"
-                  checked={customization.filterItemsByEmail}
-                  disabled
-                  className="!w-fit"
-                />
-              </Tooltip>
-              {customization.filterItemsByEmail && (
-                <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center text-gray-500">
-                  {JSON.parse(customization.selectedEmailColumn)?.title ||
-                    "No email column selected"}
-                </div>
-              )}
-              <Tooltip
-                label="When enabled, external users will be able to sign up and create their own accounts."
-                refProp="rootRef"
-                withArrow
-                multiline
-                w={220}
-                transitionProps={{ duration: 200 }}
-              >
-                <Switch
-                  label="Allow External Users to Sign Up"
-                  checked={customization.allowUserSignup}
-                  disabled
-                  className="!w-fit"
-                />
-              </Tooltip>
+                <Group mt="xs">
+                  <Radio
+                    value="no-signup-allowed"
+                    label="No Sign Up Allowed"
+                    classNames={{
+                      label: "!ps-1",
+                    }}
+                    disabled
+                  />
+                  <Radio
+                    value="signup-with-admin-approval"
+                    label="Allow Sign Up with Admin Approval"
+                    classNames={{
+                      label: "!ps-1",
+                    }}
+                    disabled
+                  />
+                  <Radio
+                    value="signup-without-admin-approval"
+                    label="Allow Sign Up without Admin Approval"
+                    classNames={{
+                      label: "!ps-1",
+                    }}
+                    disabled
+                  />
+                </Group>
+              </Radio.Group>
               <Tooltip
                 label="When enabled, external users will be able to create new items in the board."
                 refProp="rootRef"

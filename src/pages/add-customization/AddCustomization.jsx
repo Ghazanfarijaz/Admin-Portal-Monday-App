@@ -1,6 +1,6 @@
 import mondaySdk from "monday-sdk-js";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Group, Select, Switch, Textarea, Tooltip } from "@mantine/core";
+import { Group, Radio, Select, Switch, Textarea, Tooltip } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, Plus, X } from "lucide-react";
@@ -29,8 +29,8 @@ const AddCustomization = () => {
         id: "",
         title: "",
       },
-      allowUserSignup: false,
       allowUsersToCreateNewItems: false,
+      signUpMethod: "no-signup-allowed",
     },
 
     validate: {
@@ -118,10 +118,7 @@ const AddCustomization = () => {
         JSON.stringify(customizationForm.values.selectedEmailColumn)
       );
 
-      formData.append(
-        "allowUserSignup",
-        customizationForm.values.allowUserSignup
-      );
+      formData.append("signUpMethod", customizationForm.values.signUpMethod);
 
       formData.append(
         "allowUsersToCreateNewItems",
@@ -333,7 +330,7 @@ const AddCustomization = () => {
             <h2 className="text-gray-800 font-semibold text-lg leading-none">
               Systems Flags
             </h2>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               <Tooltip
                 label="If Allowed, it will allow the external users on to create new values for some columns such as 'Status', 'Dropdown' etc. - if the value is not present in the column options."
                 refProp="rootRef"
@@ -353,85 +350,100 @@ const AddCustomization = () => {
                   }}
                 />
               </Tooltip>
-              <Tooltip
-                label="When enabled, users will only see items where their email matches in the selected email column. You’ll be prompted to choose the column after turning this on."
-                refProp="rootRef"
-                withArrow
-                multiline
-                w={220}
-                transitionProps={{ duration: 200 }}
-              >
-                <Switch
-                  label="Enable email-based item visibility restriction"
-                  checked={customizationForm.values.filterItemsByEmail}
-                  onChange={(event) => {
-                    customizationForm.setFieldValue(
-                      "filterItemsByEmail",
-                      event.currentTarget.checked
-                    );
+              <div className="flex flex-col gap-1">
+                <Tooltip
+                  label="When enabled, users will only see items where their email matches in the selected email column. You’ll be prompted to choose the column after turning this on."
+                  refProp="rootRef"
+                  withArrow
+                  multiline
+                  w={220}
+                  transitionProps={{ duration: 200 }}
+                >
+                  <Switch
+                    label="Enable email-based item visibility restriction"
+                    checked={customizationForm.values.filterItemsByEmail}
+                    onChange={(event) => {
+                      customizationForm.setFieldValue(
+                        "filterItemsByEmail",
+                        event.currentTarget.checked
+                      );
 
-                    if (!event.currentTarget.checked) {
+                      if (!event.currentTarget.checked) {
+                        customizationForm.setFieldValue("selectedEmailColumn", {
+                          id: "",
+                          title: "",
+                        });
+                      }
+                    }}
+                    className="!w-fit"
+                  />
+                </Tooltip>
+                {customizationForm.values.filterItemsByEmail && (
+                  <Select
+                    classNames={{
+                      root: "!w-full !max-w-[450px]",
+                      input:
+                        "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
+                    }}
+                    data={boardDetails
+                      ?.find(
+                        (board) =>
+                          board.id === customizationForm.values.selectedBoardId
+                      )
+                      ?.columns.filter((column) => column.type === "email")
+                      .map((column) => ({
+                        value: column.id,
+                        label: column.title,
+                      }))}
+                    searchable
+                    allowDeselect={false}
+                    withCheckIcon={false}
+                    maxDropdownHeight={200}
+                    placeholder="Select an email column"
+                    value={customizationForm.values.selectedEmailColumn.id}
+                    onChange={(_, option) => {
                       customizationForm.setFieldValue("selectedEmailColumn", {
-                        id: "",
-                        title: "",
+                        id: option.value,
+                        title: option.label,
                       });
-                    }
-                  }}
-                  className="!w-fit"
-                />
-              </Tooltip>
-              {customizationForm.values.filterItemsByEmail && (
-                <Select
-                  classNames={{
-                    root: "!w-full !max-w-[450px]",
-                    input:
-                      "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
-                  }}
-                  data={boardDetails
-                    ?.find(
-                      (board) =>
-                        board.id === customizationForm.values.selectedBoardId
-                    )
-                    ?.columns.filter((column) => column.type === "email")
-                    .map((column) => ({
-                      value: column.id,
-                      label: column.title,
-                    }))}
-                  searchable
-                  allowDeselect={false}
-                  withCheckIcon={false}
-                  maxDropdownHeight={200}
-                  placeholder="Select an email column"
-                  value={customizationForm.values.selectedEmailColumn.id}
-                  onChange={(_, option) => {
-                    customizationForm.setFieldValue("selectedEmailColumn", {
-                      id: option.value,
-                      title: option.label,
-                    });
-                  }}
-                  error={customizationForm.errors.selectedEmailColumn}
-                />
-              )}
-              <Tooltip
-                label="When enabled, external users will be able to sign up and create their own accounts."
-                refProp="rootRef"
-                withArrow
-                multiline
-                w={220}
-                transitionProps={{ duration: 200 }}
+                    }}
+                    error={customizationForm.errors.selectedEmailColumn}
+                  />
+                )}
+              </div>
+              <Radio.Group
+                name="signUpMethod"
+                label="Sign Up Method"
+                withAsterisk
+                value={customizationForm.values.signUpMethod}
+                onChange={(event) => {
+                  customizationForm.setFieldValue("signUpMethod", event);
+                }}
               >
-                <Switch
-                  label="Allow External Users to Sign Up"
-                  checked={customizationForm.values.allowUserSignup}
-                  onChange={(event) => {
-                    customizationForm.setFieldValue(
-                      "allowUserSignup",
-                      event.currentTarget.checked
-                    );
-                  }}
-                  className="!w-fit"
-                />
-              </Tooltip>
+                <Group mt="xs">
+                  <Radio
+                    value="no-signup-allowed"
+                    label="No Sign Up Allowed"
+                    classNames={{
+                      label: "!ps-1",
+                    }}
+                  />
+                  <Radio
+                    value="signup-with-admin-approval"
+                    label="Allow Sign Up with Admin Approval"
+                    classNames={{
+                      label: "!ps-1",
+                    }}
+                  />
+                  <Radio
+                    value="signup-without-admin-approval"
+                    label="Allow Sign Up without Admin Approval"
+                    classNames={{
+                      label: "!ps-1",
+                    }}
+                  />
+                </Group>
+              </Radio.Group>
               <Tooltip
                 label="When enabled, external users will be able to create new items in the board."
                 refProp="rootRef"
