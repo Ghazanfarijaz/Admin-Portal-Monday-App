@@ -205,6 +205,22 @@ export default function Configuration({ activeTab }) {
                   </div>
                 )}
               </div>
+
+              <Tooltip
+                label="When enabled, external users will be able to create new items in the board."
+                refProp="rootRef"
+                withArrow
+                multiline
+                w={220}
+                transitionProps={{ duration: 200 }}
+              >
+                <Switch
+                  label="Allow External Users to Create New Items"
+                  checked={customization.allowUsersToCreateNewItems}
+                  disabled
+                  className="!w-fit"
+                />
+              </Tooltip>
               <Radio.Group
                 name="signUpMethod"
                 label="Sign Up Method"
@@ -238,21 +254,6 @@ export default function Configuration({ activeTab }) {
                   />
                 </Group>
               </Radio.Group>
-              <Tooltip
-                label="When enabled, external users will be able to create new items in the board."
-                refProp="rootRef"
-                withArrow
-                multiline
-                w={220}
-                transitionProps={{ duration: 200 }}
-              >
-                <Switch
-                  label="Allow External Users to Create New Items"
-                  checked={customization.allowUsersToCreateNewItems}
-                  disabled
-                  className="!w-fit"
-                />
-              </Tooltip>
             </div>
           </div>
         </>
