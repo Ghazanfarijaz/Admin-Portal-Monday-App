@@ -6,7 +6,7 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import AddNewUser from "./pages/add-user/AddNewUser";
 import AddCustomization from "./pages/add-customization/AddCustomization";
 import EditCustomization from "./pages/edit-customization/EditCustomization";
-import UsersList from "./Components/UsersList";
+import UsersList from "./Components/UserListUpload/UsersList";
 import Configuration from "./Components/Configuration";
 
 export const router = createBrowserRouter([

@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { Check, X, Plus, Trash2, PencilOff } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { userAPIs } from "../api/users";
+import { userAPIs } from "../../api/users";
 import { Skeleton } from "@mantine/core";
 import { Link } from "react-router-dom";
-import { authAPIs } from "../api/auth";
+import { authAPIs } from "../../api/auth";
 import mondaySdk from "monday-sdk-js";
 import { UserPopup } from "./UserPopup";
 // Monday SDK initialization
