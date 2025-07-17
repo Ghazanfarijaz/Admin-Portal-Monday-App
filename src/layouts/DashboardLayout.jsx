@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import UploadIcon  from "../assets/icons/UploadIcon"
-import { useModal } from "../context/ModalContext";
+import { useModal } from "../context/ModalContext"
 
 const Dashboard = () => {
   const { uploadUserModal, setUploadUserModal } = useModal();
@@ -19,7 +19,8 @@ const Dashboard = () => {
                 ? "bg-[#007F9B] text-white"
                 : "text-[#007F9B] bg-white hover:bg-gray-50"
             } border-2 border-[#007F9B] transition-all hover:shadow-lg duration-300`}
-            onClick={() => navigate("/")}
+            onClick={() => 
+              navigate("/")}
           >
             User Data
           </button>

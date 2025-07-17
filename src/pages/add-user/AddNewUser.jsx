@@ -5,6 +5,7 @@ import { userAPIs } from "../../api/users";
 import { authAPIs } from "../../api/auth";
 import mondaySdk from "monday-sdk-js";
 import { ChevronLeft } from "lucide-react";
+import { toast } from "sonner";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -56,6 +57,9 @@ const AddNewUser = () => {
 
     onError: (error) => {
       console.error("Error creating user:", error);
+      toast.error(`Error creating user!`, {
+        description: error?.message || "Something went wrong",
+      });
     },
   });
 

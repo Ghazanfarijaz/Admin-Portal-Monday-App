@@ -16,6 +16,8 @@ import { RouterProvider } from "react-router-dom";
 // React Query
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const queryClient = new QueryClient();
+// Toaster from sooner
+import { Toaster } from "sonner";
 
 const theme = createTheme({
   cursorType: "pointer",
@@ -26,7 +28,8 @@ root.render(
   <QueryClientProvider client={queryClient}>
     {/* Router Provider */}
     <MantineProvider theme={theme}>
-    <RouterProvider router={router} />
+      <RouterProvider router={router} />
+      <Toaster position="bottom-right" />
     </MantineProvider>
   </QueryClientProvider>
 );

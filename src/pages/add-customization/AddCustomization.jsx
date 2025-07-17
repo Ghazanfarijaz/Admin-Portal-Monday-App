@@ -8,6 +8,7 @@ import customizationAPIs from "../../api/customization";
 import CustomizationSkeleton from "../../Components/CustomizationSkeleton";
 import LogoInput from "../../Components/LogoInput";
 import { authAPIs } from "../../api/auth";
+import { toast } from "sonner";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -137,6 +138,9 @@ const AddCustomization = () => {
     },
     onError: (error) => {
       console.error(error.message || "Failed to add customization");
+      toast.error(`Failed to add customization!`, {
+        description: error?.message || "Something went wrong",
+      });
     },
   });
 

@@ -1,4 +1,5 @@
 import * as XLSX from "xlsx";
+import { toast } from 'sonner'
 /**
  * Parses an Excel file and extracts cleaned rows with name, email, and password.
  * Handles case-insensitive column headers.
@@ -47,7 +48,10 @@ export const parseExcelFile = async (file) => {
             }
         };
 
-        reader.onerror = () => reject(reader.error);
+        reader.onerror = () => {
+            reject(reader.error)
+            toast.error("Error reading file")
+        };
         reader.readAsArrayBuffer(file);
     });
 };

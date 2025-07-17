@@ -8,6 +8,8 @@ import { authAPIs } from "../../api/auth";
 import mondaySdk from "monday-sdk-js";
 import { UserPopup } from "./UserPopup";
 import { AttentionBox, AttentionBoxLink } from "@vibe/core";
+import { toast } from "sonner";
+
 // Monday SDK initialization
 const monday = mondaySdk();
 
@@ -81,6 +83,9 @@ const UsersList = () => {
 
     onError: (error) => {
       console.error("Error updating user:", error);
+      toast.error(`Error updating user!`, {
+        description: error?.message || "Something went wrong",
+      });
     },
   });
 
@@ -112,6 +117,9 @@ const UsersList = () => {
 
     onError: (error) => {
       console.error("Error deleting user:", error);
+      toast.error(`Error deleting user!`, {
+        description: error?.message || "Something went wrong",
+      });
     },
   });
 

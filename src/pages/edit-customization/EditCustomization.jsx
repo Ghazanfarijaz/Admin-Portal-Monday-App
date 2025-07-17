@@ -9,6 +9,7 @@ import { useForm } from "@mantine/form";
 import { useEffect, useRef, useState } from "react";
 import { Group, Radio, Select, Switch, Textarea, Tooltip } from "@mantine/core";
 import LogoInput from "../../Components/LogoInput";
+import { toast } from "sonner";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -175,6 +176,9 @@ const EditCustomization = () => {
 
     onError: (error) => {
       console.error(error.message || "Failed to add customization");
+      toast.error(`Failed to add customization!`, {
+        description: error?.message || "Something went wrong",
+      });
     },
   });
 
@@ -209,9 +213,9 @@ const EditCustomization = () => {
 
   if (isError) {
     console.error(error.message || "Failed to fetch customization data");
-    return navigate("/", { replace: true });
+    toast.error(error.message || "Failed to fetch customization data");
+    return navigate("/configuration", { replace: true });
   }
-  // tanzeel
   return (
     <div className="flex flex-col gap-8 p-12 bg-white w-full h-full">
       <div className="flex flex-col gap-2">
