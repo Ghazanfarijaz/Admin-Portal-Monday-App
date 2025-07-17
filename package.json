@@ -25,7 +25,8 @@
     "lucide-react": "^0.511.0",
     "monday-sdk-js": "^0.5.5",
     "prop-types": "^15.8.1",
-    "react-router-dom": "^7.6.0"
+    "react-router-dom": "^7.6.0",
+    "xlsx": "^0.18.5"
   },
   "eslintConfig": {
     "extends": "react-app"

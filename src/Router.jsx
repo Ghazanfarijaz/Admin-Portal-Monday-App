@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
 import AuthProvider from "./middlewares/AuthProvider";
+import {ModalProvider} from "./context/ModalContext";
 import App from "./App";
 import DashboardLayout from "./layouts/DashboardLayout";
 import AddNewUser from "./pages/add-user/AddNewUser";
@@ -19,7 +20,11 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <DashboardLayout />,
+        element: (
+          <ModalProvider>
+            <DashboardLayout />
+          </ModalProvider>
+        ),
         children: [
           {
             path: "",

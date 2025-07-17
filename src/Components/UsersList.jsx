@@ -6,7 +6,7 @@ import { Skeleton } from "@mantine/core";
 import { Link } from "react-router-dom";
 import { authAPIs } from "../api/auth";
 import mondaySdk from "monday-sdk-js";
-
+import { UserPopup } from "./UserPopup";
 // Monday SDK initialization
 const monday = mondaySdk();
 
@@ -199,6 +199,7 @@ const UsersList = () => {
 
   return (
     <div className="bg-white max-w-4xl overflow-hidden flex flex-col gap-6">
+      <UserPopup />
       {users.lenth < 1 ? (
         <div className="p-8 text-center text-gray-500">
           No users found. Click "Add New User" to create one.
