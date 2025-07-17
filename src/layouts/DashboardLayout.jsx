@@ -7,6 +7,7 @@ const Dashboard = () => {
   const { uploadUserModal, setUploadUserModal } = useModal();
   const navigate = useNavigate();
   const activeTab = window.location.pathname.split("/")[1];
+
   return (
     <div className="flex flex-col gap-8 p-12 bg-white h-full w-full">
       {/* Top Header */}

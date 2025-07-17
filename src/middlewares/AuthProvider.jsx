@@ -46,8 +46,17 @@ const AuthProvider = ({ children }) => {
   }
 
   if (isError) {
-    return <div>{error.message || "Authentication Failed!"}</div>;
-  }
+      console.error("Authentication Failed!", error);
+      return (
+        <div className="flex justify-center mt-4">
+          <AttentionBox
+            title="Authentication Failed!"
+            text={error?.message || "Something went wrong"}
+            type="danger"
+          />
+        </div>
+      );
+    }
 
   return <>{children}</>;
 };

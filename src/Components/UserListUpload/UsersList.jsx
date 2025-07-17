@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { authAPIs } from "../../api/auth";
 import mondaySdk from "monday-sdk-js";
 import { UserPopup } from "./UserPopup";
+import { AttentionBox, AttentionBoxLink } from "@vibe/core";
 // Monday SDK initialization
 const monday = mondaySdk();
 
@@ -179,7 +180,7 @@ const UsersList = () => {
             <Skeleton width="150px" height={40} radius={8} />
           </div>
           {Array.from({ length: 3 }).map((_, index) => (
-            <Skeleton width="100%" height={40} radius={8} />
+            <Skeleton key={index} width="100%" height={40} radius={8} />
           ))}
           <Skeleton width="150px" height={40} radius={8} />
         </div>
@@ -188,11 +189,14 @@ const UsersList = () => {
   }
 
   if (isError) {
+    console.error("Error loading users:", error);
     return (
-      <div className="bg-white rounded-lg shadow-sm border max-w-4xl overflow-hidden p-4">
-        <div className="text-red-600">
-          <p>Error fetching users: {error?.message}</p>
-        </div>
+      <div className="flex justify-center mt-4">
+        <AttentionBox
+          title="Error Loading Users"
+          text={error?.message || "Something went wrong"}
+          type="danger"
+        />
       </div>
     );
   }

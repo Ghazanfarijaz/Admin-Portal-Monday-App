@@ -28,15 +28,16 @@ export default function Configuration() {
   });
 
   if (isError) {
-    console.error(error.message || "Failed to fetch customization data");
-
+    console.error( "Error loading customization:", error);
     return (
-      <div className="bg-white rounded shadow-sm border border-gray-200 p-6 max-w-4xl flex flex-col gap-8">
-        <p className="text-red-500">
-          Failed to load customization settings. Please try again later.
-        </p>
-      </div>
-    );
+          <div className="flex justify-center mt-4">
+            <AttentionBox
+              title="Error Loading Customization"
+              text={error?.message || "Something went wrong"}
+              type="danger"
+            />
+          </div>
+        );
   }
 
   if (isFetching) {

@@ -211,7 +211,7 @@ const EditCustomization = () => {
     console.error(error.message || "Failed to fetch customization data");
     return navigate("/", { replace: true });
   }
-
+  // tanzeel
   return (
     <div className="flex flex-col gap-8 p-12 bg-white w-full h-full">
       <div className="flex flex-col gap-2">

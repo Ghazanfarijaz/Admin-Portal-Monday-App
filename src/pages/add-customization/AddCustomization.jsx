@@ -141,16 +141,18 @@ const AddCustomization = () => {
   });
 
   if (isError) {
-    console.error(error.message || "Failed to fetch board details");
-
+    console.error("Failed to fetch board details", error);
     return (
-      <div className="flex items-center justify-center w-full h-full">
-        <p className="text-red-500">
-          Failed to load board details. Please try again later.
-        </p>
+      <div className="flex justify-center mt-4">
+        <AttentionBox
+          title="Failed to fetch board details"
+          text={error?.message || "Something went wrong"}
+          type="danger"
+        />
       </div>
     );
   }
+  
 
   return (
     <div className="flex flex-col gap-8 p-12 bg-white w-full h-full">
