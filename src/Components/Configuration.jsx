@@ -9,7 +9,7 @@ import { CopyButton, Group, Radio, Switch, Tooltip } from "@mantine/core";
 
 const monday = mondaySdk();
 
-export default function Configuration({ activeTab }) {
+export default function Configuration() {
   // Fetch board details and customization data using react-query
   const {
     data: customization,
@@ -25,7 +25,6 @@ export default function Configuration({ activeTab }) {
         slug: userSlug,
       });
     },
-    enabled: activeTab === "configuration",
   });
 
   if (isError) {
@@ -176,7 +175,7 @@ export default function Configuration({ activeTab }) {
                 transitionProps={{ duration: 200 }}
               >
                 <Switch
-                  label="Allow user to create new values in Status, Dropdown columns"
+                  label="Allow user to create new values in Dropdown and columns"
                   checked={customization.allowNewValueCreation === "true"}
                   disabled
                 />
@@ -193,12 +192,12 @@ export default function Configuration({ activeTab }) {
                 >
                   <Switch
                     label="Enable email-based item visibility restriction"
-                    checked={customization.filterItemsByEmail}
+                    checked={customization.filterItemsByEmail === "true"}
                     disabled
                     className="!w-fit"
                   />
                 </Tooltip>
-                {customization.filterItemsByEmail && (
+                {customization.filterItemsByEmail === "true" && (
                   <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center text-gray-500">
                     {JSON.parse(customization.selectedEmailColumn)?.title ||
                       "No email column selected"}
@@ -216,7 +215,7 @@ export default function Configuration({ activeTab }) {
               >
                 <Switch
                   label="Allow External Users to Create New Items"
-                  checked={customization.allowUsersToCreateNewItems}
+                  checked={customization.allowUsersToCreateNewItems === "true"}
                   disabled
                   className="!w-fit"
                 />

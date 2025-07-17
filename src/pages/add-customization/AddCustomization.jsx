@@ -133,7 +133,7 @@ const AddCustomization = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customizationData"] });
-      navigate("/", { replace: true });
+      navigate("/configuration", { replace: true });
     },
     onError: (error) => {
       console.error(error.message || "Failed to add customization");
@@ -156,7 +156,7 @@ const AddCustomization = () => {
     <div className="flex flex-col gap-8 p-12 bg-white w-full h-full">
       <div className="flex flex-col gap-2">
         <Link
-          to={"/"}
+          to={"/configuration"}
           className="text-gray-600 font-medium flex items-center gap-1"
         >
           <ChevronLeft size={20} />
@@ -340,7 +340,7 @@ const AddCustomization = () => {
                 transitionProps={{ duration: 200 }}
               >
                 <Switch
-                  label="Allow user to create new values in Status, Dropdown columns"
+                  label="Allow user to create new values in Dropdown and columns"
                   checked={customizationForm.values.allowNewValueCreation}
                   onChange={(event) => {
                     customizationForm.setFieldValue(

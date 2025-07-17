@@ -1,21 +1,19 @@
-import { useState } from "react";
-import UsersList from "../../Components/UsersList.jsx";
-import Configuration from "../../Components/Configuration.jsx";
+import { Outlet, useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState("userData");
-
+  const navigate = useNavigate();
+  const activeTab = window.location.pathname.split("/")[1];
   return (
     <div className="flex flex-col gap-8 p-12 bg-white h-full w-full">
       {/* Top Header */}
       <div className="w-full flex items-center gap-4 bg-white">
         <button
           className={`p-[8px_12px] rounded-full font-medium text-base ${
-            activeTab === "userData"
+            activeTab === ""
               ? "bg-[#007F9B] text-white"
               : "text-[#007F9B] bg-white hover:bg-gray-50"
           } border-2 border-[#007F9B] transition-all hover:shadow-lg duration-300`}
-          onClick={() => setActiveTab("userData")}
+          onClick={() => navigate("/")}
         >
           User Data
         </button>
@@ -25,7 +23,7 @@ const Dashboard = () => {
               ? "bg-[#007F9B] text-white"
               : "text-[#007F9B] bg-white hover:bg-gray-50"
           } border-2 border-[#007F9B] transition-all hover:shadow-lg duration-300`}
-          onClick={() => setActiveTab("configuration")}
+          onClick={() => navigate("/configuration")}
         >
           Configuration
         </button>
@@ -33,11 +31,7 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="flex-1">
-        {activeTab === "userData" ? (
-          <UsersList />
-        ) : (
-          <Configuration activeTab={activeTab} />
-        )}
+        <Outlet />
       </div>
     </div>
   );

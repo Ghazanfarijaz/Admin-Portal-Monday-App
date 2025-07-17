@@ -1,10 +1,12 @@
 import { createBrowserRouter } from "react-router-dom";
 import AuthProvider from "./middlewares/AuthProvider";
 import App from "./App";
-import Dashboard from "./pages/dashboard/Dashboard";
+import DashboardLayout from "./layouts/DashboardLayout";
 import AddNewUser from "./pages/add-user/AddNewUser";
 import AddCustomization from "./pages/add-customization/AddCustomization";
 import EditCustomization from "./pages/edit-customization/EditCustomization";
+import UsersList from "./Components/UsersList";
+import Configuration from "./Components/Configuration";
 
 export const router = createBrowserRouter([
   {
@@ -17,7 +19,17 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <Dashboard />,
+        element: <DashboardLayout />,
+        children: [
+          {
+            path: "",
+            element: <UsersList />,
+          },
+          {
+            path: "configuration",
+            element: <Configuration />,
+          },
+        ],
       },
       {
         path: "add-new-user",
