@@ -1,14 +1,34 @@
 import "./init";
-import React from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 
-const root = createRoot(document.getElementById("root"));
-root.render(<App />);
+// Mantine
+import { createTheme, MantineProvider } from "@mantine/core";
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
+// Mantine Styles
+import "@mantine/core/styles.css";
+
+// Importing the router
+import { router } from "./Router.jsx";
+import { RouterProvider } from "react-router-dom";
+
+// React Query
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+const queryClient = new QueryClient();
+
+const theme = createTheme({
+  cursorType: "pointer",
+});
+
+const root = createRoot(document.getElementById("root"));
+root.render(
+  <QueryClientProvider client={queryClient}>
+    {/* Router Provider */}
+    <MantineProvider theme={theme}>
+    <RouterProvider router={router} />
+    </MantineProvider>
+  </QueryClientProvider>
+);
+
 serviceWorker.unregister();

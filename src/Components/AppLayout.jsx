@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import AddUser from "./AddUser";
 import Configuration from "./Configuration";
 import ConfigurationDetails from "./ConfigurationDetails";
-import CustomizationData from "../Api/CustomizationData.jsx";
-import CustomizationApi from "../Api/CustomizationManagement.jsx";
+import customizationAPIs from "../api/customization.js";
+import mondaySdk from "monday-sdk-js";
+import UsersList from "./UsersList.jsx";
+const monday = mondaySdk();
 
 export default function AppLayout() {
   const [activeTab, setActiveTab] = useState("userData");
@@ -11,20 +12,20 @@ export default function AppLayout() {
   const [boardDetails, setBoardDetails] = useState(null);
   const [customization, setCustomization] = useState(null); // New state for customization data
 
-  console.log("boardDetails:", boardDetails);
-  console.log("customization:", customization); // Log customization data
-
   // Fetch both board details and customization when Configuration tab is active
   useEffect(() => {
     if (activeTab === "configuration" && !isEditing) {
       GetBoardDetails();
       getCustomizationData(); // Fetch customization data
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, isEditing]);
 
   const GetBoardDetails = async () => {
     try {
-      const response = await CustomizationData.getAllBoards();
+      const response = await customizationAPIs.getAllBoards({
+        monday,
+      });
       console.log("get the board response:", response);
 
       if (!response) {
@@ -41,7 +42,7 @@ export default function AppLayout() {
   // New function to fetch customization data
   const getCustomizationData = async () => {
     try {
-      const response = await CustomizationApi.getCustomization();
+      const response = await customizationAPIs.getCustomization();
       console.log("get customization response:", response);
 
       if (!response) {
@@ -88,49 +89,47 @@ export default function AppLayout() {
   };
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-black-100">
+    <div className="flex flex-col gap-4 p-12 bg-white min-h-screen w-screen">
       {/* Top Header */}
-      <div className="w-full bg-white pb-2 pl-8">
-        <div className="flex items-center pt-8 pb-4">
-          <button
-            className={`py-1 px-8 rounded-full mr-4 font-medium text-base ${
-              activeTab === "userData"
-                ? "bg-[#007F9B] text-white"
-                : "text-[#007F9B] border border-[#007F9B] bg-white"
-            }`}
-            onClick={() => setActiveTab("userData")}
-          >
-            User Data
-          </button>
-          <button
-            className={`py-1 px-8 rounded-full font-medium text-base ${
-              activeTab === "configuration"
-                ? "bg-[#007F9B] text-white"
-                : "text-[#007F9B] border border-[#007F9B] bg-white"
-            }`}
-            onClick={() => setActiveTab("configuration")}
-          >
-            Configuration
-          </button>
-        </div>
+      <div className="w-full flex items-center gap-4 bg-white pb-4 border-b">
+        <button
+          className={`p-[8px_12px] min-w-[130px] rounded-lg font-medium text-base ${
+            activeTab === "userData"
+              ? "bg-[#007F9B] text-white"
+              : "text-[#007F9B] border border-[#007F9B] bg-white"
+          }`}
+          onClick={() => setActiveTab("userData")}
+        >
+          User Data
+        </button>
+        <button
+          className={`p-[8px_12px] min-w-[130px] rounded-lg font-medium text-base ${
+            activeTab === "configuration"
+              ? "bg-[#007F9B] text-white"
+              : "text-[#007F9B] border border-[#007F9B] bg-white"
+          }`}
+          onClick={() => setActiveTab("configuration")}
+        >
+          Configuration
+        </button>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-0 pl-8">
+      <div className="flex-1">
         {activeTab === "userData" ? (
-          <AddUser />
+          <UsersList />
         ) : isEditing ? (
           <ConfigurationDetails
             onSave={handleSaveChanges}
             onCancel={handleCancel}
             boardDetails={boardDetails}
-            customization={customization} // Pass customization to edit form
+            customization={customization}
           />
         ) : (
           <Configuration
             onEdit={handleEditDetails}
             boardDetails={boardDetails}
-            customization={customization} // Pass customization to view
+            customization={customization}
           />
         )}
       </div>

@@ -1,2 +1,8 @@
 node_modules/
 .mappsrc
+.env
+.DS_Store
+build
+build.zip
+coverage/
+dist/
