@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import mondaySdk from "monday-sdk-js";
 import { authAPIs } from "../api/auth";
+import { AttentionBox } from "@vibe/core";
 
 // Monday SDK initialization
 const monday = mondaySdk();
