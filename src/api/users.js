@@ -31,6 +31,25 @@ export const userAPIs = {
     }
   },
 
+  // Add Multiple Users Imported through csv
+  addImportedUsersCredentials: async ({ slug, usersData }) => {
+    try {
+      const response = await axiosInstance.post(
+        `/users/addImportedUsers?userSlug=${slug}`,
+        {
+          newUsers: usersData,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error creating user:", error);
+      throw new Error(
+        error.response?.data?.message ||
+          "Failed to create user. Please try again."
+      );
+    }
+  },
+
   // Update user details
   updateSpecificUser: async ({ email, updateData, slug }) => {
     try {
