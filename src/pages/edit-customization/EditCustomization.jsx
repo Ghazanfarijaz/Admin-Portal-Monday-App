@@ -9,6 +9,7 @@ import { useForm } from "@mantine/form";
 import { useEffect, useRef, useState } from "react";
 import { Group, Radio, Select, Switch, Textarea, Tooltip } from "@mantine/core";
 import LogoInput from "../../Components/LogoInput";
+import { toast } from "sonner";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -170,11 +171,14 @@ const EditCustomization = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customizationData"] });
-      navigate("/", { replace: true });
+      navigate("/configuration", { replace: true });
     },
 
     onError: (error) => {
       console.error(error.message || "Failed to add customization");
+      toast.error(`Failed to add customization!`, {
+        description: error?.message || "Something went wrong",
+      });
     },
   });
 
@@ -209,14 +213,14 @@ const EditCustomization = () => {
 
   if (isError) {
     console.error(error.message || "Failed to fetch customization data");
-    return navigate("/", { replace: true });
+    toast.error(error.message || "Failed to fetch customization data");
+    return navigate("/configuration", { replace: true });
   }
-
   return (
     <div className="flex flex-col gap-8 p-12 bg-white w-full h-full">
       <div className="flex flex-col gap-2">
         <Link
-          to={"/"}
+          to={"/configuration"}
           className="text-gray-600 font-medium flex items-center gap-1"
         >
           <ChevronLeft size={20} />
@@ -403,7 +407,7 @@ const EditCustomization = () => {
                 transitionProps={{ duration: 200 }}
               >
                 <Switch
-                  label="Allow user to create new values in Status, Dropdown columns"
+                  label="Allow user to create new values in Dropdown and columns"
                   checked={customizationForm.values.allowNewValueCreation}
                   onChange={(event) => {
                     customizationForm.setFieldValue(

@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import { Check, X, Plus, Trash2, PencilOff } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { userAPIs } from "../api/users";
+import { userAPIs } from "../../api/users";
 import { Skeleton } from "@mantine/core";
 import { Link } from "react-router-dom";
-import { authAPIs } from "../api/auth";
+import { authAPIs } from "../../api/auth";
 import mondaySdk from "monday-sdk-js";
+import { UserPopup } from "./UserPopup";
+import { AttentionBox, AttentionBoxLink } from "@vibe/core";
+import { toast } from "sonner";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -80,6 +83,9 @@ const UsersList = () => {
 
     onError: (error) => {
       console.error("Error updating user:", error);
+      toast.error(`Error updating user!`, {
+        description: error?.message || "Something went wrong",
+      });
     },
   });
 
@@ -111,6 +117,9 @@ const UsersList = () => {
 
     onError: (error) => {
       console.error("Error deleting user:", error);
+      toast.error(`Error deleting user!`, {
+        description: error?.message || "Something went wrong",
+      });
     },
   });
 
@@ -179,7 +188,7 @@ const UsersList = () => {
             <Skeleton width="150px" height={40} radius={8} />
           </div>
           {Array.from({ length: 3 }).map((_, index) => (
-            <Skeleton width="100%" height={40} radius={8} />
+            <Skeleton key={index} width="100%" height={40} radius={8} />
           ))}
           <Skeleton width="150px" height={40} radius={8} />
         </div>
@@ -188,17 +197,21 @@ const UsersList = () => {
   }
 
   if (isError) {
+    console.error("Error loading users:", error);
     return (
-      <div className="bg-white rounded-lg shadow-sm border max-w-4xl overflow-hidden p-4">
-        <div className="text-red-600">
-          <p>Error fetching users: {error?.message}</p>
-        </div>
+      <div className="flex justify-center mt-4">
+        <AttentionBox
+          title="Error Loading Users"
+          text={error?.message || "Something went wrong"}
+          type="danger"
+        />
       </div>
     );
   }
 
   return (
     <div className="bg-white max-w-4xl overflow-hidden flex flex-col gap-6">
+      <UserPopup />
       {users.lenth < 1 ? (
         <div className="p-8 text-center text-gray-500">
           No users found. Click "Add New User" to create one.

@@ -8,6 +8,7 @@ import customizationAPIs from "../../api/customization";
 import CustomizationSkeleton from "../../Components/CustomizationSkeleton";
 import LogoInput from "../../Components/LogoInput";
 import { authAPIs } from "../../api/auth";
+import { toast } from "sonner";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -133,30 +134,35 @@ const AddCustomization = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customizationData"] });
-      navigate("/", { replace: true });
+      navigate("/configuration", { replace: true });
     },
     onError: (error) => {
       console.error(error.message || "Failed to add customization");
+      toast.error(`Failed to add customization!`, {
+        description: error?.message || "Something went wrong",
+      });
     },
   });
 
   if (isError) {
-    console.error(error.message || "Failed to fetch board details");
-
+    console.error("Failed to fetch board details", error);
     return (
-      <div className="flex items-center justify-center w-full h-full">
-        <p className="text-red-500">
-          Failed to load board details. Please try again later.
-        </p>
+      <div className="flex justify-center mt-4">
+        <AttentionBox
+          title="Failed to fetch board details"
+          text={error?.message || "Something went wrong"}
+          type="danger"
+        />
       </div>
     );
   }
+  
 
   return (
     <div className="flex flex-col gap-8 p-12 bg-white w-full h-full">
       <div className="flex flex-col gap-2">
         <Link
-          to={"/"}
+          to={"/configuration"}
           className="text-gray-600 font-medium flex items-center gap-1"
         >
           <ChevronLeft size={20} />
@@ -340,7 +346,7 @@ const AddCustomization = () => {
                 transitionProps={{ duration: 200 }}
               >
                 <Switch
-                  label="Allow user to create new values in Status, Dropdown columns"
+                  label="Allow user to create new values in Dropdown and columns"
                   checked={customizationForm.values.allowNewValueCreation}
                   onChange={(event) => {
                     customizationForm.setFieldValue(
