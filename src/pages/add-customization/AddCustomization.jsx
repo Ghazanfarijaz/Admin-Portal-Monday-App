@@ -9,6 +9,7 @@ import CustomizationSkeleton from "../../components/CustomizationSkeleton";
 import LogoInput from "../../components/LogoInput";
 import { authAPIs } from "../../api/auth";
 import { toast } from "sonner";
+import { AttentionBox } from "@vibe/core";
 
 // Monday SDK initialization
 const monday = mondaySdk();
