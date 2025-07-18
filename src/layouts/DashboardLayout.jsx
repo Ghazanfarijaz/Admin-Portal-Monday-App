@@ -1,10 +1,6 @@
-import { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import UploadIcon  from "../assets/icons/UploadIcon"
-import { useModal } from "../context/ModalContext"
 
 const Dashboard = () => {
-  const { uploadUserModal, setUploadUserModal } = useModal();
   const navigate = useNavigate();
   const activeTab = window.location.pathname.split("/")[1];
 
@@ -19,8 +15,7 @@ const Dashboard = () => {
                 ? "bg-[#007F9B] text-white"
                 : "text-[#007F9B] bg-white hover:bg-gray-50"
             } border-2 border-[#007F9B] transition-all hover:shadow-lg duration-300`}
-            onClick={() => 
-              navigate("/")}
+            onClick={() => navigate("/")}
           >
             User Data
           </button>
@@ -35,15 +30,6 @@ const Dashboard = () => {
             Configuration
           </button>
         </div>
-        {activeTab === "" && (
-          <button
-            className={`p-[10px_16px] rounded-[4px] font-semibold text-base border-2  text-[#007F9B] bg-white hover:bg-gray-50 border-[#007F9B] transition-all hover:shadow-lg duration-300 flex gap-2 items-center`}
-            onClick={() => setUploadUserModal(true)}
-          >
-            <UploadIcon className="text-[#007F9B] size-[20px]" />
-            Upload Users
-          </button>
-        )}
       </div>
 
       {/* Main Content */}

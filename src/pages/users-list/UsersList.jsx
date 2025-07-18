@@ -6,9 +6,10 @@ import { Skeleton } from "@mantine/core";
 import { Link } from "react-router-dom";
 import { authAPIs } from "../../api/auth";
 import mondaySdk from "monday-sdk-js";
-import { UserPopup } from "./UserPopup";
-import { AttentionBox, AttentionBoxLink } from "@vibe/core";
+import { ImportUsersPopup } from "../../components/import-users-list-modal/ImportUsersPopup";
+import { AttentionBox } from "@vibe/core";
 import { toast } from "sonner";
+import UploadIcon from "../../assets/icons/UploadIcon";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -16,6 +17,7 @@ const monday = mondaySdk();
 const UsersList = () => {
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState(null);
+  const [openImportUsersModal, setOpenImportUsersModal] = useState(false);
   const queryClient = useQueryClient();
 
   // Fetch All Users
@@ -181,17 +183,18 @@ const UsersList = () => {
 
   if (isPending || deleteUser.isPending || updateUser.isPending) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 max-w-4xl overflow-hidden p-4">
-        <div className="flex flex-col gap-4">
-          <div className="flex justify-between items-center">
-            <Skeleton width="200px" height={40} radius={8} />
-            <Skeleton width="150px" height={40} radius={8} />
-          </div>
-          {Array.from({ length: 3 }).map((_, index) => (
-            <Skeleton key={index} width="100%" height={40} radius={8} />
-          ))}
-          <Skeleton width="150px" height={40} radius={8} />
+      <div className="bg-white max-w-4xl overflow-hidden flex flex-col gap-6">
+        <div className="w-full flex justify-end">
+          <Skeleton className="!w-[120px] !h-[40px] !rounded-md" />
         </div>
+        <div className="rounded-lg shadow-sm border border-gray-200 p-2">
+          <div className="flex flex-col gap-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <Skeleton key={index} width="100%" height={40} radius={8} />
+            ))}
+          </div>
+        </div>
+        <Skeleton width="150px" height={40} radius={8} />
       </div>
     );
   }
@@ -211,7 +214,22 @@ const UsersList = () => {
 
   return (
     <div className="bg-white max-w-4xl overflow-hidden flex flex-col gap-6">
-      <UserPopup />
+      <ImportUsersPopup
+        isModalOpen={openImportUsersModal}
+        onCloseModal={() => setOpenImportUsersModal(false)}
+      />
+
+      {/* Import Users Modal Trigger */}
+      <div className="w-full flex justify-end">
+        <button
+          className={`p-[10px_16px] rounded-lg font-semibold text-base border-2 text-[#007F9B] bg-white hover:bg-gray-50 border-[#007F9B] transition-all hover:shadow-lg duration-300 flex gap-2 items-center`}
+          onClick={() => setOpenImportUsersModal(true)}
+        >
+          <UploadIcon className="text-[#007F9B] size-[20px]" />
+          Import Users
+        </button>
+      </div>
+
       {users.lenth < 1 ? (
         <div className="p-8 text-center text-gray-500">
           No users found. Click "Add New User" to create one.

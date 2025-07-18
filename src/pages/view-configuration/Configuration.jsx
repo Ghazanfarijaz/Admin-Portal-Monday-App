@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 import mondaySdk from "monday-sdk-js";
 import { useQuery } from "@tanstack/react-query";
-import customizationAPIs from "../api/customization";
-import { authAPIs } from "../api/auth";
-import CustomizationSkeleton from "./CustomizationSkeleton";
+import customizationAPIs from "../../api/customization";
+import { authAPIs } from "../../api/auth";
+import CustomizationSkeleton from "../../components/CustomizationSkeleton";
 import { LinkIcon } from "lucide-react";
 import { CopyButton, Group, Radio, Switch, Tooltip } from "@mantine/core";
+import { AttentionBox } from "@vibe/core";
 
 const monday = mondaySdk();
 
@@ -28,16 +29,16 @@ export default function Configuration() {
   });
 
   if (isError) {
-    console.error( "Error loading customization:", error);
+    console.error("Error loading customization:", error);
     return (
-          <div className="flex justify-center mt-4">
-            <AttentionBox
-              title="Error Loading Customization"
-              text={error?.message || "Something went wrong"}
-              type="danger"
-            />
-          </div>
-        );
+      <div className="flex justify-center mt-4">
+        <AttentionBox
+          title="Error Loading Customization"
+          text={error?.message || "Something went wrong"}
+          type="danger"
+        />
+      </div>
+    );
   }
 
   if (isFetching) {

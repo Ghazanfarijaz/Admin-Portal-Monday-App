@@ -5,7 +5,6 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  IconButton,
   Button,
 } from "@vibe/core";
 
