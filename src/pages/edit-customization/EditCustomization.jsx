@@ -4,11 +4,11 @@ import { ChevronLeft, Plus, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import customizationAPIs from "../../api/customization";
 import { authAPIs } from "../../api/auth";
-import CustomizationSkeleton from "../../Components/CustomizationSkeleton";
+import CustomizationSkeleton from "../../components/CustomizationSkeleton";
 import { useForm } from "@mantine/form";
 import { useEffect, useRef, useState } from "react";
 import { Group, Radio, Select, Switch, Textarea, Tooltip } from "@mantine/core";
-import LogoInput from "../../Components/LogoInput";
+import LogoInput from "../../components/LogoInput";
 import { toast } from "sonner";
 
 // Monday SDK initialization

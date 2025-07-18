@@ -5,8 +5,8 @@ import { useForm } from "@mantine/form";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, Plus, X } from "lucide-react";
 import customizationAPIs from "../../api/customization";
-import CustomizationSkeleton from "../../Components/CustomizationSkeleton";
-import LogoInput from "../../Components/LogoInput";
+import CustomizationSkeleton from "../../components/CustomizationSkeleton";
+import LogoInput from "../../components/LogoInput";
 import { authAPIs } from "../../api/auth";
 import { toast } from "sonner";
 
@@ -156,7 +156,6 @@ const AddCustomization = () => {
       </div>
     );
   }
-  
 
   return (
     <div className="flex flex-col gap-8 p-12 bg-white w-full h-full">
