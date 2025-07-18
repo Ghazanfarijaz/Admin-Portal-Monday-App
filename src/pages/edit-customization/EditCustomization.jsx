@@ -399,7 +399,7 @@ const EditCustomization = () => {
             </h2>
             <div className="flex flex-col gap-3">
               <Tooltip
-                label="If Allowed, it will allow the external users on to create new values for some columns such as 'Status', 'Dropdown' etc. - if the value is not present in the column options."
+                label="If Allowed, it will allow the external users on to create new values for 'Dropdown' columns. - if the value is not present in the column options."
                 refProp="rootRef"
                 withArrow
                 multiline
@@ -407,7 +407,7 @@ const EditCustomization = () => {
                 transitionProps={{ duration: 200 }}
               >
                 <Switch
-                  label="Allow user to create new values in Dropdown and columns"
+                  label="Allow user to create new values in Dropdown columns"
                   checked={customizationForm.values.allowNewValueCreation}
                   onChange={(event) => {
                     customizationForm.setFieldValue(
