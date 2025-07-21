@@ -355,6 +355,13 @@ const UsersList = () => {
                     </td>
                   </tr>
                 ))}
+                {users.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="py-3 px-4 text-center">
+                      No users found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

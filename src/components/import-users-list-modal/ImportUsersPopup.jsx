@@ -87,9 +87,9 @@ export const ImportUsersPopup = ({ isModalOpen, onCloseModal }) => {
           )}
           <div className="w-full md:px-[80px] lg:px-[120px] flex justify-center gap-6">
             <button
-              className="flex-1 flex items-center justify-center gap-2 p-[8px_12px] rounded-lg font-medium text-base bg-[#007F9B] text-white border-2 border-[#007F9B]"
+              className="flex-1 flex items-center justify-center gap-2 p-[8px_12px] rounded-lg font-medium text-base bg-[#007F9B] text-white border-2 border-[#007F9B] disabled:hover:cursor-not-allowed disabled:opacity-50"
               onClick={() => addImportedUsers.mutate()}
-              disabled={addImportedUsers.isPending}
+              disabled={addImportedUsers.isPending || users.length === 0}
             >
               {addImportedUsers.isPending ? (
                 <Loader size="sm" color={"white"} />

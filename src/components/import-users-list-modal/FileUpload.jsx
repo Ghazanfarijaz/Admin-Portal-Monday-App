@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Text } from "@vibe/core";
 import UploadDataIcon from "../../assets/icons/UploaddataIcon";
 import { parseExcelFile } from "../../utils/parsExcel";
+import { toast } from "sonner";
 
 const FileUpload = ({ onUpload }) => {
   const fileInputRef = useRef(null);
@@ -21,6 +22,13 @@ const FileUpload = ({ onUpload }) => {
 
     try {
       const parsedData = await parseExcelFile(file);
+      if(parsedData.length === 0) {
+        setError(
+          "A valid Excel file containing 'name', 'email', and 'password' columns is required."
+        );
+        toast.error("A valid Excel file containing 'name', 'email', and 'password' columns is required.")
+        return;
+      }
       setSelectedFile(file);
       setError("");
       onUpload(parsedData);
