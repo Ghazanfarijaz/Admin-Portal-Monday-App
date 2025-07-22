@@ -10,6 +10,22 @@ import { useEffect, useRef, useState } from "react";
 import { Group, Radio, Select, Switch, Textarea, Tooltip } from "@mantine/core";
 import LogoInput from "../../components/LogoInput";
 import { toast } from "sonner";
+import { GripVertical } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  KeyboardSensor,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -216,6 +232,40 @@ const EditCustomization = () => {
     toast.error(error.message || "Failed to fetch customization data");
     return navigate("/configuration", { replace: true });
   }
+  const SortableField = ({ field, children }) => {
+    const { setNodeRef, transform, transition, listeners, attributes } =
+      useSortable({ id: field.tempId });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      width: "100%",
+    };
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="w-full flex items-center gap-2"
+      >
+        {/* Drag Handle */}
+        <div
+          {...listeners}
+          {...attributes}
+          className="cursor-grab text-gray-400 hover:text-gray-600"
+        >
+          <GripVertical size={18} />
+        </div>
+
+        {/* Main content */}
+        <div className="flex-1">{children}</div>
+      </div>
+    );
+  };
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor)
+  );
   return (
     <div className="flex flex-col gap-8 p-12 bg-white w-full h-full">
       <div className="flex flex-col gap-2">
@@ -299,70 +349,111 @@ const EditCustomization = () => {
               )}
 
               {/* Existing Fields */}
-              {customizationForm.values.fields.map((field, index) => (
-                <div key={index} className="flex items-center gap-2 w-full">
-                  <Select
-                    classNames={{
-                      root: "!w-full !max-w-[450px]",
-                      input:
-                        "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
-                    }}
-                    data={boardDetails
-                      ?.find(
-                        (board) =>
-                          board.id === customizationForm.values.selectedBoardId
-                      )
-                      ?.columns?.map((column) => ({
-                        value: column.id,
-                        label: column.title,
-                      }))}
-                    searchable
-                    allowDeselect={false}
-                    withCheckIcon={false}
-                    maxDropdownHeight={200}
-                    placeholder="Select a field"
-                    value={field.id}
-                    onChange={(_, option) => {
-                      customizationForm.setFieldValue(
-                        "fields",
-                        customizationForm.values.fields.map((f) =>
-                          f.tempId === field.tempId
-                            ? { ...f, id: option.value, title: option.label }
-                            : f
-                        )
-                      );
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      customizationForm.setFieldValue(
-                        "fields",
-                        customizationForm.values.fields.filter(
-                          (f) => f.tempId !== field.tempId
-                        )
-                      );
-                    }}
-                  >
-                    <X size={20} className="text-red-500" />
-                  </button>
-                  <Switch
-                    checked={field.isEditable}
-                    label="Editable"
-                    onChange={(event) => {
-                      customizationForm.setFieldValue(
-                        "fields",
-                        customizationForm.values.fields.map((f) =>
-                          f.tempId === field.tempId
-                            ? { ...f, isEditable: event.currentTarget.checked }
-                            : f
-                        )
-                      );
-                    }}
-                  />
-                </div>
-              ))}
+              <div className="overflow-hidden w-full flex flex-col gap-2">
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={({ active, over }) => {
+                    if (active.id !== over?.id) {
+                      const oldIndex =
+                        customizationForm.values.fields.findIndex(
+                          (f) => f.tempId === active.id
+                        );
+                      const newIndex =
+                        customizationForm.values.fields.findIndex(
+                          (f) => f.tempId === over.id
+                        );
 
+                      const reordered = arrayMove(
+                        customizationForm.values.fields,
+                        oldIndex,
+                        newIndex
+                      );
+
+                      customizationForm.setFieldValue("fields", reordered);
+                    }
+                  }}
+                >
+                  <SortableContext
+                    items={customizationForm.values.fields.map((f) => f.tempId)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {customizationForm.values.fields.map((field, index) => (
+                      <SortableField key={field.tempId} field={field}>
+                        <div className="flex items-center gap-2 w-full">
+                          <Select
+                            classNames={{
+                              root: "!w-full !max-w-[450px]",
+                              input:
+                                "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
+                            }}
+                            data={boardDetails
+                              ?.find(
+                                (board) =>
+                                  board.id ===
+                                  customizationForm.values.selectedBoardId
+                              )
+                              ?.columns?.map((column) => ({
+                                value: column.id,
+                                label: column.title,
+                              }))}
+                            searchable
+                            allowDeselect={false}
+                            withCheckIcon={false}
+                            maxDropdownHeight={200}
+                            placeholder="Select a field"
+                            value={field.id}
+                            onChange={(_, option) => {
+                              customizationForm.setFieldValue(
+                                "fields",
+                                customizationForm.values.fields.map((f) =>
+                                  f.tempId === field.tempId
+                                    ? {
+                                        ...f,
+                                        id: option.value,
+                                        title: option.label,
+                                      }
+                                    : f
+                                )
+                              );
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              customizationForm.setFieldValue(
+                                "fields",
+                                customizationForm.values.fields.filter(
+                                  (f) => f.tempId !== field.tempId
+                                )
+                              );
+                            }}
+                          >
+                            <X size={20} className="text-red-500" />
+                          </button>
+                          <Switch
+                            checked={field.isEditable}
+                            label="Editable"
+                            onChange={(event) => {
+                              customizationForm.setFieldValue(
+                                "fields",
+                                customizationForm.values.fields.map((f) =>
+                                  f.tempId === field.tempId
+                                    ? {
+                                        ...f,
+                                        isEditable: event.currentTarget.checked,
+                                      }
+                                    : f
+                                )
+                              );
+                            }}
+                          />
+                        </div>
+                      </SortableField>
+                    ))}
+                  </SortableContext>
+                </DndContext>
+              </div>
               {customizationForm.errors.fields && (
                 <p className="text-red-500 text-sm">
                   {customizationForm.errors.fields}
