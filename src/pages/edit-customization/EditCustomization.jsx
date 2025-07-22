@@ -10,6 +10,10 @@ import { useEffect, useRef, useState } from "react";
 import { Group, Radio, Select, Switch, Textarea, Tooltip } from "@mantine/core";
 import LogoInput from "../../components/LogoInput";
 import { toast } from "sonner";
+import {
+  DraggableFields,
+  SortableField,
+} from "../../components/DraggableFeilds";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -299,69 +303,86 @@ const EditCustomization = () => {
               )}
 
               {/* Existing Fields */}
-              {customizationForm.values.fields.map((field, index) => (
-                <div key={index} className="flex items-center gap-2 w-full">
-                  <Select
-                    classNames={{
-                      root: "!w-full !max-w-[450px]",
-                      input:
-                        "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
-                    }}
-                    data={boardDetails
-                      ?.find(
-                        (board) =>
-                          board.id === customizationForm.values.selectedBoardId
-                      )
-                      ?.columns?.map((column) => ({
-                        value: column.id,
-                        label: column.title,
-                      }))}
-                    searchable
-                    allowDeselect={false}
-                    withCheckIcon={false}
-                    maxDropdownHeight={200}
-                    placeholder="Select a field"
-                    value={field.id}
-                    onChange={(_, option) => {
-                      customizationForm.setFieldValue(
-                        "fields",
-                        customizationForm.values.fields.map((f) =>
-                          f.tempId === field.tempId
-                            ? { ...f, id: option.value, title: option.label }
-                            : f
-                        )
-                      );
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      customizationForm.setFieldValue(
-                        "fields",
-                        customizationForm.values.fields.filter(
-                          (f) => f.tempId !== field.tempId
-                        )
-                      );
-                    }}
-                  >
-                    <X size={20} className="text-red-500" />
-                  </button>
-                  <Switch
-                    checked={field.isEditable}
-                    label="Editable"
-                    onChange={(event) => {
-                      customizationForm.setFieldValue(
-                        "fields",
-                        customizationForm.values.fields.map((f) =>
-                          f.tempId === field.tempId
-                            ? { ...f, isEditable: event.currentTarget.checked }
-                            : f
-                        )
-                      );
-                    }}
-                  />
-                </div>
-              ))}
+              <DraggableFields
+                fields={customizationForm.values.fields}
+                onReorder={(newFields) =>
+                  customizationForm.setFieldValue("fields", newFields)
+                }
+              >
+                {customizationForm.values.fields.map((field, index) => (
+                  <SortableField key={field.tempId} field={field}>
+                    <div className="flex items-center gap-2 w-full">
+                      <Select
+                        classNames={{
+                          root: "!w-full !max-w-[450px]",
+                          input:
+                            "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
+                        }}
+                        data={boardDetails
+                          ?.find(
+                            (board) =>
+                              board.id ===
+                              customizationForm.values.selectedBoardId
+                          )
+                          ?.columns?.map((column) => ({
+                            value: column.id,
+                            label: column.title,
+                          }))}
+                        searchable
+                        allowDeselect={false}
+                        withCheckIcon={false}
+                        maxDropdownHeight={200}
+                        placeholder="Select a field"
+                        value={field.id}
+                        onChange={(_, option) => {
+                          customizationForm.setFieldValue(
+                            "fields",
+                            customizationForm.values.fields.map((f) =>
+                              f.tempId === field.tempId
+                                ? {
+                                    ...f,
+                                    id: option.value,
+                                    title: option.label,
+                                  }
+                                : f
+                            )
+                          );
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          customizationForm.setFieldValue(
+                            "fields",
+                            customizationForm.values.fields.filter(
+                              (f) => f.tempId !== field.tempId
+                            )
+                          );
+                        }}
+                      >
+                        <X size={20} className="text-red-500" />
+                      </button>
+                      <Switch
+                        checked={field.isEditable}
+                        label="Editable"
+                        onChange={(event) => {
+                          customizationForm.setFieldValue(
+                            "fields",
+                            customizationForm.values.fields.map((f) =>
+                              f.tempId === field.tempId
+                                ? {
+                                    ...f,
+                                    isEditable: event.currentTarget.checked,
+                                  }
+                                : f
+                            )
+                          );
+                        }}
+                      />
+                    </div>
+                  </SortableField>
+                ))}
+              </DraggableFields>
 
               {customizationForm.errors.fields && (
                 <p className="text-red-500 text-sm">
