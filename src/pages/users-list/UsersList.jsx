@@ -165,12 +165,11 @@ const UsersList = () => {
     }
 
     if (newUser) {
-      setNewUser({ ...newUser, password, realPassword: password });
+      setNewUser({ ...newUser, password });
     } else {
       const editingUser = users.find((u) => u.editing);
       if (editingUser) {
         updateUserField(editingUser.id, "password", password);
-        updateUserField(editingUser.id, "realPassword", password);
       }
     }
   };
@@ -382,11 +381,9 @@ const UsersList = () => {
                                     toast.error("User name is required.");
                                     return false;
                                   }
-                                  if (
-                                    !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
-                                      user.password
-                                    )
-                                  ) {
+                                  const passwordRegex =
+                                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\S]{8,}$/;
+                                  if (!passwordRegex.test(user.password)) {
                                     toast.error(
                                       "Password is not strong enough.",
                                       {
