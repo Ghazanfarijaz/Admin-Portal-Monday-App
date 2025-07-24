@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { userAPIs } from "../../api/users";
 import { authAPIs } from "../../api/auth";
@@ -7,6 +6,8 @@ import mondaySdk from "monday-sdk-js";
 import { ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import LoadingBackdrop from "../../components/LoadingBackdrop";
+import { useForm } from "@mantine/form";
+import { PasswordInput, TextInput } from "@mantine/core";
 // Monday SDK initialization
 const monday = mondaySdk();
 
@@ -14,10 +15,26 @@ const AddNewUser = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const [newUserData, setNewUserData] = useState({
-    name: "",
-    email: "",
-    password: "",
+  const newUserForm = useForm({
+    initialValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+
+    validate: {
+      name: (value) =>
+        value.length < 3 ? "Name must be at least 3 characters" : null,
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
+      // Password Must be 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character
+      password: (value) => {
+        const passwordRegex =
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\S]{8,}$/;
+        return passwordRegex.test(value)
+          ? null
+          : "Password must be at least 8 characters, contain uppercase, lowercase, number and special character";
+      },
+    },
   });
 
   const generatePassword = () => {
@@ -27,7 +44,7 @@ const AddNewUser = () => {
     for (let i = 0; i < 12; i++) {
       password += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    setNewUserData({ ...newUserData, password, realPassword: password });
+    newUserForm.setFieldValue("password", password);
   };
 
   const createNewUser = useMutation({
@@ -35,20 +52,20 @@ const AddNewUser = () => {
       const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
 
       return userAPIs.createUser({
-        name: newUserData.name,
-        email: newUserData.email,
-        password: newUserData.password,
+        name: newUserForm.values.name,
+        email: newUserForm.values.email,
+        password: newUserForm.values.password,
         slug: userSlug,
       });
     },
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
-      // Reset form
-      setNewUserData({
-        name: "",
-        email: "",
-        password: "",
+
+      newUserForm.reset();
+
+      toast.success("Success!", {
+        description: "User created successfully",
       });
 
       // Navigate to the users list or home page
@@ -65,9 +82,7 @@ const AddNewUser = () => {
 
   return (
     <>
-      {createNewUser.isPending && (
-        <LoadingBackdrop />
-      )}
+      {createNewUser.isPending && <LoadingBackdrop />}
       <div className="flex flex-col gap-8 p-12 bg-gray-50 min-h-screen w-screen">
         <div className="flex flex-col gap-3">
           <Link
@@ -82,87 +97,56 @@ const AddNewUser = () => {
         <div className="border border-gray-200 p-8 bg-white rounded-lg shadow-sm flex flex-col gap-6">
           <h2 className="text-xl font-bold text-gray-800">User Details</h2>
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              createNewUser.mutate();
-            }}
+            onSubmit={newUserForm.onSubmit(createNewUser.mutate)}
             className="md:grid grid-cols-2 flex flex-col gap-6"
           >
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Name
-              </label>
-              <input
-                type="text"
-                value={newUserData.name}
-                onChange={(e) =>
-                  setNewUserData({ ...newUserData, name: e.target.value })
-                }
-                className="w-full outline-none border p-2 rounded-md border-gray-300 focus:border-blue-500"
-                placeholder="Enter name"
-                required
+            <TextInput
+              label="Name"
+              {...newUserForm.getInputProps("name")}
+              classNames={{
+                label: "!text-gray-500 !text-sm !mb-2",
+                input: "!h-[42px] !rounded-lg",
+              }}
+            />
+            <TextInput
+              label="Email"
+              {...newUserForm.getInputProps("email")}
+              classNames={{
+                label: "!text-gray-500 !text-sm !mb-2",
+                input: "!h-[42px] !rounded-lg",
+              }}
+            />
+            <div className="flex flex-col items-end gap-2">
+              <PasswordInput
+                label="Password"
+                {...newUserForm.getInputProps("password")}
+                className="w-full"
+                classNames={{
+                  label: "!text-gray-500 !text-sm !mb-2",
+                  input: "!h-[42px] !rounded-lg",
+                }}
               />
+
+              <button
+                type="button"
+                onClick={() => generatePassword()}
+                className="h-fit text-blue-500 font-medium text-[14px]"
+              >
+                Generate Password
+              </button>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                value={newUserData.email}
-                onChange={(e) =>
-                  setNewUserData({ ...newUserData, email: e.target.value })
-                }
-                className="w-full outline-none border p-2 rounded-md border-gray-300 focus:border-blue-500"
-                placeholder="Enter email"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
-              <div className="flex items-center">
-                <input
-                  type="text"
-                  value={newUserData.password}
-                  onChange={(e) =>
-                    setNewUserData({ ...newUserData, password: e.target.value })
-                  }
-                  className="w-full outline-none border p-2 rounded-md border-gray-300 focus:border-blue-500"
-                  placeholder="Enter password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={generatePassword}
-                  className="ml-2 text-sm text-blue-500 hover:text-blue-700 whitespace-nowrap"
-                >
-                  Generate
-                </button>
-              </div>
-            </div>
+
             <div className="col-span-2 flex items-center gap-6 mt-4">
               <button
                 type="submit"
-                className="bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors p-[8px_12px] w-fit min-w-[120px] flex items-center justify-center"
+                className="bg-[#007F9B] text-white rounded-md hover:bg-[#247688] transition-colors p-[8px_12px] w-fit min-w-[120px] flex items-center justify-center"
               >
                 <p className="whitespace-nowrap">Add User</p>
               </button>
 
               <Link
                 to="/"
-                className="bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors p-[8px_12px] w-fit min-w-[120px] flex items-center justify-center"
-                onClick={() => {
-                  // Handle cancel logic here
-                  console.log("Cancelled");
-                  // Reset form
-                  setNewUserData({
-                    name: "",
-                    email: "",
-                    password: "",
-                  });
-                }}
+                className="bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors p-[8px_12px] w-fit min-w-[120px] flex items-center justify-center"
               >
                 Cancel
               </Link>
