@@ -12,7 +12,7 @@ export const userAPIs = {
       console.error("Error fetching users:", error);
       throw new Error(
         error.response?.data?.message ||
-          "Failed to fetch users. Please try again."
+        "Failed to fetch users. Please try again."
       );
     }
   },
@@ -26,7 +26,7 @@ export const userAPIs = {
       console.error("Error creating user:", error);
       throw new Error(
         error.response?.data?.message ||
-          "Failed to create user. Please try again."
+        "Failed to create user. Please try again."
       );
     }
   },
@@ -45,7 +45,7 @@ export const userAPIs = {
       console.error("Error creating user:", error);
       throw new Error(
         error.response?.data?.message ||
-          "Failed to create user. Please try again."
+        "Failed to create user. Please try again."
       );
     }
   },
@@ -62,7 +62,23 @@ export const userAPIs = {
       console.error("Error updating credential:", error);
       throw new Error(
         error.response?.data?.message ||
-          "Failed to update user. Please try again."
+        "Failed to update user. Please try again."
+      );
+    }
+  },
+  // Approve a Specific User
+  approveSpecificUser: async ({ email, slug }) => {
+    try {
+      const response = await axiosInstance.patch(
+        `/users/approveSpecificUser?slug=${slug}`,
+        { email }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error approving user:", error);
+      throw new Error(
+        error.response?.data?.message ||
+        "Failed to approve user. Please try again."
       );
     }
   },
@@ -78,7 +94,7 @@ export const userAPIs = {
       console.error("Error deleting credential:", error);
       throw new Error(
         error.response?.data?.message ||
-          "Failed to delete user. Please try again."
+        "Failed to delete user. Please try again."
       );
     }
   },
