@@ -23,7 +23,7 @@ const UsersList = () => {
   const queryClient = useQueryClient();
 
   // Fetch All Users
-  const { data, isPending, isError, error } = useQuery({
+  const { data, isFetching, isError, error } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
       const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
@@ -41,6 +41,7 @@ const UsersList = () => {
         email: user.email,
         password: user.password,
         editing: false,
+        isApprovedByAdmin: user.isApprovedByAdmin,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       }));
@@ -78,6 +79,41 @@ const UsersList = () => {
                 password: data.password,
                 editing: false,
                 updatedAt: new Date().toISOString(),
+              }
+            : user
+        )
+      );
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+
+    onError: (error) => {
+      console.error("Error updating user:", error);
+      toast.error(`Error updating user!`, {
+        description: error?.message || "Something went wrong",
+      });
+    },
+  });
+
+  const approveUser = useMutation({
+    mutationFn: async (userId) => {
+      const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
+      const userToUpdate = users.find((user) => user.id === userId);
+      if (!userToUpdate) {
+        throw new Error("User not found");
+      }
+      return userAPIs.approveSpecificUser({
+        email: userToUpdate.email,
+        slug: userSlug,
+      });
+    },
+
+    onSuccess: (data) => {
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.email === data.email
+            ? {
+                ...user,
+                isApprovedByAdmin: true
               }
             : user
         )
@@ -176,7 +212,12 @@ const UsersList = () => {
     }
   };
 
-  if (isPending || deleteUser.isPending || updateUser.isPending) {
+  if (
+    isFetching ||
+    deleteUser.isPending ||
+    updateUser.isPending ||
+    approveUser.isPending
+  ) {
     return (
       <div className="bg-white max-w-4xl overflow-hidden flex flex-col gap-6">
         <div className="w-full flex justify-end">
@@ -206,10 +247,16 @@ const UsersList = () => {
       </div>
     );
   }
-
   return (
     <>
-      <ConfirmationModal show={showConfirmationModal} setShow={setShowConfirmationModal} title="Delete User" desc={`Are you sure you want to delete User?`} onConfirm={() => deleteUser.mutate(userToDelete)} ispending={deleteUser.isPending} />
+      <ConfirmationModal
+        show={showConfirmationModal}
+        setShow={setShowConfirmationModal}
+        title="Delete User"
+        desc={`Are you sure you want to delete User?`}
+        onConfirm={() => deleteUser.mutate(userToDelete)}
+        ispending={deleteUser.isPending}
+      />
       <div className="bg-white max-w-4xl overflow-hidden flex flex-col gap-6">
         <ImportUsersPopup
           isModalOpen={openImportUsersModal}
@@ -248,113 +295,136 @@ const UsersList = () => {
                   <th className="text-left py-3 px-4 font-medium text-gray-600 w-24">
                     Actions
                   </th>
+                  <th className="py-3 px-4 font-medium text-gray-600">
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="border-b border-gray-200 hover:bg-gray-50"
-                  >
-                    <td className="py-3 px-4">
-                      {user.editing ? (
-                        <input
-                          type="text"
-                          value={user.name}
-                          onChange={(e) =>
-                            updateUserField(user.id, "name", e.target.value)
-                          }
-                          className="w-full outline-none p-2 border rounded-md border-gray-300 focus:border-blue-500"
-                          placeholder="Enter name"
-                        />
-                      ) : (
-                        <div className="cursor-pointer py-1">{user.name}</div>
-                      )}
-                    </td>
-                    <td className="py-3 px-4">
-                      {user.editing ? (
-                        <input
-                          type="email"
-                          value={user.email}
-                          onChange={(e) =>
-                            updateUserField(user.id, "email", e.target.value)
-                          }
-                          className="w-full outline-none p-2 border rounded-md border-gray-300 disabled:border-gray-200 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400"
-                          placeholder="Enter email"
-                          disabled={user.editing}
-                        />
-                      ) : (
-                        <div className="cursor-pointer py-1">{user.email}</div>
-                      )}
-                    </td>
-                    <td className="py-3 px-4">
-                      {user.editing ? (
-                        <div className="flex items-center">
+                {users.map((user) => {
+                  return (
+                    <tr
+                      key={user.id}
+                      className="border-b border-gray-200 hover:bg-gray-50"
+                    >
+                      <td className="py-3 px-4">
+                        {user.editing ? (
                           <input
                             type="text"
-                            value={user.password}
+                            value={user.name}
                             onChange={(e) =>
-                              updateUserField(
-                                user.id,
-                                "password",
-                                e.target.value
-                              )
+                              updateUserField(user.id, "name", e.target.value)
                             }
                             className="w-full outline-none p-2 border rounded-md border-gray-300 focus:border-blue-500"
-                            placeholder="Enter password"
+                            placeholder="Enter name"
                           />
+                        ) : (
+                          <div className="cursor-pointer py-1">{user.name}</div>
+                        )}
+                      </td>
+                      <td className="py-3 px-4">
+                        {user.editing ? (
+                          <input
+                            type="email"
+                            value={user.email}
+                            onChange={(e) =>
+                              updateUserField(user.id, "email", e.target.value)
+                            }
+                            className="w-full outline-none p-2 border rounded-md border-gray-300 disabled:border-gray-200 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-400"
+                            placeholder="Enter email"
+                            disabled={user.editing}
+                          />
+                        ) : (
+                          <div className="cursor-pointer py-1">
+                            {user.email}
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3 px-4">
+                        {user.editing ? (
+                          <div className="flex items-center">
+                            <input
+                              type="text"
+                              value={user.password}
+                              onChange={(e) =>
+                                updateUserField(
+                                  user.id,
+                                  "password",
+                                  e.target.value
+                                )
+                              }
+                              className="w-full outline-none p-2 border rounded-md border-gray-300 focus:border-blue-500"
+                              placeholder="Enter password"
+                            />
+                            <button
+                              onClick={generatePassword}
+                              className="ml-2 text-sm text-blue-500 hover:text-blue-700 whitespace-nowrap"
+                            >
+                              Generate
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="cursor-pointer py-1">
+                            ••••••••••••
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3 px-4">
+                        {user.editing ? (
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => updateUser.mutate(user.id)}
+                              className="p-1 text-green-500 hover:text-green-700"
+                              title="Save"
+                            >
+                              <Check size={20} />
+                            </button>
+                            <button
+                              onClick={() => cancelEditing(user.id)}
+                              className="p-1 text-red-500 hover:text-red-700"
+                              title="Cancel"
+                            >
+                              <X size={20} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => {
+                                setUserToDelete(user.id);
+                                setShowConfirmationModal(true);
+                              }}
+                              className="text-red-500 hover:text-red-700"
+                              title="Delete"
+                            >
+                              <Trash2 size={24} />
+                            </button>
+                            <button
+                              className="text-gray-400 hover:text-gray-500"
+                              onClick={() => startEditing(user.id)}
+                            >
+                              <PencilOff size={20} />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        {user.isApprovedByAdmin ? (
+                          <span className="bg-green-100 text-green-800 text-sm font-semibold px-4 py-2 rounded-full">
+                            Approved
+                          </span>
+                        ) : (
                           <button
-                            onClick={generatePassword}
-                            className="ml-2 text-sm text-blue-500 hover:text-blue-700 whitespace-nowrap"
+                            className="p-[8px_12px] rounded-lg font-medium text-base text-[#007F9B] bg-white hover:bg-[#007F9B] hover:text-white border-2 border-[#007F9B] transition-all hover:shadow-lg duration-300"
+                            onClick={() => approveUser.mutate(user.id)}
                           >
-                            Generate
+                            Approve
                           </button>
-                        </div>
-                      ) : (
-                        <div className="cursor-pointer py-1">••••••••••••</div>
-                      )}
-                    </td>
-                    <td className="py-3 px-4">
-                      {user.editing ? (
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => updateUser.mutate(user.id)}
-                            className="p-1 text-green-500 hover:text-green-700"
-                            title="Save"
-                          >
-                            <Check size={20} />
-                          </button>
-                          <button
-                            onClick={() => cancelEditing(user.id)}
-                            className="p-1 text-red-500 hover:text-red-700"
-                            title="Cancel"
-                          >
-                            <X size={20} />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() => {
-                              setUserToDelete(user.id);
-                              setShowConfirmationModal(true);
-                            }}
-                            className="text-red-500 hover:text-red-700"
-                            title="Delete"
-                          >
-                            <Trash2 size={24} />
-                          </button>
-                          <button
-                            className="text-gray-400 hover:text-gray-500"
-                            onClick={() => startEditing(user.id)}
-                          >
-                            <PencilOff size={20} />
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
                 {users.length === 0 && (
                   <tr>
                     <td colSpan={4} className="py-3 px-4 text-center">
