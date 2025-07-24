@@ -113,7 +113,7 @@ const UsersList = () => {
           user.email === data.email
             ? {
                 ...user,
-                isApprovedByAdmin: true
+                isApprovedByAdmin: true,
               }
             : user
         )
@@ -165,12 +165,11 @@ const UsersList = () => {
     }
 
     if (newUser) {
-      setNewUser({ ...newUser, password, realPassword: password });
+      setNewUser({ ...newUser, password });
     } else {
       const editingUser = users.find((u) => u.editing);
       if (editingUser) {
         updateUserField(editingUser.id, "password", password);
-        updateUserField(editingUser.id, "realPassword", password);
       }
     }
   };
@@ -319,7 +318,9 @@ const UsersList = () => {
                             placeholder="Enter name"
                           />
                         ) : (
-                          <div className="cursor-pointer py-1">{user.name}</div>
+                          <div className="cursor-pointer py-1 break-all">
+                            {user.name}
+                          </div>
                         )}
                       </td>
                       <td className="py-3 px-4">
@@ -335,7 +336,7 @@ const UsersList = () => {
                             disabled={user.editing}
                           />
                         ) : (
-                          <div className="cursor-pointer py-1">
+                          <div className="cursor-pointer py-1 break-all">
                             {user.email}
                           </div>
                         )}
@@ -373,15 +374,40 @@ const UsersList = () => {
                         {user.editing ? (
                           <div className="flex items-center space-x-2">
                             <button
-                              onClick={() => updateUser.mutate(user.id)}
-                              className="p-1 text-green-500 hover:text-green-700"
+                              onClick={() => {
+                                // Validate User's Name and Password
+                                const isValid = () => {
+                                  if (!user.name) {
+                                    toast.error("User name is required.");
+                                    return false;
+                                  }
+                                  const passwordRegex =
+                                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d\S]{8,}$/;
+                                  if (!passwordRegex.test(user.password)) {
+                                    toast.error(
+                                      "Password is not strong enough.",
+                                      {
+                                        description:
+                                          "Password must be 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number, and one special character",
+                                        duration: 5000,
+                                      }
+                                    );
+                                    return false;
+                                  }
+                                  return true;
+                                };
+                                if (isValid()) {
+                                  updateUser.mutate(user.id);
+                                }
+                              }}
+                              className="p-1 text-green-500 hover:text-green-700 bg-green-100 hover:bg-green-200/70 rounded-md"
                               title="Save"
                             >
                               <Check size={20} />
                             </button>
                             <button
                               onClick={() => cancelEditing(user.id)}
-                              className="p-1 text-red-500 hover:text-red-700"
+                              className="p-1 text-red-500 hover:text-red-700 bg-red-100 hover:bg-red-200/70 rounded-md"
                               title="Cancel"
                             >
                               <X size={20} />

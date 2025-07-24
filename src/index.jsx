@@ -13,11 +13,12 @@ import "@mantine/core/styles.css";
 import { router } from "./Router.jsx";
 import { RouterProvider } from "react-router-dom";
 
+// Toaster from sooner
+import { Toaster } from "sonner";
+
 // React Query
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const queryClient = new QueryClient();
-// Toaster from sooner
-import { Toaster } from "sonner";
 
 const theme = createTheme({
   cursorType: "pointer",
@@ -29,7 +30,7 @@ root.render(
     {/* Router Provider */}
     <MantineProvider theme={theme}>
       <RouterProvider router={router} />
-      <Toaster position="bottom-right" />
+      <Toaster position="bottom-right" richColors={true} duration={3000} />
     </MantineProvider>
   </QueryClientProvider>
 );
