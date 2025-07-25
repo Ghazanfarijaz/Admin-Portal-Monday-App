@@ -100,6 +100,7 @@ const AddCustomization = () => {
           customizationForm.values.fields.map((field) => ({
             columnId: field.id,
             columnName: field.title,
+            columnType: field.type,
             isEditable: field.isEditable || false,
           }))
         )
@@ -225,7 +226,12 @@ const AddCustomization = () => {
               withCheckIcon={false}
               maxDropdownHeight={200}
               placeholder="Select a board"
-              {...customizationForm.getInputProps("selectedBoardId")}
+              value={customizationForm.values.selectedBoardId}
+              onChange={(value) => {
+                customizationForm.setFieldValue("selectedBoardId", value);
+                // Reset fields when board is changed
+                customizationForm.setFieldValue("fields", []);
+              }}
             />
             {/* Fields Section */}
             <Group gap={8} className="!flex-col !items-start">
@@ -261,6 +267,7 @@ const AddCustomization = () => {
                           ?.columns?.map((column) => ({
                             value: column.id,
                             label: column.title,
+                            type: column.type,
                           }))}
                         searchable
                         allowDeselect={false}
@@ -277,6 +284,7 @@ const AddCustomization = () => {
                                     ...f,
                                     id: option.value,
                                     title: option.label,
+                                    type: option.type,
                                   }
                                 : f
                             )
@@ -334,6 +342,7 @@ const AddCustomization = () => {
                       tempId: Math.random().toString(36).substring(2, 10),
                       id: "",
                       title: "",
+                      type: "",
                       isEditable: false,
                     },
                   ]);

@@ -127,6 +127,7 @@ const EditCustomization = () => {
           customizationForm.values.fields.map((field) => ({
             columnId: field.id,
             columnName: field.title,
+            columnType: field.type,
             isEditable: field.isEditable || false,
           }))
         )
@@ -198,6 +199,7 @@ const EditCustomization = () => {
           tempId: Math.random().toString(36).substring(2, 10),
           id: field.columnId,
           title: field.columnName,
+          type: field.columnType,
           isEditable: field.isEditable || false,
         })),
         description: customization.description || "",
@@ -327,6 +329,7 @@ const EditCustomization = () => {
                           ?.columns?.map((column) => ({
                             value: column.id,
                             label: column.title,
+                            type: column.type,
                           }))}
                         searchable
                         allowDeselect={false}
@@ -343,6 +346,7 @@ const EditCustomization = () => {
                                     ...f,
                                     id: option.value,
                                     title: option.label,
+                                    type: option.type,
                                   }
                                 : f
                             )
@@ -400,6 +404,7 @@ const EditCustomization = () => {
                       tempId: Math.random().toString(36).substring(2, 10),
                       id: "",
                       title: "",
+                      type: "",
                       isEditable: false,
                     },
                   ]);
