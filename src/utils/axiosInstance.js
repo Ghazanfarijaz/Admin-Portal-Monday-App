@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Backend with no Secure Storage
 const API_BASE_URL =
-  "https://ec582-service-23360785-a4c1a002.us.monday.app/api";
+  "https://d47d0-service-23360785-a4c1a002.us.monday.app/api";
 
 // Backend with Secure Storage
 // const API_BASE_URL =
