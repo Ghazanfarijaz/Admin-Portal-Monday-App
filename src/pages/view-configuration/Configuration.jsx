@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import customizationAPIs from "../../api/customization";
 import { authAPIs } from "../../api/auth";
 import CustomizationSkeleton from "../../components/CustomizationSkeleton";
-import { LinkIcon } from "lucide-react";
+import { Info, LinkIcon } from "lucide-react";
 import { CopyButton, Group, Radio, Switch, Tooltip } from "@mantine/core";
 import { AttentionBox } from "@vibe/core";
 
@@ -182,30 +182,21 @@ export default function Configuration() {
                   disabled
                 />
               </Tooltip>
-
-              <div className="flex flex-col gap-1">
-                <Tooltip
-                  label="When enabled, users will only see items where their email matches in the selected email column. You’ll be prompted to choose the column after turning this on."
-                  refProp="rootRef"
-                  withArrow
-                  multiline
-                  w={220}
-                  transitionProps={{ duration: 200 }}
-                >
-                  <Switch
-                    label="Enable email-based item visibility restriction"
-                    checked={customization.filterItemsByEmail === "true"}
-                    disabled
-                    className="!w-fit"
-                  />
-                </Tooltip>
-                {customization.filterItemsByEmail === "true" && (
-                  <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center text-gray-500">
-                    {JSON.parse(customization.selectedEmailColumn)?.title ||
-                      "No email column selected"}
-                  </div>
-                )}
-              </div>
+              <Tooltip
+                label="When enabled, users will only see items where their email matches in the selected email column. You’ll be prompted to choose the column after turning this on."
+                refProp="rootRef"
+                withArrow
+                multiline
+                w={220}
+                transitionProps={{ duration: 200 }}
+              >
+                <Switch
+                  label="Enable email-based item visibility restriction"
+                  checked={customization.filterItemsByEmail === "true"}
+                  disabled
+                  className="!w-fit"
+                />
+              </Tooltip>
 
               <Tooltip
                 label="When enabled, external users will be able to create new items in the board."
@@ -222,6 +213,26 @@ export default function Configuration() {
                   className="!w-fit"
                 />
               </Tooltip>
+
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <p className="text-gray-500 text-[14px]">
+                    Assigned To (Email Column)
+                  </p>
+                  <Tooltip
+                    maw={220}
+                    multiline
+                    label="This column will be used for filtering the items based on the emails of the users added against the items. This would act as a Assigned To Column."
+                  >
+                    <Info size={16} className="text-gray-500 cursor-pointer" />
+                  </Tooltip>
+                </div>
+                <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center text-gray-500">
+                  {JSON.parse(customization.selectedEmailColumn)?.title ||
+                    "No email column selected"}
+                </div>
+              </div>
+
               <Radio.Group
                 name="signUpMethod"
                 label="Sign Up Method"

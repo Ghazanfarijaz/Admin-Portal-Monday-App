@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Group, Radio, Select, Switch, Textarea, Tooltip } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronLeft, Plus, X } from "lucide-react";
+import { ChevronLeft, Info, Plus, X } from "lucide-react";
 import customizationAPIs from "../../api/customization";
 import CustomizationSkeleton from "../../components/CustomizationSkeleton";
 import LogoInput from "../../components/LogoInput";
@@ -54,10 +54,7 @@ const AddCustomization = () => {
 
       logo: (value) => (value ? null : "Logo is required!"),
       selectedEmailColumn: (value) => {
-        if (
-          customizationForm.values.filterItemsByEmail &&
-          (!value.id || !value.title)
-        ) {
+        if (!value.id || !value.title) {
           return "Email column is required when filtering by email!";
         }
         return null;
@@ -381,67 +378,80 @@ const AddCustomization = () => {
                   }}
                 />
               </Tooltip>
-              <div className="flex flex-col gap-1">
-                <Tooltip
-                  label="When enabled, users will only see items where their email matches in the selected email column. You’ll be prompted to choose the column after turning this on."
-                  refProp="rootRef"
-                  withArrow
-                  multiline
-                  w={220}
-                  transitionProps={{ duration: 200 }}
-                >
-                  <Switch
-                    label="Enable email-based item visibility restriction"
-                    checked={customizationForm.values.filterItemsByEmail}
-                    onChange={(event) => {
-                      customizationForm.setFieldValue(
-                        "filterItemsByEmail",
-                        event.currentTarget.checked
-                      );
+              <Tooltip
+                label="When enabled, users will only see items where their email matches in the selected email column. You’ll be prompted to choose the column after turning this on."
+                refProp="rootRef"
+                withArrow
+                multiline
+                w={220}
+                transitionProps={{ duration: 200 }}
+              >
+                <Switch
+                  label="Enable email-based item visibility restriction"
+                  checked={customizationForm.values.filterItemsByEmail}
+                  onChange={(event) => {
+                    customizationForm.setFieldValue(
+                      "filterItemsByEmail",
+                      event.currentTarget.checked
+                    );
 
-                      if (!event.currentTarget.checked) {
-                        customizationForm.setFieldValue("selectedEmailColumn", {
-                          id: "",
-                          title: "",
-                        });
-                      }
-                    }}
-                    className="!w-fit"
-                  />
-                </Tooltip>
-                {customizationForm.values.filterItemsByEmail && (
-                  <Select
-                    classNames={{
-                      root: "!w-full !max-w-[450px]",
-                      input:
-                        "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
-                    }}
-                    data={boardDetails
-                      ?.find(
-                        (board) =>
-                          board.id === customizationForm.values.selectedBoardId
-                      )
-                      ?.columns.filter((column) => column.type === "email")
-                      .map((column) => ({
-                        value: column.id,
-                        label: column.title,
-                      }))}
-                    searchable
-                    allowDeselect={false}
-                    withCheckIcon={false}
-                    maxDropdownHeight={200}
-                    placeholder="Select an email column"
-                    value={customizationForm.values.selectedEmailColumn.id}
-                    onChange={(_, option) => {
+                    if (!event.currentTarget.checked) {
                       customizationForm.setFieldValue("selectedEmailColumn", {
-                        id: option.value,
-                        title: option.label,
+                        id: "",
+                        title: "",
                       });
-                    }}
-                    error={customizationForm.errors.selectedEmailColumn}
-                  />
-                )}
-              </div>
+                    }
+                  }}
+                  className="!w-fit"
+                />
+              </Tooltip>
+              <Select
+                label={
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-800 font-semibold text-sm leading-none">
+                      Assigned To (Email Column)
+                    </span>
+                    <Tooltip
+                      maw={220}
+                      multiline
+                      label="This column will be used for filtering the items based on the emails of the users added against the items. This would act as a Assigned To Column."
+                    >
+                      <Info
+                        size={16}
+                        className="text-gray-500 cursor-pointer"
+                      />
+                    </Tooltip>
+                  </div>
+                }
+                classNames={{
+                  root: "!w-full !max-w-[450px]",
+                  input:
+                    "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
+                }}
+                data={boardDetails
+                  ?.find(
+                    (board) =>
+                      board.id === customizationForm.values.selectedBoardId
+                  )
+                  ?.columns.filter((column) => column.type === "email")
+                  .map((column) => ({
+                    value: column.id,
+                    label: column.title,
+                  }))}
+                searchable
+                allowDeselect={false}
+                withCheckIcon={false}
+                maxDropdownHeight={200}
+                placeholder="Select an email column"
+                value={customizationForm.values.selectedEmailColumn.id}
+                onChange={(_, option) => {
+                  customizationForm.setFieldValue("selectedEmailColumn", {
+                    id: option.value,
+                    title: option.label,
+                  });
+                }}
+                error={customizationForm.errors.selectedEmailColumn}
+              />
               <Tooltip
                 label="When enabled, external users will be able to create new items in the board."
                 refProp="rootRef"
