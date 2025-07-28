@@ -390,6 +390,53 @@ const AddCustomization = () => {
                 </Tooltip>
               </div>
 
+              {/* Allow External Users to Create New Items - Switch */}
+              <div className="flex items-center gap-2">
+                <Switch
+                  label="Allow External Users to Create New Items"
+                  checked={customizationForm.values.allowUsersToCreateNewItems}
+                  onChange={(event) => {
+                    customizationForm.setFieldValue(
+                      "allowUsersToCreateNewItems",
+                      event.currentTarget.checked
+                    );
+                  }}
+                  className="!w-fit"
+                />
+                <Tooltip
+                  label="This attribute provide the user with the permissions to create new items from the portal to your board."
+                  withArrow
+                  maw={220}
+                  multiline
+                  transitionProps={{ duration: 200 }}
+                >
+                  <Info size={16} className="text-gray-500 cursor-pointer" />
+                </Tooltip>
+              </div>
+
+              {/* Allow user to create new values in Dropdown - Switch  */}
+              <div className="flex items-center gap-2">
+                <Switch
+                  label="Allow user to create new values in Dropdown columns"
+                  checked={customizationForm.values.allowNewValueCreation}
+                  onChange={(event) => {
+                    customizationForm.setFieldValue(
+                      "allowNewValueCreation",
+                      event.currentTarget.checked
+                    );
+                  }}
+                />
+                <Tooltip
+                  label="This attribute provide the user with the permissions to create new values in the Dropdown fields."
+                  withArrow
+                  maw={220}
+                  multiline
+                  transitionProps={{ duration: 200 }}
+                >
+                  <Info size={16} className="text-gray-500 cursor-pointer" />
+                </Tooltip>
+              </div>
+
               {/* Email-based item visibility restriction - email column */}
               <Select
                 label={
@@ -438,53 +485,6 @@ const AddCustomization = () => {
                 }}
                 error={customizationForm.errors.selectedEmailColumn}
               />
-
-              {/* Allow External Users to Create New Items - Switch */}
-              <div className="flex items-center gap-2">
-                <Switch
-                  label="Allow External Users to Create New Items"
-                  checked={customizationForm.values.allowUsersToCreateNewItems}
-                  onChange={(event) => {
-                    customizationForm.setFieldValue(
-                      "allowUsersToCreateNewItems",
-                      event.currentTarget.checked
-                    );
-                  }}
-                  className="!w-fit"
-                />
-                <Tooltip
-                  label="This attribute provide the user with the permissions to create new items from the portal to your board."
-                  withArrow
-                  maw={220}
-                  multiline
-                  transitionProps={{ duration: 200 }}
-                >
-                  <Info size={16} className="text-gray-500 cursor-pointer" />
-                </Tooltip>
-              </div>
-
-              {/* Allow user to create new values in Dropdown - Switch  */}
-              <div className="flex items-center gap-2">
-                <Switch
-                  label="Allow user to create new values in Dropdown columns"
-                  checked={customizationForm.values.allowNewValueCreation}
-                  onChange={(event) => {
-                    customizationForm.setFieldValue(
-                      "allowNewValueCreation",
-                      event.currentTarget.checked
-                    );
-                  }}
-                />
-                <Tooltip
-                  label="This attribute provide the user with the permissions to create new values in the Dropdown fields."
-                  withArrow
-                  maw={220}
-                  multiline
-                  transitionProps={{ duration: 200 }}
-                >
-                  <Info size={16} className="text-gray-500 cursor-pointer" />
-                </Tooltip>
-              </div>
 
               {/* Sign Up Method */}
               <Radio.Group
