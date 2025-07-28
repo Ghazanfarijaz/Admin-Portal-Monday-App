@@ -168,52 +168,25 @@ export default function Configuration() {
               Systems Flags
             </h2>
             <div className="flex flex-col gap-3">
-              <Tooltip
-                label="If Allowed, it will allow the external users on to create new values for 'Dropdown' columns. - if the value is not present in the column options."
-                refProp="rootRef"
-                withArrow
-                multiline
-                w={220}
-                transitionProps={{ duration: 200 }}
-              >
-                <Switch
-                  label="Allow user to create new values in Dropdown columns"
-                  checked={customization.allowNewValueCreation === "true"}
-                  disabled
-                />
-              </Tooltip>
-              <Tooltip
-                label="When enabled, users will only see items where their email matches in the selected email column. You’ll be prompted to choose the column after turning this on."
-                refProp="rootRef"
-                withArrow
-                multiline
-                w={220}
-                transitionProps={{ duration: 200 }}
-              >
+              {/* Email-based item visibility restriction */}
+              <div className="flex items-center gap-2">
                 <Switch
                   label="Enable email-based item visibility restriction"
                   checked={customization.filterItemsByEmail === "true"}
                   disabled
                   className="!w-fit"
                 />
-              </Tooltip>
-
-              <Tooltip
-                label="When enabled, external users will be able to create new items in the board."
-                refProp="rootRef"
-                withArrow
-                multiline
-                w={220}
-                transitionProps={{ duration: 200 }}
-              >
-                <Switch
-                  label="Allow External Users to Create New Items"
-                  checked={customization.allowUsersToCreateNewItems === "true"}
-                  disabled
-                  className="!w-fit"
-                />
-              </Tooltip>
-
+                <Tooltip
+                  label="This attribute restrict the user permissions to view the items that are assigned to him only."
+                  withArrow
+                  maw={220}
+                  multiline
+                  transitionProps={{ duration: 200 }}
+                >
+                  <Info size={16} className="text-gray-500 cursor-pointer" />
+                </Tooltip>
+              </div>
+              {/* Assigned To (Email Column) */}
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
                   <p className="text-gray-500 text-[14px]">
@@ -232,7 +205,42 @@ export default function Configuration() {
                     "No email column selected"}
                 </div>
               </div>
-
+              {/* Allow External Users to Create New Items - Switch */}
+              <div className="flex items-center gap-2">
+                <Switch
+                  label="Allow External Users to Create New Items"
+                  checked={customization.allowUsersToCreateNewItems === "true"}
+                  disabled
+                  className="!w-fit"
+                />
+                <Tooltip
+                  label="This attribute provide the user with the permissions to create new items from the portal to your board."
+                  withArrow
+                  maw={220}
+                  multiline
+                  transitionProps={{ duration: 200 }}
+                >
+                  <Info size={16} className="text-gray-500 cursor-pointer" />
+                </Tooltip>
+              </div>
+              {/* Allow user to create new values in Dropdown - Switch  */}
+              <div className="flex items-center gap-2">
+                <Switch
+                  label="Allow user to create new values in Dropdown columns"
+                  checked={customization.allowNewValueCreation === "true"}
+                  disabled
+                />
+                <Tooltip
+                  label="This attribute provide the user with the permissions to create new values in the Dropdown fields."
+                  withArrow
+                  maw={220}
+                  multiline
+                  transitionProps={{ duration: 200 }}
+                >
+                  <Info size={16} className="text-gray-500 cursor-pointer" />
+                </Tooltip>
+              </div>
+              {/* Sign Up Method */}
               <Radio.Group
                 name="signUpMethod"
                 label="Sign Up Method"
