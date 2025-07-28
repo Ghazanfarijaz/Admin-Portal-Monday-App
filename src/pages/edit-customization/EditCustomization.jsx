@@ -504,9 +504,10 @@ const EditCustomization = () => {
               <Select
                 label={
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-800 font-semibold text-sm leading-none">
-                      Assigned To (Email Column)
-                    </span>
+                    <p className="text-gray-800 font-semibold text-sm leading-none">
+                      Assigned To (Email Column){" "}
+                      <span className="text-[#fa5252]">*</span>
+                    </p>
                     <Tooltip
                       maw={220}
                       multiline

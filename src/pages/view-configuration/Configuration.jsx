@@ -205,7 +205,7 @@ export default function Configuration() {
                   <Info size={16} className="text-gray-500 cursor-pointer" />
                 </Tooltip>
               </div>
-              
+
               {/* Allow user to create new values in Dropdown - Switch  */}
               <div className="flex items-center gap-2">
                 <Switch
@@ -228,7 +228,8 @@ export default function Configuration() {
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
                   <p className="text-gray-500 text-[14px]">
-                    Assigned To (Email Column)
+                    Assigned To (Email Column){" "}
+                    <span className="text-[#fa5252]">*</span>
                   </p>
                   <Tooltip
                     maw={220}
