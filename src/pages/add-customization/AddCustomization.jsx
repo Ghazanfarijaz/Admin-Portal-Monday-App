@@ -370,12 +370,12 @@ const AddCustomization = () => {
                       event.currentTarget.checked
                     );
 
-                    if (!event.currentTarget.checked) {
-                      customizationForm.setFieldValue("selectedEmailColumn", {
-                        id: "",
-                        title: "",
-                      });
-                    }
+                    // if (!event.currentTarget.checked) {
+                    //   customizationForm.setFieldValue("selectedEmailColumn", {
+                    //     id: "",
+                    //     title: "",
+                    //   });
+                    // }
                   }}
                   className="!w-fit"
                 />
