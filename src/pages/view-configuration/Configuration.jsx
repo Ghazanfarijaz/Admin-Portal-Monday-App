@@ -171,7 +171,7 @@ export default function Configuration() {
               {/* Email-based item visibility restriction */}
               <div className="flex items-center gap-2">
                 <Switch
-                  label="Enable email-based item visibility restriction"
+                  label="Show items Assigned To Me only"
                   checked={customization.filterItemsByEmail === "true"}
                   disabled
                   className="!w-fit"
@@ -187,10 +187,10 @@ export default function Configuration() {
                 </Tooltip>
               </div>
 
-              {/* Allow External Users to Create New Items - Switch */}
+              {/* Allow external users to create new item. - Switch */}
               <div className="flex items-center gap-2">
                 <Switch
-                  label="Allow External Users to Create New Items"
+                  label="Allow external users to create new item."
                   checked={customization.allowUsersToCreateNewItems === "true"}
                   disabled
                   className="!w-fit"
@@ -209,7 +209,7 @@ export default function Configuration() {
               {/* Allow user to create new values in Dropdown - Switch  */}
               <div className="flex items-center gap-2">
                 <Switch
-                  label="Allow user to create new values in Dropdown columns"
+                  label="Allow external users to create new values."
                   checked={customization.allowNewValueCreation === "true"}
                   disabled
                 />

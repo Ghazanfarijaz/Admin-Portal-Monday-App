@@ -362,7 +362,7 @@ const AddCustomization = () => {
               {/* Email-based item visibility restriction */}
               <div className="flex items-center gap-2">
                 <Switch
-                  label="Enable email-based item visibility restriction"
+                  label="Show items Assigned To Me only"
                   checked={customizationForm.values.filterItemsByEmail}
                   onChange={(event) => {
                     customizationForm.setFieldValue(
@@ -390,10 +390,10 @@ const AddCustomization = () => {
                 </Tooltip>
               </div>
 
-              {/* Allow External Users to Create New Items - Switch */}
+              {/* Allow external users to create new item. - Switch */}
               <div className="flex items-center gap-2">
                 <Switch
-                  label="Allow External Users to Create New Items"
+                  label="Allow external users to create new item."
                   checked={customizationForm.values.allowUsersToCreateNewItems}
                   onChange={(event) => {
                     customizationForm.setFieldValue(
@@ -417,7 +417,7 @@ const AddCustomization = () => {
               {/* Allow user to create new values in Dropdown - Switch  */}
               <div className="flex items-center gap-2">
                 <Switch
-                  label="Allow user to create new values in Dropdown columns"
+                  label="Allow external users to create new values."
                   checked={customizationForm.values.allowNewValueCreation}
                   onChange={(event) => {
                     customizationForm.setFieldValue(
