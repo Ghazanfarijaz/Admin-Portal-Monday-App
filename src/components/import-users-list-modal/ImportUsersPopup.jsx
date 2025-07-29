@@ -4,11 +4,10 @@ import {
   ModalContent,
   ModalBasicLayout,
 } from "@vibe/core/next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FileUpload from "./FileUpload";
 import UserTablePreview from "./UserTablePreview";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { authAPIs } from "../../api/auth";
 import mondaySdk from "monday-sdk-js";
 import { userAPIs } from "../../api/users";
 import { toast } from "sonner";
@@ -23,6 +22,7 @@ export const ImportUsersPopup = ({ isModalOpen, onCloseModal }) => {
 
   // Local State
   const [users, setUsers] = useState([]);
+  const [sessionToken, setSessionToken] = useState(null);
 
   const handleUpload = (parsedData) => {
     setUsers(parsedData);
@@ -35,9 +35,8 @@ export const ImportUsersPopup = ({ isModalOpen, onCloseModal }) => {
   // add Imported Users - Mutation
   const addImportedUsers = useMutation({
     mutationFn: async () => {
-      const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
       return userAPIs.addImportedUsersCredentials({
-        slug: userSlug,
+        sessionToken,
         usersData: users,
       });
     },
@@ -57,6 +56,13 @@ export const ImportUsersPopup = ({ isModalOpen, onCloseModal }) => {
       });
     },
   });
+
+  // Get Session Token
+  useEffect(() => {
+    monday.listen("sessionToken", ({ data: token }) => {
+      setSessionToken(token);
+    });
+  }, []);
 
   return (
     <Modal

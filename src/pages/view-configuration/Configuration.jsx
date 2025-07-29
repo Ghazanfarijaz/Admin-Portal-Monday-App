@@ -2,15 +2,18 @@ import { Link } from "react-router-dom";
 import mondaySdk from "monday-sdk-js";
 import { useQuery } from "@tanstack/react-query";
 import customizationAPIs from "../../api/customization";
-import { authAPIs } from "../../api/auth";
 import CustomizationSkeleton from "../../components/CustomizationSkeleton";
 import { Info, LinkIcon } from "lucide-react";
 import { CopyButton, Group, Radio, Switch, Tooltip } from "@mantine/core";
 import { AttentionBox } from "@vibe/core";
+import { useEffect, useState } from "react";
 
 const monday = mondaySdk();
 
 export default function Configuration() {
+  // Local States
+  const [sessionToken, setSessionToken] = useState(null);
+
   // Fetch board details and customization data using react-query
   const {
     data: customization,
@@ -18,15 +21,21 @@ export default function Configuration() {
     error,
     isFetching,
   } = useQuery({
-    queryKey: ["customizationData"],
+    queryKey: ["customizationData", sessionToken],
     queryFn: async () => {
-      const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
-
       return customizationAPIs.getCustomization({
-        slug: userSlug,
+        sessionToken,
       });
     },
+    enabled: !!sessionToken,
   });
+
+  // Fetch session token
+  useEffect(() => {
+    monday.listen("sessionToken", ({ data: token }) => {
+      setSessionToken(token);
+    });
+  }, []);
 
   if (isError) {
     console.error("Error loading customization:", error);

@@ -1,19 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 import { userAPIs } from "../../api/users";
-import { authAPIs } from "../../api/auth";
 import mondaySdk from "monday-sdk-js";
 import { ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import LoadingBackdrop from "../../components/LoadingBackdrop";
 import { useForm } from "@mantine/form";
 import { PasswordInput, TextInput } from "@mantine/core";
+import { useEffect, useState } from "react";
 // Monday SDK initialization
 const monday = mondaySdk();
 
 const AddNewUser = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [sessionToken, setSessionToken] = useState(null);
 
   const newUserForm = useForm({
     initialValues: {
@@ -49,14 +50,14 @@ const AddNewUser = () => {
 
   const createNewUser = useMutation({
     mutationFn: async () => {
-      const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
-
-      return userAPIs.createUser({
-        name: newUserForm.values.name,
-        email: newUserForm.values.email,
-        password: newUserForm.values.password,
-        slug: userSlug,
-      });
+      return userAPIs.createUser(
+        {
+          name: newUserForm.values.name,
+          email: newUserForm.values.email,
+          password: newUserForm.values.password,
+        },
+        sessionToken
+      );
     },
 
     onSuccess: () => {
@@ -79,6 +80,12 @@ const AddNewUser = () => {
       });
     },
   });
+
+  useEffect(() => {
+    monday.listen("sessionToken", ({ data: token }) => {
+      setSessionToken(token);
+    });
+  }, []);
 
   return (
     <>

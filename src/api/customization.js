@@ -2,10 +2,15 @@ import axiosInstance from "../utils/axiosInstance";
 
 const customizationAPIs = {
   // Get the Customization settings
-  getCustomization: async ({ slug }) => {
+  getCustomization: async ({ sessionToken }) => {
     try {
       const response = await axiosInstance.get(
-        `/customization/getCustomization?slug=${slug}`
+        `/customization/getCustomization`,
+        {
+          headers: {
+            Authorization: sessionToken,
+          },
+        }
       );
       return response.data.data;
     } catch (error) {
@@ -18,13 +23,14 @@ const customizationAPIs = {
   },
 
   // Add new Customization settings
-  addCustomization: async ({ customizationData, slug }) => {
+  addCustomization: async ({ customizationData, sessionToken }) => {
     try {
       const response = await axiosInstance.post(
-        `/customization/addCustomization?slug=${slug}`,
+        `/customization/addCustomization`,
         customizationData,
         {
           headers: {
+            Authorization: sessionToken,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -39,13 +45,14 @@ const customizationAPIs = {
   },
 
   // Update existing Customization settings
-  updateCustomization: async ({ customizationData, slug }) => {
+  updateCustomization: async ({ customizationData, sessionToken }) => {
     try {
       const response = await axiosInstance.put(
-        `/customization/updateCustomization?slug=${slug}`,
+        `/customization/updateCustomization`,
         customizationData,
         {
           headers: {
+            Authorization: sessionToken,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -60,23 +67,7 @@ const customizationAPIs = {
     }
   },
 
-  // Delete current Customization settings
-  deleteCustomization: async ({ slug }) => {
-    try {
-      await axiosInstance.delete(
-        `/customization/deleteCustomization?slug=${slug}`
-      );
-      console.log("Customization deleted successfully");
-      return true;
-    } catch (error) {
-      console.error("Error deleting customization:", error);
-      throw new Error(
-        error.response?.data?.message ||
-          `Failed to delete customization settings`
-      );
-    }
-  },
-
+  // Get all boards
   getAllBoards: async ({ monday }) => {
     try {
       const query = `

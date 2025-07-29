@@ -7,13 +7,13 @@ import { ChevronLeft, Info, Plus, X } from "lucide-react";
 import customizationAPIs from "../../api/customization";
 import CustomizationSkeleton from "../../components/CustomizationSkeleton";
 import LogoInput from "../../components/LogoInput";
-import { authAPIs } from "../../api/auth";
 import { toast } from "sonner";
 import { AttentionBox } from "@vibe/core";
 import {
   DraggableFields,
   SortableField,
 } from "../../components/DraggableFeilds";
+import { useEffect, useState } from "react";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -21,6 +21,9 @@ const monday = mondaySdk();
 const AddCustomization = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
+  // Local State
+  const [sessionToken, setSessionToken] = useState(null);
 
   // Form Initialization
   const customizationForm = useForm({
@@ -79,8 +82,6 @@ const AddCustomization = () => {
   // Add Customization - Mutation
   const addCustomization = useMutation({
     mutationFn: async () => {
-      const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
-
       // Get the "Board" based on the selected board ID
       const selectedBoard = boardDetails?.find(
         (board) => board.id === customizationForm.values.selectedBoardId
@@ -106,7 +107,6 @@ const AddCustomization = () => {
         "description",
         customizationForm.values.description || ""
       );
-      formData.append("subDomain", userSlug);
       formData.append("image", customizationForm.values.logo);
       formData.append(
         "allowNewValueCreation",
@@ -131,7 +131,7 @@ const AddCustomization = () => {
 
       return customizationAPIs.addCustomization({
         customizationData: formData,
-        slug: userSlug,
+        sessionToken,
       });
     },
 
@@ -146,6 +146,13 @@ const AddCustomization = () => {
       });
     },
   });
+
+  // UseEffect to get Session Token
+  useEffect(() => {
+    monday.listen("sessionToken", ({ data: token }) => {
+      setSessionToken(token);
+    });
+  }, []);
 
   if (isError) {
     console.error("Failed to fetch board details", error);

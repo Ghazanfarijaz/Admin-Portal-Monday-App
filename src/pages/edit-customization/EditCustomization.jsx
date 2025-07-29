@@ -3,7 +3,6 @@ import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, Plus, X, Info } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import customizationAPIs from "../../api/customization";
-import { authAPIs } from "../../api/auth";
 import CustomizationSkeleton from "../../components/CustomizationSkeleton";
 import { useForm } from "@mantine/form";
 import { useEffect, useRef, useState } from "react";
@@ -25,6 +24,7 @@ const EditCustomization = () => {
 
   // Local States
   const [isLoading, setIsLoading] = useState(false);
+  const [sessionToken, setSessionToken] = useState(null);
 
   // Customization Form Initialization
   // Form Initialization
@@ -82,12 +82,11 @@ const EditCustomization = () => {
         {
           queryKey: ["customizationData"],
           queryFn: async () => {
-            const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
-
             return customizationAPIs.getCustomization({
-              slug: userSlug,
+              sessionToken,
             });
           },
+          enabled: !!sessionToken,
         },
       ],
       combine: (results) => {
@@ -106,8 +105,6 @@ const EditCustomization = () => {
   // Update Customization - Mutation
   const updateCustomization = useMutation({
     mutationFn: async () => {
-      const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
-
       // Get the "Board" based on the selected board ID
       const selectedBoard = boardDetails?.find(
         (board) => board.id === customizationForm.values.selectedBoardId
@@ -133,7 +130,6 @@ const EditCustomization = () => {
         "description",
         customizationForm.values.description || ""
       );
-      formData.append("subDomain", userSlug);
 
       formData.append(
         "allowNewValueCreation",
@@ -167,7 +163,7 @@ const EditCustomization = () => {
 
       return customizationAPIs.updateCustomization({
         customizationData: formData,
-        slug: userSlug,
+        sessionToken,
       });
     },
 
@@ -213,6 +209,13 @@ const EditCustomization = () => {
       setIsLoading(false);
     }
   }, [customization]);
+
+  // Use Effect to fetch the Session Token From Monday
+  useEffect(() => {
+    monday.listen("sessionToken", ({ data: token }) => {
+      setSessionToken(token);
+    });
+  }, []);
 
   if (isError) {
     console.error(error.message || "Failed to fetch customization data");
