@@ -14,6 +14,7 @@ import {
   SortableField,
 } from "../../components/DraggableFeilds";
 import { useEffect, useState } from "react";
+import sanitizeData from "../../utils/sanitizeData";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -103,10 +104,13 @@ const AddCustomization = () => {
           }))
         )
       );
-      formData.append(
-        "description",
+
+      // Sanitize Description
+      const sanitizedDescription = sanitizeData.description(
         customizationForm.values.description || ""
       );
+
+      formData.append("description", sanitizedDescription);
       formData.append("image", customizationForm.values.logo);
       formData.append(
         "allowNewValueCreation",

@@ -13,6 +13,7 @@ import {
   DraggableFields,
   SortableField,
 } from "../../components/DraggableFeilds";
+import sanitizeData from "../../utils/sanitizeData";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -126,10 +127,12 @@ const EditCustomization = () => {
           }))
         )
       );
-      formData.append(
-        "description",
+
+      // Sanitize Description
+      const sanitizedDescription = sanitizeData.description(
         customizationForm.values.description || ""
       );
+      formData.append("description", sanitizedDescription);
 
       formData.append(
         "allowNewValueCreation",
