@@ -62,7 +62,10 @@ const CustomizationSkeleton = ({ type }) => {
       </div>
 
       {type === "edit-customization" && (
-        <Skeleton className="!w-[150px] !h-[42px] !rounded-lg" />
+        <div className="flex items-center gap-2 mt-2">
+          <Skeleton className="!w-[170px] !h-[42px] !rounded-lg" />
+          <Skeleton className="!w-[100px] !h-[42px] !rounded-lg" />
+        </div>
       )}
     </div>
   );
