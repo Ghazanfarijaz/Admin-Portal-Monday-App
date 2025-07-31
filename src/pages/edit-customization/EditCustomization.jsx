@@ -598,7 +598,7 @@ const EditCustomization = () => {
               type="submit"
               className="flex items-center gap-1 bg-[#007F9B] border-2 border-[#007F9B] text-white px-4 py-2 rounded-lg hover:bg-[#20768a] transition-colors w-fit font-medium"
             >
-              Update Customization
+              Save
             </button>
             <Link
               to="/configuration"
