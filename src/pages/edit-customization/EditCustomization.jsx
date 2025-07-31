@@ -593,12 +593,20 @@ const EditCustomization = () => {
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="flex items-center gap-1 bg-[#007F9B] text-white px-4 py-2 rounded-lg hover:bg-[#20768a] transition-colors mt-2 disabled:bg-gray-300 w-fit"
-          >
-            Update Customization
-          </button>
+          <div className="flex items-center gap-2 mt-2">
+            <button
+              type="submit"
+              className="flex items-center gap-1 bg-[#007F9B] border-2 border-[#007F9B] text-white px-4 py-2 rounded-lg hover:bg-[#20768a] transition-colors w-fit font-medium"
+            >
+              Update Customization
+            </button>
+            <Link
+              to="/configuration"
+              className="flex items-center gap-1 border-2 border-[#007F9B] text-[#007F9B] px-4 py-2 rounded-lg w-fit font-medium"
+            >
+              Cancel
+            </Link>
+          </div>
         </form>
       )}
     </div>
