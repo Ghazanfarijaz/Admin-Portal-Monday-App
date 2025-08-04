@@ -156,7 +156,7 @@ export default function Configuration() {
                   <div key={field.columnId}>
                     <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center justify-between gap-8">
                       <p className="text-[14px]">{field.columnName}</p>
-                      <p className="text-[12px] text-red-400">
+                      <p className="text-[12px] text-[#fa5252]">
                         {field.isRequired ? "(Required)" : ""}
                       </p>
                     </div>
