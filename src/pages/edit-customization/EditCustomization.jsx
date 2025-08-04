@@ -124,6 +124,7 @@ const EditCustomization = () => {
             columnName: field.title,
             columnType: field.type,
             isEditable: field.isEditable || false,
+            isRequired: field.isRequired || false,
           }))
         )
       );
@@ -197,6 +198,7 @@ const EditCustomization = () => {
           title: field.columnName,
           type: field.columnType,
           isEditable: field.isEditable || false,
+          isRequired: field.isRequired || false,
         })),
         description: customization.description || "",
         logo: customization.logo || null,
@@ -225,6 +227,7 @@ const EditCustomization = () => {
     toast.error(error.message || "Failed to fetch customization data");
     return navigate("/configuration", { replace: true });
   }
+
   return (
     <div className="flex flex-col gap-8 p-12 bg-white w-full h-full">
       <div className="flex flex-col gap-2">
@@ -386,6 +389,25 @@ const EditCustomization = () => {
                           );
                         }}
                       />
+                      {field.isEditable && (
+                        <Switch
+                          checked={field.isRequired}
+                          label="Required"
+                          onChange={(event) => {
+                            customizationForm.setFieldValue(
+                              "fields",
+                              customizationForm.values.fields.map((f) =>
+                                f.tempId === field.tempId
+                                  ? {
+                                      ...f,
+                                      isRequired: event.currentTarget.checked,
+                                    }
+                                  : f
+                              )
+                            );
+                          }}
+                        />
+                      )}
                     </div>
                   </SortableField>
                 ))}

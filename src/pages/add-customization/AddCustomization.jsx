@@ -101,6 +101,7 @@ const AddCustomization = () => {
             columnName: field.title,
             columnType: field.type,
             isEditable: field.isEditable || false,
+            isRequired: field.isRequired || false,
           }))
         )
       );
@@ -329,6 +330,25 @@ const AddCustomization = () => {
                           );
                         }}
                       />
+                      {field.isEditable && (
+                        <Switch
+                          checked={field.isRequired}
+                          label="Required"
+                          onChange={(event) => {
+                            customizationForm.setFieldValue(
+                              "fields",
+                              customizationForm.values.fields.map((f) =>
+                                f.tempId === field.tempId
+                                  ? {
+                                      ...f,
+                                      isRequired: event.currentTarget.checked,
+                                    }
+                                  : f
+                              )
+                            );
+                          }}
+                        />
+                      )}
                     </div>
                   </SortableField>
                 ))}
