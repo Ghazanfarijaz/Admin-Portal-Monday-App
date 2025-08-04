@@ -154,8 +154,11 @@ export default function Configuration() {
               <div className="flex flex-col gap-3">
                 {customization.fields?.map((field) => (
                   <div key={field.columnId}>
-                    <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center">
-                      {field.columnName}
+                    <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center justify-between gap-8">
+                      <p className="text-[14px]">{field.columnName}</p>
+                      <p className="text-[12px] text-red-400">
+                        {field.isRequired ? "(Required)" : ""}
+                      </p>
                     </div>
                     {field.isEditable ? (
                       <p className="text-[12px] text-gray-500 mt-1">
