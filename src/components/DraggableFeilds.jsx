@@ -53,7 +53,7 @@ export const DraggableFields = ({ fields, onReorder, children }) => {
   );
 
   return (
-    <div className="overflow-hidden w-full flex flex-col gap-2">
+    <div className="overflow-hidden w-full flex flex-col gap-3">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}

@@ -319,80 +319,65 @@ const EditCustomization = () => {
               >
                 {customizationForm.values.fields.map((field, index) => (
                   <SortableField key={field.tempId} field={field}>
-                    <div className="flex items-center gap-2 w-full">
-                      <Select
-                        classNames={{
-                          root: "!w-full !max-w-[450px]",
-                          input:
-                            "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
-                        }}
-                        data={boardDetails
-                          ?.find(
-                            (board) =>
-                              board.id ===
-                              customizationForm.values.selectedBoardId
-                          )
-                          ?.columns?.map((column) => ({
-                            value: column.id,
-                            label: column.title,
-                            type: column.type,
-                          }))}
-                        searchable
-                        allowDeselect={false}
-                        withCheckIcon={false}
-                        maxDropdownHeight={200}
-                        placeholder="Select a field"
-                        value={field.id}
-                        onChange={(_, option) => {
-                          customizationForm.setFieldValue(
-                            "fields",
-                            customizationForm.values.fields.map((f) =>
-                              f.tempId === field.tempId
-                                ? {
-                                    ...f,
-                                    id: option.value,
-                                    title: option.label,
-                                    type: option.type,
-                                  }
-                                : f
+                    <div className="flex items-center gap-2 w-full flex-wrap">
+                      <div className="w-fit flex items-center gap-2">
+                        <Select
+                          classNames={{
+                            root: "!w-[390px]",
+                            input:
+                              "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
+                          }}
+                          data={boardDetails
+                            ?.find(
+                              (board) =>
+                                board.id ===
+                                customizationForm.values.selectedBoardId
                             )
-                          );
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          customizationForm.setFieldValue(
-                            "fields",
-                            customizationForm.values.fields.filter(
-                              (f) => f.tempId !== field.tempId
-                            )
-                          );
-                        }}
-                      >
-                        <X size={20} className="text-red-500" />
-                      </button>
-                      <Switch
-                        checked={field.isEditable}
-                        label="Editable"
-                        onChange={(event) => {
-                          customizationForm.setFieldValue(
-                            "fields",
-                            customizationForm.values.fields.map((f) =>
-                              f.tempId === field.tempId
-                                ? {
-                                    ...f,
-                                    isEditable: event.currentTarget.checked,
-                                  }
-                                : f
-                            )
-                          );
-                        }}
-                      />
-                      {field.isEditable && (
+                            ?.columns?.map((column) => ({
+                              value: column.id,
+                              label: column.title,
+                              type: column.type,
+                            }))}
+                          searchable
+                          allowDeselect={false}
+                          withCheckIcon={false}
+                          maxDropdownHeight={200}
+                          placeholder="Select a field"
+                          value={field.id}
+                          onChange={(_, option) => {
+                            customizationForm.setFieldValue(
+                              "fields",
+                              customizationForm.values.fields.map((f) =>
+                                f.tempId === field.tempId
+                                  ? {
+                                      ...f,
+                                      id: option.value,
+                                      title: option.label,
+                                      type: option.type,
+                                    }
+                                  : f
+                              )
+                            );
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            customizationForm.setFieldValue(
+                              "fields",
+                              customizationForm.values.fields.filter(
+                                (f) => f.tempId !== field.tempId
+                              )
+                            );
+                          }}
+                        >
+                          <X size={20} className="text-red-500" />
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-2 min-w-[212.81px]">
                         <Switch
-                          checked={field.isRequired}
-                          label="Required"
+                          checked={field.isEditable}
+                          label="Editable"
                           onChange={(event) => {
                             customizationForm.setFieldValue(
                               "fields",
@@ -400,14 +385,33 @@ const EditCustomization = () => {
                                 f.tempId === field.tempId
                                   ? {
                                       ...f,
-                                      isRequired: event.currentTarget.checked,
+                                      isEditable: event.currentTarget.checked,
                                     }
                                   : f
                               )
                             );
                           }}
                         />
-                      )}
+                        {field.isEditable && (
+                          <Switch
+                            checked={field.isRequired}
+                            label="Required"
+                            onChange={(event) => {
+                              customizationForm.setFieldValue(
+                                "fields",
+                                customizationForm.values.fields.map((f) =>
+                                  f.tempId === field.tempId
+                                    ? {
+                                        ...f,
+                                        isRequired: event.currentTarget.checked,
+                                      }
+                                    : f
+                                )
+                              );
+                            }}
+                          />
+                        )}
+                      </div>
                     </div>
                   </SortableField>
                 ))}
