@@ -13,6 +13,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const AuthProvider = ({ children }) => {
   // Session Token
   const [sessionToken, setSessionToken] = useState(null);
+  const [isUserAdmin, setIsUserAdmin] = useState(false);
 
   const { isPending, isError, error } = useQuery({
     queryKey: ["monday-slug", sessionToken],
@@ -41,14 +42,36 @@ const AuthProvider = ({ children }) => {
         throw new Error("Authentication Failed!");
       }
     },
-    enabled: !!sessionToken,
+    enabled: !!sessionToken && isUserAdmin === true,
   });
 
   useEffect(() => {
+    monday.listen("context", ({ data }) => {
+      setIsUserAdmin(data.user.isAdmin);
+    });
+
     monday.listen("sessionToken", ({ data: token }) => {
       setSessionToken(token);
     });
   }, []);
+
+  if (!isUserAdmin) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <AttentionBox
+          title="Access Denied!"
+          text={
+            <div>
+              <p>You need to be an admin to use this app.</p>
+              <p>Please contact your administrator.</p>
+            </div>
+          }
+          type="danger"
+          className="w-1/2"
+        />
+      </div>
+    );
+  }
 
   if (isPending) {
     return (
