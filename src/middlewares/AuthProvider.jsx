@@ -13,6 +13,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const AuthProvider = ({ children }) => {
   // Session Token
   const [sessionToken, setSessionToken] = useState(null);
+  const [loadingContext, setLoadingContext] = useState(false);
   const [isUserAdmin, setIsUserAdmin] = useState(false);
 
   const { isPending, isError, error } = useQuery({
@@ -46,34 +47,17 @@ const AuthProvider = ({ children }) => {
   });
 
   useEffect(() => {
+    setLoadingContext(true);
     monday.listen("context", ({ data }) => {
       setIsUserAdmin(data.user.isAdmin);
     });
-
     monday.listen("sessionToken", ({ data: token }) => {
       setSessionToken(token);
     });
+    setLoadingContext(false);
   }, []);
 
-  if (!isUserAdmin) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <AttentionBox
-          title="Access Denied!"
-          text={
-            <div>
-              <p>You need to be an admin to use this app.</p>
-              <p>Please contact your administrator.</p>
-            </div>
-          }
-          type="danger"
-          className="w-1/2"
-        />
-      </div>
-    );
-  }
-
-  if (isPending) {
+  if (isPending || loadingContext) {
     return (
       <div className="text-white h-screen w-screen flex justify-center items-center">
         <Loader color="#007F9B" size="md" type="bars" />
@@ -89,6 +73,24 @@ const AuthProvider = ({ children }) => {
           title="Authentication Failed!"
           text={error?.message || "Something went wrong"}
           type="danger"
+        />
+      </div>
+    );
+  }
+
+  if (!isUserAdmin) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <AttentionBox
+          title="Access Denied!"
+          text={
+            <div>
+              <p>You need to be an admin to use this app.</p>
+              <p>Please contact your administrator.</p>
+            </div>
+          }
+          type="danger"
+          className="w-1/2"
         />
       </div>
     );
