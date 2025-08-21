@@ -9,12 +9,9 @@ import CustomizationSkeleton from "../../components/CustomizationSkeleton";
 import LogoInput from "../../components/LogoInput";
 import { toast } from "sonner";
 import { AttentionBox } from "@vibe/core";
-import {
-  DraggableFields,
-  SortableField,
-} from "../../components/DraggableFeilds";
 import { useEffect, useState } from "react";
 import sanitizeData from "../../utils/sanitizeData";
+import { useCustomization } from "../../context/CustomizationContext";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -22,6 +19,7 @@ const monday = mondaySdk();
 const AddCustomization = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { customizationData, setCustomizationData } = useCustomization();
 
   // Local State
   const [sessionToken, setSessionToken] = useState(null);
@@ -29,40 +27,32 @@ const AddCustomization = () => {
   // Form Initialization
   const customizationForm = useForm({
     initialValues: {
-      selectedBoardId: "",
-      fields: [],
+      selectedBoards: [],
       description: "",
       logo: null,
       allowNewValueCreation: false,
       filterItemsByEmail: false,
-      selectedEmailColumn: {
-        id: "",
-        title: "",
-      },
+      // selectedEmailColumn: {
+      //   id: "",
+      //   title: "",
+      // },
       allowUsersToCreateNewItems: false,
       signUpMethod: "no-signup-allowed",
     },
 
     validate: {
-      selectedBoardId: (value) => (value ? null : "Board is required!"),
-      fields: (value) =>
+      selectedBoards: (value) =>
         value.length < 1
-          ? "At least one field is required!"
-          : value.every((field) => field.id !== "")
+          ? "At least one board is required!"
+          : value.every((board) => board.id !== "")
           ? null
-          : "All fields must be selected!",
+          : "All boards must have value!",
       description: (value) =>
         value.length < 10
           ? "Description must be at least 10 characters long!"
           : null,
 
       logo: (value) => (value ? null : "Logo is required!"),
-      selectedEmailColumn: (value) => {
-        if (!value.id || !value.title) {
-          return "Email column is required when filtering by email!";
-        }
-        return null;
-      },
     },
   });
 
@@ -153,10 +143,24 @@ const AddCustomization = () => {
   });
 
   // UseEffect to get Session Token
+  // and update form states using context
   useEffect(() => {
     monday.listen("sessionToken", ({ data: token }) => {
       setSessionToken(token);
     });
+
+    if (customizationData) {
+      customizationForm.setValues({
+        selectedBoards: customizationData.selectedBoards || [],
+        description: customizationData.description || "",
+        logo: customizationData.logo || null,
+        allowNewValueCreation: customizationData.allowNewValueCreation || false,
+        filterItemsByEmail: customizationData.filterItemsByEmail || false,
+        allowUsersToCreateNewItems:
+          customizationData.allowUsersToCreateNewItems || false,
+        signUpMethod: customizationData.signUpMethod || "no-signup-allowed",
+      });
+    }
   }, []);
 
   if (isError) {
@@ -183,7 +187,7 @@ const AddCustomization = () => {
           <p>Go Back</p>
         </Link>
         <h1 className="text-2xl font-bold text-gray-800 leading-none">
-          Add Customization
+          Add Configuration
         </h1>
       </div>
 
@@ -216,178 +220,113 @@ const AddCustomization = () => {
               minRows={4}
             />
           </div>
-          <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
+          <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-2">
             {/* Board Section */}
-            <Select
-              label="Board"
-              classNames={{
-                root: "!w-full !max-w-[450px]",
-                input:
-                  "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
-                label: "!text-gray-800 !mb-2 !font-semibold !text-lg",
+            <h2 className="text-gray-800 font-semibold text-lg mb-1 leading-none">
+              Boards
+            </h2>
+            {customizationForm?.values?.selectedBoards?.length < 1 ? (
+              <p className="text-gray-400">No Boards added yet.</p>
+            ) : (
+              customizationForm.values.selectedBoards.map((board) => (
+                <div key={board.tempId} className="flex items-center gap-2">
+                  <Select
+                    classNames={{
+                      root: "!w-full !max-w-[450px]",
+                      input:
+                        "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
+                    }}
+                    // Don't show the selected board in the dropdown
+                    data={boardDetails
+                      ?.filter(
+                        (b) =>
+                          // Keep this board if it's not selected by others OR it is the current one
+                          !customizationForm.values.selectedBoards.some(
+                            (sel) =>
+                              sel.id === b.id && sel.tempId !== board.tempId
+                          )
+                      )
+                      .map((b) => ({
+                        value: b.id,
+                        label: b.name,
+                        type: b.type,
+                      }))}
+                    searchable
+                    allowDeselect={false}
+                    withCheckIcon={false}
+                    maxDropdownHeight={200}
+                    placeholder="Select a board"
+                    value={board.id}
+                    onChange={(_, option) => {
+                      customizationForm.setFieldValue(
+                        "selectedBoards",
+                        customizationForm.values.selectedBoards.map((f) =>
+                          f.tempId === board.tempId
+                            ? {
+                                ...f,
+                                id: option.value,
+                                name: option.label,
+                                type: option.type,
+                                boardConfiguration: [], // Reset board configuration when board is changed
+                              }
+                            : f
+                        )
+                      );
+                    }}
+                  />
+                  {board.id && board.tempId && (
+                    <Link
+                      to={`add-board-configuration/${board.id}/${board.tempId}`}
+                      className="flex items-center gap-1 bg-[#007F9B] text-white px-4 py-2 rounded-lg hover:bg-[#20768a] transition-colors disabled:bg-gray-300 w-fit"
+                    >
+                      Configure
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      customizationForm.setFieldValue(
+                        "selectedBoards",
+                        customizationForm.values.selectedBoards.filter(
+                          (f) => f.tempId !== board.tempId
+                        )
+                      );
+                    }}
+                  >
+                    <X size={20} className="text-red-500" />
+                  </button>
+                </div>
+              ))
+            )}
+
+            {customizationForm.errors.selectedBoards && (
+              <p className="text-red-500 text-sm">
+                {customizationForm.errors.selectedBoards}
+              </p>
+            )}
+
+            <button
+              type="button"
+              className="flex items-center gap-1 mt-1 text-[#007F9B] font-medium transition-colors disabled:text-gray-300 w-fit"
+              onClick={() => {
+                customizationForm.setFieldValue("selectedBoards", [
+                  ...customizationForm.values.selectedBoards,
+                  {
+                    tempId: Math.random().toString(36).substring(2, 10),
+                    id: "",
+                    name: "",
+                    type: "",
+                    boardConfiguration: [],
+                  },
+                ]);
               }}
-              data={boardDetails?.map((board) => ({
-                value: board.id,
-                label: board.name,
-              }))}
-              searchable
-              allowDeselect={false}
-              withCheckIcon={false}
-              maxDropdownHeight={200}
-              placeholder="Select a board"
-              value={customizationForm.values.selectedBoardId}
-              onChange={(value) => {
-                customizationForm.setFieldValue("selectedBoardId", value);
-                // Reset fields when board is changed
-                customizationForm.setFieldValue("fields", []);
-              }}
-            />
-            {/* Fields Section */}
-            <Group gap={8} className="!flex-col !items-start">
-              <h2 className="text-gray-800 font-semibold text-lg mb-1 leading-none">
-                Fields
-              </h2>
-              {customizationForm.values.fields.length === 0 && (
-                <p className="text-gray-400">No fields added yet.</p>
-              )}
-
-              {/* Existing Fields */}
-              <DraggableFields
-                fields={customizationForm.values.fields}
-                onReorder={(newFields) =>
-                  customizationForm.setFieldValue("fields", newFields)
-                }
-              >
-                {customizationForm.values.fields.map((field, index) => (
-                  <SortableField key={field.tempId} field={field}>
-                    <div className="flex items-center gap-2 w-full flex-wrap">
-                      <div className="w-fit flex items-center gap-2">
-                        <Select
-                          classNames={{
-                            root: "!w-full !max-w-[450px]",
-                            input:
-                              "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
-                          }}
-                          data={boardDetails
-                            ?.find(
-                              (board) =>
-                                board.id ===
-                                customizationForm.values.selectedBoardId
-                            )
-                            ?.columns?.map((column) => ({
-                              value: column.id,
-                              label: column.title,
-                              type: column.type,
-                            }))}
-                          searchable
-                          allowDeselect={false}
-                          withCheckIcon={false}
-                          maxDropdownHeight={200}
-                          placeholder="Select a field"
-                          value={field.id}
-                          onChange={(_, option) => {
-                            customizationForm.setFieldValue(
-                              "fields",
-                              customizationForm.values.fields.map((f) =>
-                                f.tempId === field.tempId
-                                  ? {
-                                      ...f,
-                                      id: option.value,
-                                      title: option.label,
-                                      type: option.type,
-                                    }
-                                  : f
-                              )
-                            );
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            customizationForm.setFieldValue(
-                              "fields",
-                              customizationForm.values.fields.filter(
-                                (f) => f.tempId !== field.tempId
-                              )
-                            );
-                          }}
-                        >
-                          <X size={20} className="text-red-500" />
-                        </button>
-                      </div>
-                      <div className="w-fit flex items-center gap-2 min-w-[212.81px]">
-                        <Switch
-                          checked={field.isEditable}
-                          label="Editable"
-                          onChange={(event) => {
-                            customizationForm.setFieldValue(
-                              "fields",
-                              customizationForm.values.fields.map((f) =>
-                                f.tempId === field.tempId
-                                  ? {
-                                      ...f,
-                                      isEditable: event.currentTarget.checked,
-                                    }
-                                  : f
-                              )
-                            );
-                          }}
-                        />
-                        {field.isEditable && (
-                          <Switch
-                            checked={field.isRequired}
-                            label="Required"
-                            onChange={(event) => {
-                              customizationForm.setFieldValue(
-                                "fields",
-                                customizationForm.values.fields.map((f) =>
-                                  f.tempId === field.tempId
-                                    ? {
-                                        ...f,
-                                        isRequired: event.currentTarget.checked,
-                                      }
-                                    : f
-                                )
-                              );
-                            }}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </SortableField>
-                ))}
-              </DraggableFields>
-
-              {customizationForm.errors.fields && (
-                <p className="text-red-500 text-sm">
-                  {customizationForm.errors.fields}
-                </p>
-              )}
-
-              <button
-                type="button"
-                className="flex items-center gap-1 text-[#007F9B] font-semibold transition-colors mt-2 disabled:text-gray-300"
-                onClick={() => {
-                  customizationForm.setFieldValue("fields", [
-                    ...customizationForm.values.fields,
-                    {
-                      tempId: Math.random().toString(36).substring(2, 10),
-                      id: "",
-                      title: "",
-                      type: "",
-                      isEditable: false,
-                    },
-                  ]);
-                }}
-                disabled={
-                  customizationForm.values.fields.length === 10 ||
-                  customizationForm.values.selectedBoardId === ""
-                }
-              >
-                <Plus size={20} />
-                <p className="text-md">Add New Field</p>
-              </button>
-            </Group>
+              disabled={customizationForm.values.selectedBoards.length === 10}
+            >
+              <Plus size={20} />
+              <p className="text-md">
+                Add Board ({customizationForm.values.selectedBoards.length}/10)
+              </p>
+            </button>
           </div>
           <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
             <h2 className="text-gray-800 font-semibold text-lg leading-none">
@@ -473,7 +412,7 @@ const AddCustomization = () => {
               </div>
 
               {/* Email-based item visibility restriction - email column */}
-              <Select
+              {/* <Select
                 label={
                   <div className="flex items-center gap-2">
                     <p className="text-gray-800 font-semibold text-sm leading-none">
@@ -520,7 +459,7 @@ const AddCustomization = () => {
                   });
                 }}
                 error={customizationForm.errors.selectedEmailColumn}
-              />
+              /> */}
 
               {/* Sign Up Method */}
               <Radio.Group
@@ -562,7 +501,7 @@ const AddCustomization = () => {
             type="submit"
             className="flex items-center gap-1 bg-[#007F9B] text-white px-4 py-2 rounded-lg hover:bg-[#20768a] transition-colors mt-2 disabled:bg-gray-300 w-fit"
           >
-            Save Customization
+            Save Configuration
           </button>
         </form>
       )}

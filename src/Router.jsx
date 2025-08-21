@@ -7,6 +7,7 @@ import AddCustomization from "./pages/add-customization/AddCustomization";
 import EditCustomization from "./pages/edit-customization/EditCustomization";
 import UsersList from "./pages/users-list/UsersList";
 import Configuration from "./pages/view-configuration/Configuration";
+import { CustomizationProvider } from "./context/useCustomization";
 
 export const router = createBrowserRouter([
   {
@@ -37,7 +38,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "add-customization",
-        element: <AddCustomization />,
+        element: (
+          <CustomizationProvider>
+            <AddCustomization />
+          </CustomizationProvider>
+        ),
       },
       {
         path: "edit-customization",
