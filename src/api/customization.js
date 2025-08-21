@@ -76,6 +76,35 @@ const customizationAPIs = {
           name
           id
           type
+          board_kind
+        }
+      }
+    `;
+      const response = await monday.api(query);
+
+      // Filter out the boards with "custom_object" type and "private" board_kind
+      // "private" boards are not visible to the user, so we exclude them
+      const filteredBoards = response.data.boards.filter(
+        (board) =>
+          board.type !== "custom_object" && board.board_kind !== "private"
+      );
+
+      return filteredBoards;
+    } catch (error) {
+      console.error("Error fetching boards:", error);
+      throw new Error(error.message || `Failed to fetch boards`);
+    }
+  },
+
+  // Get Columns of a specific board
+  getBoardColumns: async ({ monday, boardId }) => {
+    try {
+      const query = `
+      query {
+        boards (ids: [${boardId}]) {
+          name
+          id
+          type
           columns {
             id
             title
