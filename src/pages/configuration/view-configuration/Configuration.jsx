@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import mondaySdk from "monday-sdk-js";
 import { useQuery } from "@tanstack/react-query";
-import customizationAPIs from "../../api/customization";
-import CustomizationSkeleton from "../../components/CustomizationSkeleton";
+import customizationAPIs from "../../../api/customization";
+import CustomizationSkeleton from "../../../components/CustomizationSkeleton";
 import { Info, LinkIcon } from "lucide-react";
 import { CopyButton, Group, Radio, Switch, Tooltip } from "@mantine/core";
 import { AttentionBox } from "@vibe/core";
@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 
 const monday = mondaySdk();
 
-export default function Configuration() {
+export default function ViewConfiguration() {
   // Local States
   const [sessionToken, setSessionToken] = useState(null);
 
@@ -60,7 +60,7 @@ export default function Configuration() {
         <>
           <div className="flex justify-end">
             <Link
-              to={`/edit-customization`}
+              to={`/edit-configuration`}
               className="bg-[#007F9B] text-white font-medium px-4 py-2 w-fit rounded hover:bg-[#007F9B]/80"
             >
               Edit Details
@@ -301,7 +301,7 @@ export default function Configuration() {
             configuration settings to personalize your board.
           </p>
           <Link
-            to="/add-customization"
+            to="/add-configuration"
             className="bg-[#007F9B] text-white font-medium px-4 py-2 w-fit rounded hover:bg-[#007F9B]/80"
           >
             Add Configuration

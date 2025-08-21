@@ -2,23 +2,23 @@ import mondaySdk from "monday-sdk-js";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, Plus, X, Info } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import customizationAPIs from "../../api/customization";
-import CustomizationSkeleton from "../../components/CustomizationSkeleton";
+import customizationAPIs from "../../../api/customization";
+import CustomizationSkeleton from "../../../components/CustomizationSkeleton";
 import { useForm } from "@mantine/form";
 import { useEffect, useRef, useState } from "react";
 import { Group, Radio, Select, Switch, Textarea, Tooltip } from "@mantine/core";
-import LogoInput from "../../components/LogoInput";
+import LogoInput from "../../../components/LogoInput";
 import { toast } from "sonner";
 import {
   DraggableFields,
   SortableField,
-} from "../../components/DraggableFeilds";
-import sanitizeData from "../../utils/sanitizeData";
+} from "../../../components/DraggableFeilds";
+import sanitizeData from "../../../utils/sanitizeData";
 
 // Monday SDK initialization
 const monday = mondaySdk();
 
-const EditCustomization = () => {
+const EditConfiguration = () => {
   // Hooks
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -639,4 +639,4 @@ const EditCustomization = () => {
   );
 };
 
-export default EditCustomization;
+export default EditConfiguration;

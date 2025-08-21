@@ -1,60 +1,27 @@
 import mondaySdk from "monday-sdk-js";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Group, Radio, Select, Switch, Textarea, Tooltip } from "@mantine/core";
-import { useForm } from "@mantine/form";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, Info, Plus, X } from "lucide-react";
-import customizationAPIs from "../../api/customization";
-import CustomizationSkeleton from "../../components/CustomizationSkeleton";
-import LogoInput from "../../components/LogoInput";
+import customizationAPIs from "../../../api/customization";
+import CustomizationSkeleton from "../../../components/CustomizationSkeleton";
+import LogoInput from "../../../components/LogoInput";
 import { toast } from "sonner";
 import { AttentionBox } from "@vibe/core";
 import { useEffect, useState } from "react";
-import sanitizeData from "../../utils/sanitizeData";
-import { useCustomization } from "../../context/CustomizationContext";
+import sanitizeData from "../../../utils/sanitizeData";
+import { useCustomization } from "../../../context/CustomizationContext";
 
 // Monday SDK initialization
 const monday = mondaySdk();
 
-const AddCustomization = () => {
+const AddConfiguration = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { customizationData, setCustomizationData } = useCustomization();
+  const { customizationForm } = useCustomization();
 
   // Local State
   const [sessionToken, setSessionToken] = useState(null);
-
-  // Form Initialization
-  const customizationForm = useForm({
-    initialValues: {
-      selectedBoards: [],
-      description: "",
-      logo: null,
-      allowNewValueCreation: false,
-      filterItemsByEmail: false,
-      // selectedEmailColumn: {
-      //   id: "",
-      //   title: "",
-      // },
-      allowUsersToCreateNewItems: false,
-      signUpMethod: "no-signup-allowed",
-    },
-
-    validate: {
-      selectedBoards: (value) =>
-        value.length < 1
-          ? "At least one board is required!"
-          : value.every((board) => board.id !== "")
-          ? null
-          : "All boards must have value!",
-      description: (value) =>
-        value.length < 10
-          ? "Description must be at least 10 characters long!"
-          : null,
-
-      logo: (value) => (value ? null : "Logo is required!"),
-    },
-  });
 
   // Fetch Board Details - Query
   const {
@@ -148,19 +115,6 @@ const AddCustomization = () => {
     monday.listen("sessionToken", ({ data: token }) => {
       setSessionToken(token);
     });
-
-    if (customizationData) {
-      customizationForm.setValues({
-        selectedBoards: customizationData.selectedBoards || [],
-        description: customizationData.description || "",
-        logo: customizationData.logo || null,
-        allowNewValueCreation: customizationData.allowNewValueCreation || false,
-        filterItemsByEmail: customizationData.filterItemsByEmail || false,
-        allowUsersToCreateNewItems:
-          customizationData.allowUsersToCreateNewItems || false,
-        signUpMethod: customizationData.signUpMethod || "no-signup-allowed",
-      });
-    }
   }, []);
 
   if (isError) {
@@ -509,4 +463,4 @@ const AddCustomization = () => {
   );
 };
 
-export default AddCustomization;
+export default AddConfiguration;

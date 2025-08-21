@@ -3,11 +3,12 @@ import AuthProvider from "./middlewares/AuthProvider";
 import App from "./App";
 import DashboardLayout from "./layouts/DashboardLayout";
 import AddNewUser from "./pages/add-user/AddNewUser";
-import AddCustomization from "./pages/add-customization/AddCustomization";
-import EditCustomization from "./pages/edit-customization/EditCustomization";
 import UsersList from "./pages/users-list/UsersList";
-import Configuration from "./pages/view-configuration/Configuration";
-import { CustomizationProvider } from "./context/useCustomization";
+import { CustomizationProvider } from "./context/CustomizationContext";
+import EditConfiguration from "./pages/configuration/edit-configuration/EditConfiguration";
+import AddConfiguration from "./pages/configuration/add-configuration/AddConfiguration";
+import ViewConfiguration from "./pages/configuration/view-configuration/Configuration";
+import BoardConfiguration from "./pages/configuration/board-configuration/BoardConfiguration";
 
 export const router = createBrowserRouter([
   {
@@ -28,7 +29,7 @@ export const router = createBrowserRouter([
           },
           {
             path: "configuration",
-            element: <Configuration />,
+            element: <ViewConfiguration />,
           },
         ],
       },
@@ -37,16 +38,20 @@ export const router = createBrowserRouter([
         element: <AddNewUser />,
       },
       {
-        path: "add-customization",
+        path: "add-configuration",
         element: (
           <CustomizationProvider>
-            <AddCustomization />
+            <AddConfiguration />
           </CustomizationProvider>
         ),
       },
       {
-        path: "edit-customization",
-        element: <EditCustomization />,
+        path: "edit-configuration",
+        element: <EditConfiguration />,
+      },
+      {
+        path: "add-board-configuration/:boardId/:tempId",
+        element: <BoardConfiguration />,
       },
     ],
   },
