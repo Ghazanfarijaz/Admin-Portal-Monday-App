@@ -297,14 +297,14 @@ export default function Configuration() {
       ) : (
         <>
           <p className="text-gray-500">
-            No customization settings found. <br /> Please add your
-            customization settings to personalize your board.
+            No configuration settings found. <br /> Please add your
+            configuration settings to personalize your board.
           </p>
           <Link
             to="/add-customization"
             className="bg-[#007F9B] text-white font-medium px-4 py-2 w-fit rounded hover:bg-[#007F9B]/80"
           >
-            Add Customization
+            Add Configuration
           </Link>
         </>
       )}
