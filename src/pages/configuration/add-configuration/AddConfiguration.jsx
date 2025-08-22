@@ -230,7 +230,7 @@ const AddConfiguration = () => {
                   />
                   {board.id && board.tempId && (
                     <Link
-                      to={`add-board-configuration/${board.id}/${board.tempId}`}
+                      to={`/add-board-configuration/${board.id}/${board.tempId}`}
                       className="flex items-center gap-1 bg-[#007F9B] text-white px-4 py-2 rounded-lg hover:bg-[#20768a] transition-colors disabled:bg-gray-300 w-fit"
                     >
                       Configure
