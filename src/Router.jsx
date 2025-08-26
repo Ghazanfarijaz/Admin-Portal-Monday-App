@@ -47,11 +47,19 @@ export const router = createBrowserRouter([
       },
       {
         path: "edit-configuration",
-        element: <EditConfiguration />,
+        element: (
+          <CustomizationProvider>
+            <EditConfiguration />
+          </CustomizationProvider>
+        ),
       },
       {
         path: "add-board-configuration/:boardId/:tempId",
-        element: <BoardConfiguration />,
+        element: (
+          <CustomizationProvider>
+            <BoardConfiguration />
+          </CustomizationProvider>
+        ),
       },
     ],
   },

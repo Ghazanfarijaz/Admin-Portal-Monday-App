@@ -1,6 +1,6 @@
 // CustomizationContext.js
 import { useForm } from "@mantine/form";
-import { createContext, useContext } from "react";
+import React, { createContext, useContext } from "react";
 
 // 1. Create the context
 const CustomizationContext = createContext();
@@ -14,10 +14,6 @@ export const CustomizationProvider = ({ children }) => {
       logo: null,
       allowNewValueCreation: false,
       filterItemsByEmail: false,
-      // selectedEmailColumn: {
-      //   id: "",
-      //   title: "",
-      // },
       allowUsersToCreateNewItems: false,
       signUpMethod: "no-signup-allowed",
     },
@@ -37,8 +33,17 @@ export const CustomizationProvider = ({ children }) => {
     },
   });
 
+  const [shouldPopuplateInitialData, setShouldPopuplateInitialData] =
+    React.useState(true);
+
   return (
-    <CustomizationContext.Provider value={{ customizationForm }}>
+    <CustomizationContext.Provider
+      value={{
+        customizationForm,
+        shouldPopuplateInitialData,
+        setShouldPopuplateInitialData,
+      }}
+    >
       {children}
     </CustomizationContext.Provider>
   );
