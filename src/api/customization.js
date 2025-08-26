@@ -115,30 +115,27 @@ const customizationAPIs = {
     `;
       const response = await monday.api(query);
 
-      // Filter out the boards with "custom_object" type
-      const filteredBoards = response.data.boards.filter(
-        (board) => board.type !== "custom_object"
-      );
-
       // Go Through all the boards and filter out the columns of types
       // ["board_relation", "mirror","button", "dependency", "formula", "auto_number", "progress"]
-      const finalBoardsData = filteredBoards.map((board) => {
-        board.columns = board.columns.filter(
-          (column) =>
-            ![
-              "board_relation",
-              "mirror",
-              "button",
-              "dependency",
-              "formula",
-              "auto_number",
-              "progress",
-            ].includes(column.type)
-        );
-        return board;
-      });
+      const updatedBoardData = response.data.boards[0].columns.filter(
+        (column) =>
+          ![
+            "board_relation",
+            "mirror",
+            "button",
+            "dependency",
+            "formula",
+            "auto_number",
+            "progress",
+          ].includes(column.type)
+      );
 
-      return finalBoardsData;
+      return {
+        name: response.data.boards[0].name,
+        id: response.data.boards[0].id,
+        type: response.data.boards[0].type,
+        columns: updatedBoardData,
+      };
     } catch (error) {
       console.error("Error fetching boards:", error);
       throw new Error(error.message || `Failed to fetch boards`);
