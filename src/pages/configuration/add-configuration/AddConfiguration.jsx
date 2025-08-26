@@ -40,36 +40,27 @@ const AddConfiguration = () => {
   // Add Customization - Mutation
   const addCustomization = useMutation({
     mutationFn: async () => {
-      // Get the "Board" based on the selected board ID
-      const selectedBoard = boardDetails?.find(
-        (board) => board.id === customizationForm.values.selectedBoardId
+      // Validate if all the boards are configured
+      const allBoardsConfigured = customizationForm.values.selectedBoards.every(
+        (board) => board.isConfigured
       );
+
+      if (!allBoardsConfigured) {
+        toast.error("Please configure all the boards first!");
+        return;
+      }
 
       const formData = new FormData();
 
-      // Append the Fields in formData
-      formData.append("boardId", selectedBoard?.id);
-      formData.append("boardName", selectedBoard?.name);
-      formData.append(
-        "fields",
-        JSON.stringify(
-          customizationForm.values.fields.map((field) => ({
-            columnId: field.id,
-            columnName: field.title,
-            columnType: field.type,
-            isEditable: field.isEditable || false,
-            isRequired: field.isRequired || false,
-          }))
-        )
-      );
-
+      // -------------------------
+      // Common Fields
+      // -------------------------
+      formData.append("image", customizationForm.values.logo);
       // Sanitize Description
       const sanitizedDescription = sanitizeData.description(
         customizationForm.values.description || ""
       );
-
       formData.append("description", sanitizedDescription);
-      formData.append("image", customizationForm.values.logo);
       formData.append(
         "allowNewValueCreation",
         customizationForm.values.allowNewValueCreation
@@ -78,18 +69,37 @@ const AddConfiguration = () => {
         "filterItemsByEmail",
         customizationForm.values.filterItemsByEmail
       );
-
-      formData.append(
-        "selectedEmailColumn",
-        JSON.stringify(customizationForm.values.selectedEmailColumn)
-      );
-
-      formData.append("signUpMethod", customizationForm.values.signUpMethod);
-
       formData.append(
         "allowUsersToCreateNewItems",
         customizationForm.values.allowUsersToCreateNewItems
       );
+      formData.append("signUpMethod", customizationForm.values.signUpMethod);
+
+      // Selected Boards Data
+      const selectedBoardsData = customizationForm.values.selectedBoards.map(
+        (board) => {
+          const udpatedFields = board.boardConfiguration.fields.map(
+            (field) => ({
+              columnId: field.id,
+              columnName: field.title,
+              columnType: field.type,
+              isEditable: field.isEditable || false,
+              isRequired: field.isRequired || false,
+            })
+          );
+
+          return {
+            boardId: board.id,
+            boardName: board.name,
+            boardConfiguration: {
+              fields: udpatedFields,
+              selectedEmailColumn: board.boardConfiguration.selectedEmailColumn,
+            },
+          };
+        }
+      );
+
+      formData.append("selectedBoardsData", JSON.stringify(selectedBoardsData));
 
       return customizationAPIs.addCustomization({
         customizationData: formData,
@@ -187,8 +197,11 @@ const AddConfiguration = () => {
                   <Select
                     classNames={{
                       root: "!w-full !max-w-[450px]",
-                      input:
-                        "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
+                      input: `${
+                        board?.isConfigured
+                          ? "!bg-green-100 !border-green-300"
+                          : "!bg-gray-100 !border-gray-300"
+                      }  !border  !rounded-lg !h-[42px]`,
                     }}
                     // Don't show the selected board in the dropdown
                     data={boardDetails
@@ -221,7 +234,8 @@ const AddConfiguration = () => {
                                 id: option.value,
                                 name: option.label,
                                 type: option.type,
-                                boardConfiguration: [], // Reset board configuration when board is changed
+                                boardConfiguration: {}, // Reset board configuration when board is changed
+                                isConfigured: false,
                               }
                             : f
                         )
@@ -233,7 +247,7 @@ const AddConfiguration = () => {
                       to={`/add-board-configuration/${board.id}/${board.tempId}`}
                       className="flex items-center gap-1 bg-[#007F9B] text-white px-4 py-2 rounded-lg hover:bg-[#20768a] transition-colors disabled:bg-gray-300 w-fit"
                     >
-                      Configure
+                      {board.isConfigured ? "Edit Config" : "Configure"}
                     </Link>
                   )}
                   <button
@@ -270,7 +284,8 @@ const AddConfiguration = () => {
                     id: "",
                     name: "",
                     type: "",
-                    boardConfiguration: [],
+                    boardConfiguration: {},
+                    isConfigured: false,
                   },
                 ]);
               }}
@@ -365,56 +380,6 @@ const AddConfiguration = () => {
                 </Tooltip>
               </div>
 
-              {/* Email-based item visibility restriction - email column */}
-              {/* <Select
-                label={
-                  <div className="flex items-center gap-2">
-                    <p className="text-gray-800 font-semibold text-sm leading-none">
-                      Assigned To (Email Column){" "}
-                      <span className="text-[#fa5252]">*</span>
-                    </p>
-                    <Tooltip
-                      maw={220}
-                      multiline
-                      label="This column will be used for filtering the items based on the emails of the users added against the items. This would act as a Assigned To Column."
-                    >
-                      <Info
-                        size={16}
-                        className="text-gray-500 cursor-pointer"
-                      />
-                    </Tooltip>
-                  </div>
-                }
-                classNames={{
-                  root: "!w-full !max-w-[450px]",
-                  input:
-                    "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
-                }}
-                data={boardDetails
-                  ?.find(
-                    (board) =>
-                      board.id === customizationForm.values.selectedBoardId
-                  )
-                  ?.columns.filter((column) => column.type === "email")
-                  .map((column) => ({
-                    value: column.id,
-                    label: column.title,
-                  }))}
-                searchable
-                allowDeselect={false}
-                withCheckIcon={false}
-                maxDropdownHeight={200}
-                placeholder="Select an email column"
-                value={customizationForm.values.selectedEmailColumn.id}
-                onChange={(_, option) => {
-                  customizationForm.setFieldValue("selectedEmailColumn", {
-                    id: option.value,
-                    title: option.label,
-                  });
-                }}
-                error={customizationForm.errors.selectedEmailColumn}
-              /> */}
-
               {/* Sign Up Method */}
               <Radio.Group
                 name="signUpMethod"
@@ -451,12 +416,21 @@ const AddConfiguration = () => {
               </Radio.Group>
             </div>
           </div>
-          <button
-            type="submit"
-            className="flex items-center gap-1 bg-[#007F9B] text-white px-4 py-2 rounded-lg hover:bg-[#20768a] transition-colors mt-2 disabled:bg-gray-300 w-fit"
-          >
-            Save Configuration
-          </button>
+
+          <div className="flex items-center gap-2 mt-2">
+            <button
+              type="submit"
+              className="flex items-center gap-1 bg-[#007F9B] text-white px-4 py-2 rounded-lg hover:bg-[#20768a] transition-colors disabled:bg-gray-300 w-fit"
+            >
+              Add Configuration
+            </button>
+            <Link
+              to="/configuration"
+              className="flex items-center gap-1 border-2 border-[#007F9B] text-[#007F9B] px-4 py-2 rounded-lg w-fit font-medium"
+            >
+              Cancel
+            </Link>
+          </div>
         </form>
       )}
     </div>

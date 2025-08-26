@@ -4,16 +4,12 @@ import { ChevronLeft, Plus, X, Info } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import customizationAPIs from "../../../api/customization";
 import CustomizationSkeleton from "../../../components/CustomizationSkeleton";
-import { useForm } from "@mantine/form";
 import { useEffect, useRef, useState } from "react";
 import { Group, Radio, Select, Switch, Textarea, Tooltip } from "@mantine/core";
 import LogoInput from "../../../components/LogoInput";
 import { toast } from "sonner";
-import {
-  DraggableFields,
-  SortableField,
-} from "../../../components/DraggableFeilds";
 import sanitizeData from "../../../utils/sanitizeData";
+import { useCustomization } from "../../../context/CustomizationContext";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -22,52 +18,15 @@ const EditConfiguration = () => {
   // Hooks
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const {
+    customizationForm,
+    shouldPopuplateInitialData,
+    setShouldPopuplateInitialData,
+  } = useCustomization();
 
   // Local States
   const [isLoading, setIsLoading] = useState(false);
   const [sessionToken, setSessionToken] = useState(null);
-
-  // Customization Form Initialization
-  // Form Initialization
-  const customizationForm = useForm({
-    initialValues: {
-      selectedBoardId: "",
-      fields: [],
-      description: "",
-      logo: null,
-      allowNewValueCreation: false,
-      filterItemsByEmail: false,
-      selectedEmailColumn: {
-        id: "",
-        title: "",
-      },
-      allowUserSignup: false,
-      allowUsersToCreateNewItems: false,
-      signUpMethod: "no-signup-allowed",
-    },
-
-    validate: {
-      selectedBoardId: (value) => (value ? null : "Board is required!"),
-      fields: (value) =>
-        value.length < 1
-          ? "At least one field is required!"
-          : value.every((field) => field.id !== "")
-          ? null
-          : "All fields must be selected!",
-      description: (value) =>
-        value.length < 10
-          ? "Description must be at least 10 characters long!"
-          : null,
-
-      logo: (value) => (value ? null : "Logo is required!"),
-      selectedEmailColumn: (value) => {
-        if (!value.id || !value.title) {
-          return "Email column is required when filtering by email!";
-        }
-        return null;
-      },
-    },
-  });
 
   // Fetch Board Details and Customization Data
   const { customization, boardDetails, isPending, isError, error } = useQueries(
@@ -106,29 +65,28 @@ const EditConfiguration = () => {
   // Update Customization - Mutation
   const updateCustomization = useMutation({
     mutationFn: async () => {
-      // Get the "Board" based on the selected board ID
-      const selectedBoard = boardDetails?.find(
-        (board) => board.id === customizationForm.values.selectedBoardId
+      // Validate if all the boards are configured
+      const allBoardsConfigured = customizationForm.values.selectedBoards.every(
+        (board) => board.isConfigured
       );
+
+      if (!allBoardsConfigured) {
+        toast.error("Please configure all the boards first!");
+        return;
+      }
 
       const formData = new FormData();
 
-      // Append the Fields in formData
-      formData.append("boardId", selectedBoard?.id);
-      formData.append("boardName", selectedBoard?.name);
-      formData.append(
-        "fields",
-        JSON.stringify(
-          customizationForm.values.fields.map((field) => ({
-            columnId: field.id,
-            columnName: field.title,
-            columnType: field.type,
-            isEditable: field.isEditable || false,
-            isRequired: field.isRequired || false,
-          }))
-        )
-      );
-
+      // -------------------------
+      // Common Fields
+      // -------------------------
+      // Append the Logo if it exists and is a File
+      if (
+        customizationForm.values.logo &&
+        customizationForm.values.logo instanceof Blob
+      ) {
+        formData.append("image", customizationForm.values.logo);
+      }
       // Sanitize Description
       const sanitizedDescription = sanitizeData.description(
         customizationForm.values.description || ""
@@ -144,26 +102,38 @@ const EditConfiguration = () => {
         "filterItemsByEmail",
         customizationForm.values.filterItemsByEmail
       );
-
-      formData.append(
-        "selectedEmailColumn",
-        JSON.stringify(customizationForm.values.selectedEmailColumn)
-      );
-
-      formData.append("signUpMethod", customizationForm.values.signUpMethod);
-
       formData.append(
         "allowUsersToCreateNewItems",
         customizationForm.values.allowUsersToCreateNewItems
       );
 
-      // Append the Logo if it exists and is a File
-      if (
-        customizationForm.values.logo &&
-        customizationForm.values.logo instanceof Blob
-      ) {
-        formData.append("image", customizationForm.values.logo);
-      }
+      formData.append("signUpMethod", customizationForm.values.signUpMethod);
+
+      // Selected Boards Data
+      const selectedBoardsData = customizationForm.values.selectedBoards.map(
+        (board) => {
+          const udpatedFields = board.boardConfiguration.fields.map(
+            (field) => ({
+              columnId: field.id,
+              columnName: field.title,
+              columnType: field.type,
+              isEditable: field.isEditable || false,
+              isRequired: field.isRequired || false,
+            })
+          );
+
+          return {
+            boardId: board.id,
+            boardName: board.name,
+            boardConfiguration: {
+              fields: udpatedFields,
+              selectedEmailColumn: board.boardConfiguration.selectedEmailColumn,
+            },
+          };
+        }
+      );
+
+      formData.append("selectedBoardsData", JSON.stringify(selectedBoardsData));
 
       return customizationAPIs.updateCustomization({
         customizationData: formData,
@@ -173,6 +143,7 @@ const EditConfiguration = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customizationData"] });
+      setShouldPopuplateInitialData(true);
       navigate("/configuration", { replace: true });
     },
 
@@ -187,33 +158,48 @@ const EditConfiguration = () => {
   // Use Effect to set initial form values
   const formRef = useRef(customizationForm);
   useEffect(() => {
-    if (customization) {
+    if (customization && shouldPopuplateInitialData) {
       setIsLoading(true);
 
+      const formattedBoardsData = customization.selectedBoardsData.map(
+        (board) => {
+          const fetchedFields = board.boardConfiguration.fields.map(
+            (field) => ({
+              id: field.columnId,
+              title: field.columnName,
+              type: field.columnType,
+              tempId: Math.random().toString(36).substring(2, 10),
+              isEditable: field.isEditable,
+              isRequired: field.isRequired,
+            })
+          );
+
+          return {
+            boardConfiguration: {
+              ...board.boardConfiguration,
+              fields: [...fetchedFields],
+            },
+            id: board.boardId,
+            name: board.boardName,
+            tempId: Math.random().toString(36).substring(2, 10),
+            isConfigured: true,
+          };
+        }
+      );
+
       formRef.current.setValues({
-        selectedBoardId: customization.boardId,
-        fields: customization.fields.map((field) => ({
-          tempId: Math.random().toString(36).substring(2, 10),
-          id: field.columnId,
-          title: field.columnName,
-          type: field.columnType,
-          isEditable: field.isEditable || false,
-          isRequired: field.isRequired || false,
-        })),
-        description: customization.description || "",
         logo: customization.logo || null,
+        description: customization.description || "",
+        selectedBoards: formattedBoardsData || [],
         allowNewValueCreation: customization.allowNewValueCreation === "true",
         filterItemsByEmail: customization.filterItemsByEmail === "true",
-        selectedEmailColumn: JSON.parse(
-          customization.selectedEmailColumn || "{}"
-        ),
         allowUsersToCreateNewItems:
           customization.allowUsersToCreateNewItems === "true",
         signUpMethod: customization.signUpMethod || "no-signup-allowed",
       });
       setIsLoading(false);
     }
-  }, [customization]);
+  }, [customization, shouldPopuplateInitialData]);
 
   // Use Effect to fetch the Session Token From Monday
   useEffect(() => {
@@ -273,180 +259,123 @@ const EditConfiguration = () => {
               minRows={4}
             />
           </div>
-          <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
+          <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-2">
             {/* Board Section */}
-            <Select
-              label="Board"
-              classNames={{
-                root: "!w-full !max-w-[450px]",
-                input:
-                  "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
-                label: "!text-gray-800 !mb-3 !font-semibold !text-lg",
+            <h2 className="text-gray-800 font-semibold text-lg mb-1 leading-none">
+              Boards
+            </h2>
+            {customizationForm?.values?.selectedBoards?.length < 1 ? (
+              <p className="text-gray-400">No Boards added yet.</p>
+            ) : (
+              customizationForm.values.selectedBoards.map((board) => (
+                <div key={board.tempId} className="flex items-center gap-2">
+                  <Select
+                    classNames={{
+                      root: "!w-full !max-w-[450px]",
+                      input: `${
+                        board?.isConfigured
+                          ? "!bg-green-100 !border-green-300"
+                          : "!bg-gray-100 !border-gray-300"
+                      }  !border  !rounded-lg !h-[42px]`,
+                    }}
+                    // Don't show the selected board in the dropdown
+                    data={boardDetails
+                      ?.filter(
+                        (b) =>
+                          // Keep this board if it's not selected by others OR it is the current one
+                          !customizationForm.values.selectedBoards.some(
+                            (sel) =>
+                              sel.id === b.id && sel.tempId !== board.tempId
+                          )
+                      )
+                      .map((b) => ({
+                        value: b.id,
+                        label: b.name,
+                        type: b.type,
+                      }))}
+                    searchable
+                    allowDeselect={false}
+                    withCheckIcon={false}
+                    maxDropdownHeight={200}
+                    placeholder="Select a board"
+                    value={board.id}
+                    onChange={(_, option) => {
+                      customizationForm.setFieldValue(
+                        "selectedBoards",
+                        customizationForm.values.selectedBoards.map((f) =>
+                          f.tempId === board.tempId
+                            ? {
+                                ...f,
+                                id: option.value,
+                                name: option.label,
+                                type: option.type,
+                                boardConfiguration: {}, // Reset board configuration when board is changed
+                                isConfigured: false,
+                              }
+                            : f
+                        )
+                      );
+                    }}
+                  />
+                  {board.id && board.tempId && (
+                    <Link
+                      to={`/add-board-configuration/${board.id}/${board.tempId}`}
+                      className="flex items-center gap-1 bg-[#007F9B] text-white px-4 py-2 rounded-lg hover:bg-[#20768a] transition-colors disabled:bg-gray-300 w-fit"
+                      onClick={() => {
+                        if (shouldPopuplateInitialData) {
+                          setShouldPopuplateInitialData(false);
+                        }
+                      }}
+                    >
+                      {board.isConfigured ? "Edit Config" : "Configure"}
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      customizationForm.setFieldValue(
+                        "selectedBoards",
+                        customizationForm.values.selectedBoards.filter(
+                          (f) => f.tempId !== board.tempId
+                        )
+                      );
+                    }}
+                  >
+                    <X size={20} className="text-red-500" />
+                  </button>
+                </div>
+              ))
+            )}
+
+            {customizationForm.errors.selectedBoards && (
+              <p className="text-red-500 text-sm">
+                {customizationForm.errors.selectedBoards}
+              </p>
+            )}
+
+            <button
+              type="button"
+              className="flex items-center gap-1 mt-1 text-[#007F9B] font-medium transition-colors disabled:text-gray-300 w-fit"
+              onClick={() => {
+                customizationForm.setFieldValue("selectedBoards", [
+                  ...customizationForm.values.selectedBoards,
+                  {
+                    tempId: Math.random().toString(36).substring(2, 10),
+                    id: "",
+                    name: "",
+                    type: "",
+                    boardConfiguration: {},
+                    isConfigured: false,
+                  },
+                ]);
               }}
-              data={boardDetails?.map((board) => ({
-                value: board.id,
-                label: board.name,
-              }))}
-              searchable
-              allowDeselect={false}
-              withCheckIcon={false}
-              maxDropdownHeight={200}
-              placeholder="Select a board"
-              value={customizationForm.values.selectedBoardId}
-              onChange={(value) => {
-                customizationForm.setFieldValue("selectedBoardId", value);
-                // Reset fields when board changes
-                customizationForm.setFieldValue("fields", []);
-              }}
-            />
-
-            {/* Fields Section */}
-            <Group gap={8} className="!flex-col !items-start">
-              <h2 className="text-gray-800 font-semibold text-lg mb-1 leading-none">
-                Fields
-              </h2>
-
-              {customizationForm.values.fields.length === 0 && (
-                <p className="text-gray-400">No fields added yet.</p>
-              )}
-
-              {/* Existing Fields */}
-              <DraggableFields
-                fields={customizationForm.values.fields}
-                onReorder={(newFields) =>
-                  customizationForm.setFieldValue("fields", newFields)
-                }
-              >
-                {customizationForm.values.fields.map((field, index) => (
-                  <SortableField key={field.tempId} field={field}>
-                    <div className="flex items-center gap-2 w-full flex-wrap">
-                      <div className="w-fit flex items-center gap-2">
-                        <Select
-                          classNames={{
-                            root: "!w-[390px]",
-                            input:
-                              "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
-                          }}
-                          data={boardDetails
-                            ?.find(
-                              (board) =>
-                                board.id ===
-                                customizationForm.values.selectedBoardId
-                            )
-                            ?.columns?.map((column) => ({
-                              value: column.id,
-                              label: column.title,
-                              type: column.type,
-                            }))}
-                          searchable
-                          allowDeselect={false}
-                          withCheckIcon={false}
-                          maxDropdownHeight={200}
-                          placeholder="Select a field"
-                          value={field.id}
-                          onChange={(_, option) => {
-                            customizationForm.setFieldValue(
-                              "fields",
-                              customizationForm.values.fields.map((f) =>
-                                f.tempId === field.tempId
-                                  ? {
-                                      ...f,
-                                      id: option.value,
-                                      title: option.label,
-                                      type: option.type,
-                                    }
-                                  : f
-                              )
-                            );
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            customizationForm.setFieldValue(
-                              "fields",
-                              customizationForm.values.fields.filter(
-                                (f) => f.tempId !== field.tempId
-                              )
-                            );
-                          }}
-                        >
-                          <X size={20} className="text-red-500" />
-                        </button>
-                      </div>
-                      <div className="flex items-center gap-2 min-w-[212.81px]">
-                        <Switch
-                          checked={field.isEditable}
-                          label="Editable"
-                          onChange={(event) => {
-                            customizationForm.setFieldValue(
-                              "fields",
-                              customizationForm.values.fields.map((f) =>
-                                f.tempId === field.tempId
-                                  ? {
-                                      ...f,
-                                      isEditable: event.currentTarget.checked,
-                                    }
-                                  : f
-                              )
-                            );
-                          }}
-                        />
-                        {field.isEditable && (
-                          <Switch
-                            checked={field.isRequired}
-                            label="Required"
-                            onChange={(event) => {
-                              customizationForm.setFieldValue(
-                                "fields",
-                                customizationForm.values.fields.map((f) =>
-                                  f.tempId === field.tempId
-                                    ? {
-                                        ...f,
-                                        isRequired: event.currentTarget.checked,
-                                      }
-                                    : f
-                                )
-                              );
-                            }}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </SortableField>
-                ))}
-              </DraggableFields>
-
-              {customizationForm.errors.fields && (
-                <p className="text-red-500 text-sm">
-                  {customizationForm.errors.fields}
-                </p>
-              )}
-
-              <button
-                type="button"
-                className="flex items-center gap-1 mt-1 text-[#007F9B] font-semibold transition-colors disabled:text-gray-300"
-                onClick={() => {
-                  customizationForm.setFieldValue("fields", [
-                    ...customizationForm.values.fields,
-                    {
-                      tempId: Math.random().toString(36).substring(2, 10),
-                      id: "",
-                      title: "",
-                      type: "",
-                      isEditable: false,
-                    },
-                  ]);
-                }}
-                disabled={
-                  customizationForm.values.fields.length === 10 ||
-                  customizationForm.values.selectedBoardId === ""
-                }
-              >
-                <Plus size={20} />
-                <p className="text-md">Add New Field</p>
-              </button>
-            </Group>
+              disabled={customizationForm.values.selectedBoards.length === 10}
+            >
+              <Plus size={20} />
+              <p className="text-md">
+                Add Board ({customizationForm.values.selectedBoards.length}/10)
+              </p>
+            </button>
           </div>
           <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
             <h2 className="text-gray-800 font-semibold text-lg leading-none">
@@ -463,13 +392,6 @@ const EditConfiguration = () => {
                       "filterItemsByEmail",
                       event.currentTarget.checked
                     );
-
-                    // if (!event.currentTarget.checked) {
-                    //   customizationForm.setFieldValue("selectedEmailColumn", {
-                    //     id: "",
-                    //     title: "",
-                    //   });
-                    // }
                   }}
                   className="!w-fit"
                 />
@@ -531,56 +453,6 @@ const EditConfiguration = () => {
                   <Info size={16} className="text-gray-500 cursor-pointer" />
                 </Tooltip>
               </div>
-
-              {/* Email-based item visibility restriction - email column */}
-              <Select
-                label={
-                  <div className="flex items-center gap-2">
-                    <p className="text-gray-800 font-semibold text-sm leading-none">
-                      Assigned To (Email Column){" "}
-                      <span className="text-[#fa5252]">*</span>
-                    </p>
-                    <Tooltip
-                      maw={220}
-                      multiline
-                      label="This column will be used for filtering the items based on the emails of the users added against the items. This would act as a Assigned To Column."
-                    >
-                      <Info
-                        size={16}
-                        className="text-gray-500 cursor-pointer"
-                      />
-                    </Tooltip>
-                  </div>
-                }
-                classNames={{
-                  root: "!w-full !max-w-[450px]",
-                  input:
-                    "!bg-gray-100 !border !border-gray-300 !rounded-lg !h-[42px]",
-                }}
-                data={boardDetails
-                  ?.find(
-                    (board) =>
-                      board.id === customizationForm.values.selectedBoardId
-                  )
-                  ?.columns.filter((column) => column.type === "email")
-                  .map((column) => ({
-                    value: column.id,
-                    label: column.title,
-                  }))}
-                searchable
-                allowDeselect={false}
-                withCheckIcon={false}
-                maxDropdownHeight={200}
-                placeholder="Select an email column"
-                value={customizationForm.values.selectedEmailColumn.id}
-                onChange={(_, option) => {
-                  customizationForm.setFieldValue("selectedEmailColumn", {
-                    id: option.value,
-                    title: option.label,
-                  });
-                }}
-                error={customizationForm.errors.selectedEmailColumn}
-              />
 
               {/* Sign Up Method */}
               <Radio.Group
