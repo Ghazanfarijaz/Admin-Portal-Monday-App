@@ -135,44 +135,19 @@ export default function ViewConfiguration() {
               </div>
             </div>
           </div>
-          <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
+          <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-2">
             {/* Board Section */}
-            <div className="flex flex-col gap-3">
-              <h2 className="text-gray-800 font-semibold text-lg leading-none">
-                Board
-              </h2>
-              <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center">
-                {customization.boardName}
+            <h2 className="text-gray-800 font-semibold text-lg leading-none">
+              Boards
+            </h2>
+            {customization?.selectedBoardsData?.map((board) => (
+              <div
+                key={board.boardId}
+                className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center"
+              >
+                {board.boardName}
               </div>
-            </div>
-
-            {/* Fields Section */}
-            <div className="flex flex-col gap-3">
-              <h2 className="text-gray-800 font-semibold text-lg leading-none">
-                Fields
-              </h2>
-              <div className="flex flex-col gap-3">
-                {customization.fields?.map((field) => (
-                  <div key={field.columnId}>
-                    <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center justify-between gap-8">
-                      <p className="text-[14px]">{field.columnName}</p>
-                      <p className="text-[12px] text-[#fa5252]">
-                        {field.isRequired ? "(Required)" : ""}
-                      </p>
-                    </div>
-                    {field.isEditable ? (
-                      <p className="text-[12px] text-gray-500 mt-1">
-                        (Editable)
-                      </p>
-                    ) : (
-                      <p className="text-[12px] text-gray-500 mt-1">
-                        (Not Editable)
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
 
           <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
@@ -234,27 +209,6 @@ export default function ViewConfiguration() {
                 >
                   <Info size={16} className="text-gray-500 cursor-pointer" />
                 </Tooltip>
-              </div>
-
-              {/* Assigned To (Email Column) */}
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <p className="text-gray-500 text-[14px]">
-                    Assigned To (Email Column){" "}
-                    <span className="text-[#fa5252]">*</span>
-                  </p>
-                  <Tooltip
-                    maw={220}
-                    multiline
-                    label="This column will be used for filtering the items based on the emails of the users added against the items. This would act as a Assigned To Column."
-                  >
-                    <Info size={16} className="text-gray-500 cursor-pointer" />
-                  </Tooltip>
-                </div>
-                <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center text-gray-500">
-                  {JSON.parse(customization.selectedEmailColumn)?.title ||
-                    "No email column selected"}
-                </div>
               </div>
 
               {/* Sign Up Method */}
