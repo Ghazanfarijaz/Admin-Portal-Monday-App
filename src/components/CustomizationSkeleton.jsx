@@ -1,7 +1,35 @@
 import { Skeleton } from "@mantine/core";
 
-const CustomizationSkeleton = ({ type }) => {
-  return (
+const CustomizationSkeleton = ({ type = "view-customization" }) => {
+  return type === "board-configuration" ? (
+    <div className={`bg-white max-w-4xl flex flex-col gap-5`}>
+      <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
+        {/* Fields Section */}
+        <div className="flex flex-col gap-2">
+          <Skeleton width={100} height={25} radius={2} />
+          <div className="flex flex-col gap-4">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <Skeleton
+                key={index}
+                className="!w-full !max-w-[450px] !h-[42px] !rounded-lg"
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
+        <Skeleton width={140} height={32} radius={2} />
+        <div className="flex flex-col gap-2">
+          <Skeleton width={120} height={25} radius={2} />
+          <Skeleton width="100%" maw={450} height={42} radius={8} />
+        </div>
+      </div>
+      <div className="flex items-center gap-2 mt-2">
+        <Skeleton className="!w-[150px] !h-[42px] !rounded-lg" />
+        <Skeleton className="!w-[100px] !h-[42px] !rounded-lg" />
+      </div>
+    </div>
+  ) : (
     <div className={`bg-white max-w-4xl flex flex-col gap-5`}>
       {type === "view-customization" && (
         <div className="flex justify-end">
@@ -31,30 +59,18 @@ const CustomizationSkeleton = ({ type }) => {
         {/* Board Section */}
         <div className="flex flex-col gap-2">
           <Skeleton width={100} height={25} radius={2} />
-          <Skeleton className="!w-full !max-w-[450px] !h-[42px] !rounded-lg" />
-        </div>
-
-        {/* Fields Section */}
-        <div className="flex flex-col gap-2">
-          <Skeleton width={100} height={25} radius={2} />
-          <div className="flex flex-col gap-4">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <Skeleton
-                key={index}
-                className="!w-full !max-w-[450px] !h-[42px] !rounded-lg"
-              />
-            ))}
-          </div>
+          {Array.from({ length: 3 }).map((_, index) => (
+            <Skeleton
+              key={index}
+              className="!w-full !max-w-[450px] !h-[42px] !rounded-lg"
+            />
+          ))}
         </div>
       </div>
       <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
         <Skeleton width={140} height={32} radius={2} />
         <div className="flex flex-col gap-2">
           <Skeleton width={350} height={25} radius={4} />
-          <div className="flex flex-col gap-2">
-            <Skeleton width={200} height={25} radius={2} />
-            <Skeleton width="100%" maw={450} height={42} radius={8} />
-          </div>
           <Skeleton width={270} height={25} radius={4} />
           <Skeleton width={230} height={25} radius={4} />
           <Skeleton width={300} height={25} radius={4} />
