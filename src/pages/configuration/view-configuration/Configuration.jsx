@@ -23,9 +23,37 @@ export default function ViewConfiguration() {
   } = useQuery({
     queryKey: ["customizationData", sessionToken],
     queryFn: async () => {
-      return customizationAPIs.getCustomization({
+      const response = await customizationAPIs.getCustomization({
         sessionToken,
       });
+
+      const selectedBoardIds = response.selectedBoardsData.map(
+        (board) => board.boardId
+      );
+
+      const query = `
+      query {
+        boards (ids: [${selectedBoardIds}]) {
+          name
+          id
+        }
+      }`;
+
+      const boardsResponse = await monday.api(query);
+
+      const updatedSelectedBoardsData = response.selectedBoardsData.map(
+        (board) => ({
+          ...board,
+          boardName: boardsResponse.data.boards.find(
+            (b) => b.id === board.boardId
+          ).name,
+        })
+      );
+
+      return {
+        ...response,
+        selectedBoardsData: updatedSelectedBoardsData,
+      };
     },
     enabled: !!sessionToken,
   });
