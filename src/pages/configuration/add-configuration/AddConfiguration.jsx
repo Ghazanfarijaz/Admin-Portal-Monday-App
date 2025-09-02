@@ -11,6 +11,10 @@ import { AttentionBox } from "@vibe/core";
 import { useEffect, useState } from "react";
 import sanitizeData from "../../../utils/sanitizeData";
 import { useCustomization } from "../../../context/CustomizationContext";
+import {
+  DraggableFields,
+  SortableField,
+} from "../../../components/DraggableFeilds";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -192,89 +196,98 @@ const AddConfiguration = () => {
             {customizationForm?.values?.selectedBoards?.length < 1 ? (
               <p className="text-gray-400">No Boards added yet.</p>
             ) : (
-              customizationForm.values.selectedBoards.map((board) => (
-                <div key={board.tempId} className="flex items-center gap-2">
-                  <Select
-                    classNames={{
-                      root: "!w-full !max-w-[450px]",
-                      input: `${
-                        board?.isConfigured
-                          ? "!bg-green-100 !border-green-300"
-                          : "!bg-gray-100 !border-gray-300"
-                      }  !border  !rounded-lg !h-[42px]`,
-                    }}
-                    // Don't show the selected board in the dropdown
-                    data={boardDetails
-                      ?.filter(
-                        (b) =>
-                          // Keep this board if it's not selected by others OR it is the current one
-                          !customizationForm.values.selectedBoards.some(
-                            (sel) =>
-                              sel.id === b.id && sel.tempId !== board.tempId
+              <DraggableFields
+                fields={customizationForm.values.selectedBoards}
+                onReorder={(newFields) =>
+                  customizationForm.setFieldValue("selectedBoards", newFields)
+                }
+              >
+                {customizationForm.values.selectedBoards.map((board) => (
+                  <SortableField key={board.tempId} field={board}>
+                    <div key={board.tempId} className="flex items-center gap-2">
+                      <Select
+                        classNames={{
+                          root: "!w-full !max-w-[450px]",
+                          input: `${
+                            board?.isConfigured
+                              ? "!bg-green-100 !border-green-300"
+                              : "!bg-gray-100 !border-gray-300"
+                          }  !border  !rounded-lg !h-[42px]`,
+                        }}
+                        // Don't show the selected board in the dropdown
+                        data={boardDetails
+                          ?.filter(
+                            (b) =>
+                              // Keep this board if it's not selected by others OR it is the current one
+                              !customizationForm.values.selectedBoards.some(
+                                (sel) =>
+                                  sel.id === b.id && sel.tempId !== board.tempId
+                              )
                           )
-                      )
-                      .map((b) => ({
-                        value: b.id,
-                        label: b.name,
-                        type: b.type,
-                        workspace: b.workspace,
-                      }))}
-                    searchable
-                    allowDeselect={false}
-                    withCheckIcon={false}
-                    maxDropdownHeight={200}
-                    placeholder="Select a board"
-                    value={board.id}
-                    onChange={(_, option) => {
-                      customizationForm.setFieldValue(
-                        "selectedBoards",
-                        customizationForm.values.selectedBoards.map((f) =>
-                          f.tempId === board.tempId
-                            ? {
-                                ...f,
-                                id: option.value,
-                                name: option.label,
-                                type: option.type,
-                                boardConfiguration: {}, // Reset board configuration when board is changed
-                                isConfigured: false,
-                              }
-                            : f
-                        )
-                      );
-                    }}
-                    renderOption={({ option }) => {
-                      return (
-                        <div className="flex items-center gap-2">
-                          <p>
-                            {option.label} ({option.workspace.name})
-                          </p>
-                        </div>
-                      );
-                    }}
-                  />
-                  {board.id && board.tempId && (
-                    <Link
-                      to={`/add-board-configuration/${board.id}/${board.tempId}`}
-                      className="flex items-center gap-1 bg-[#007F9B] text-white px-4 py-2 rounded-lg hover:bg-[#20768a] transition-colors disabled:bg-gray-300 w-fit"
-                    >
-                      {board.isConfigured ? "Edit Config" : "Configure"}
-                    </Link>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      customizationForm.setFieldValue(
-                        "selectedBoards",
-                        customizationForm.values.selectedBoards.filter(
-                          (f) => f.tempId !== board.tempId
-                        )
-                      );
-                    }}
-                  >
-                    <X size={20} className="text-red-500" />
-                  </button>
-                </div>
-              ))
+                          .map((b) => ({
+                            value: b.id,
+                            label: b.name,
+                            type: b.type,
+                            workspace: b.workspace,
+                          }))}
+                        searchable
+                        allowDeselect={false}
+                        withCheckIcon={false}
+                        maxDropdownHeight={200}
+                        placeholder="Select a board"
+                        value={board.id}
+                        onChange={(_, option) => {
+                          customizationForm.setFieldValue(
+                            "selectedBoards",
+                            customizationForm.values.selectedBoards.map((f) =>
+                              f.tempId === board.tempId
+                                ? {
+                                    ...f,
+                                    id: option.value,
+                                    name: option.label,
+                                    type: option.type,
+                                    boardConfiguration: {}, // Reset board configuration when board is changed
+                                    isConfigured: false,
+                                  }
+                                : f
+                            )
+                          );
+                        }}
+                        renderOption={({ option }) => {
+                          return (
+                            <div className="flex items-center gap-2">
+                              <p>
+                                {option.label} ({option.workspace.name})
+                              </p>
+                            </div>
+                          );
+                        }}
+                      />
+                      {board.id && board.tempId && (
+                        <Link
+                          to={`/add-board-configuration/${board.id}/${board.tempId}`}
+                          className="flex items-center gap-1 bg-[#007F9B] text-white px-4 py-2 rounded-lg hover:bg-[#20768a] transition-colors disabled:bg-gray-300 w-fit"
+                        >
+                          {board.isConfigured ? "Edit Config" : "Configure"}
+                        </Link>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          customizationForm.setFieldValue(
+                            "selectedBoards",
+                            customizationForm.values.selectedBoards.filter(
+                              (f) => f.tempId !== board.tempId
+                            )
+                          );
+                        }}
+                      >
+                        <X size={20} className="text-red-500" />
+                      </button>
+                    </div>
+                  </SortableField>
+                ))}
+              </DraggableFields>
             )}
 
             {customizationForm.errors.selectedBoards && (
