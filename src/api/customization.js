@@ -12,7 +12,8 @@ const customizationAPIs = {
           },
         }
       );
-      return response.data.data;
+
+      return response?.data?.data;
     } catch (error) {
       console.error("Error fetching customization:", error);
       throw new Error(
@@ -77,6 +78,10 @@ const customizationAPIs = {
           id
           type
           board_kind
+          workspace{
+            id
+            name
+          }
         }
       }
     `;
