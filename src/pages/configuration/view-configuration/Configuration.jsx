@@ -27,6 +27,10 @@ export default function ViewConfiguration() {
         sessionToken,
       });
 
+      if (!response) {
+        return null;
+      }
+
       const selectedBoardIds = response.selectedBoardsData.map(
         (board) => board.boardId
       );
