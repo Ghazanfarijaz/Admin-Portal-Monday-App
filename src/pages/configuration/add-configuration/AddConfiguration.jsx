@@ -217,6 +217,7 @@ const AddConfiguration = () => {
                         value: b.id,
                         label: b.name,
                         type: b.type,
+                        workspace: b.workspace,
                       }))}
                     searchable
                     allowDeselect={false}
@@ -239,6 +240,15 @@ const AddConfiguration = () => {
                               }
                             : f
                         )
+                      );
+                    }}
+                    renderOption={({ option }) => {
+                      return (
+                        <div className="flex items-center gap-2">
+                          <p>
+                            {option.label} ({option.workspace.name})
+                          </p>
+                        </div>
                       );
                     }}
                   />
