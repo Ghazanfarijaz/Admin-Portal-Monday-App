@@ -37,8 +37,9 @@ const AddConfiguration = () => {
     queryKey: ["boardDetails"],
     queryFn: () =>
       customizationAPIs.getAllBoards({
-        monday,
+        sessionToken,
       }),
+    enabled: !!sessionToken,
   });
 
   // Add Customization - Mutation

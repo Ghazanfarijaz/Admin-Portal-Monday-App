@@ -40,8 +40,9 @@ const EditConfiguration = () => {
           queryKey: ["boardDetails"],
           queryFn: () =>
             customizationAPIs.getAllBoards({
-              monday,
+              sessionToken,
             }),
+          enabled: !!sessionToken,
         },
         {
           queryKey: ["customizationData"],
@@ -55,6 +56,7 @@ const EditConfiguration = () => {
       ],
       combine: (results) => {
         const [boardDetails, customization] = results;
+
         return {
           boardDetails: boardDetails.data,
           customization: customization.data,
@@ -217,6 +219,8 @@ const EditConfiguration = () => {
     toast.error(error.message || "Failed to fetch customization data");
     return navigate("/configuration", { replace: true });
   }
+
+  console.log("boardDetails", boardDetails);
 
   return (
     <div className="flex flex-col gap-8 p-12 bg-white w-full h-full">

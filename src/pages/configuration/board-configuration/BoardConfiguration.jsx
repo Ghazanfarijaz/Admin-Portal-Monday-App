@@ -12,7 +12,7 @@ import {
 import { AttentionBox } from "@vibe/core";
 import customizationAPIs from "../../../api/customization";
 import CustomizationSkeleton from "../../../components/CustomizationSkeleton";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -23,6 +23,9 @@ const BoardConfiguration = () => {
   const navigate = useNavigate();
   // Global State
   const { customizationForm } = useCustomization();
+
+  // Local State
+  const [sessionToken, setSessionToken] = useState(null);
 
   // Local State
   const boardConfigurationForm = useForm({
@@ -59,10 +62,10 @@ const BoardConfiguration = () => {
     queryKey: ["boardColumnsData"],
     queryFn: () =>
       customizationAPIs.getBoardColumns({
-        monday,
+        sessionToken,
         boardId,
       }),
-    enabled: !!boardId,
+    enabled: !!boardId && !!sessionToken,
   });
 
   // Handle save board configuration
@@ -107,6 +110,14 @@ const BoardConfiguration = () => {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // UseEffect to get Session Token
+  // and update form states using context
+  useEffect(() => {
+    monday.listen("sessionToken", ({ data: token }) => {
+      setSessionToken(token);
+    });
   }, []);
 
   // Handle Error

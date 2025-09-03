@@ -69,32 +69,15 @@ const customizationAPIs = {
   },
 
   // Get all boards
-  getAllBoards: async ({ monday }) => {
+  getAllBoards: async ({ sessionToken }) => {
     try {
-      const query = `
-      query {
-        boards {
-          name
-          id
-          type
-          board_kind
-          workspace{
-            id
-            name
-          }
-        }
-      }
-    `;
-      const response = await monday.api(query);
+      const response = await axiosInstance.get(`/users/getUserBoardsData`, {
+        headers: {
+          Authorization: sessionToken,
+        },
+      });
 
-      // Filter out the boards with "custom_object" type and "private" board_kind
-      // "private" boards are not visible to the user, so we exclude them
-      const filteredBoards = response.data.boards.filter(
-        (board) =>
-          board.type !== "custom_object" && board.board_kind !== "private"
-      );
-
-      return filteredBoards;
+      return response.data.data;
     } catch (error) {
       console.error("Error fetching boards:", error);
       throw new Error(error.message || `Failed to fetch boards`);
@@ -102,47 +85,20 @@ const customizationAPIs = {
   },
 
   // Get Columns of a specific board
-  getBoardColumns: async ({ monday, boardId }) => {
+  getBoardColumns: async ({ sessionToken, boardId }) => {
     try {
-      const query = `
-      query {
-        boards (ids: [${boardId}]) {
-          name
-          id
-          type
-          columns {
-            id
-            title
-            type
-          }
+      const response = await axiosInstance.get(
+        `/users/getSpecificBoardColumns?boardId=${boardId}`,
+        {
+          headers: {
+            Authorization: sessionToken,
+          },
         }
-      }
-    `;
-      const response = await monday.api(query);
-
-      // Go Through all the boards and filter out the columns of types
-      // ["board_relation", "mirror","button", "dependency", "formula", "auto_number", "progress"]
-      const updatedBoardData = response.data.boards[0].columns.filter(
-        (column) =>
-          ![
-            "board_relation",
-            "mirror",
-            "button",
-            "dependency",
-            "formula",
-            "auto_number",
-            "progress",
-          ].includes(column.type)
       );
 
-      return {
-        name: response.data.boards[0].name,
-        id: response.data.boards[0].id,
-        type: response.data.boards[0].type,
-        columns: updatedBoardData,
-      };
+      return response.data.data;
     } catch (error) {
-      console.error("Error fetching boards:", error);
+      console.error("Error fetching board columns:", error);
       throw new Error(error.message || `Failed to fetch boards`);
     }
   },
