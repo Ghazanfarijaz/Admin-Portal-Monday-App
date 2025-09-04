@@ -220,8 +220,6 @@ const EditConfiguration = () => {
     return navigate("/configuration", { replace: true });
   }
 
-  console.log("boardDetails", boardDetails);
-
   return (
     <div className="flex flex-col gap-8 p-12 bg-white w-full h-full">
       <div className="flex flex-col gap-2">
