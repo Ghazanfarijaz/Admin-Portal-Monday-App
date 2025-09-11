@@ -30,7 +30,6 @@ const allowedEditableColumnTypes = [
   "status",
   "file",
   "long_text",
-  "name",
 ];
 
 const BoardConfiguration = () => {
