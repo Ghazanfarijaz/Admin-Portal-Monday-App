@@ -17,6 +17,22 @@ import { useEffect, useState } from "react";
 // Monday SDK initialization
 const monday = mondaySdk();
 
+// Allowed Editable Column Types
+const allowedEditableColumnTypes = [
+  "text",
+  "phone",
+  "numbers",
+  "email",
+  "date",
+  "people",
+  "dropdown",
+  "tags",
+  "status",
+  "file",
+  "long_text",
+  "name",
+];
+
 const BoardConfiguration = () => {
   // Hooks
   const { boardId, tempId } = useParams();
@@ -224,6 +240,7 @@ const BoardConfiguration = () => {
                                     id: option.value,
                                     title: option.label,
                                     type: option.type,
+                                    isEditable: false,
                                   }
                                 : f
                             )
@@ -261,26 +278,33 @@ const BoardConfiguration = () => {
                             )
                           );
                         }}
+                        disabled={
+                          !allowedEditableColumnTypes.includes(field.type)
+                        }
                       />
-                      {field.isEditable && (
-                        <Switch
-                          checked={field.isRequired}
-                          label="Required"
-                          onChange={(event) => {
-                            boardConfigurationForm.setFieldValue(
-                              "fields",
-                              boardConfigurationForm.values.fields.map((f) =>
-                                f.tempId === field.tempId
-                                  ? {
-                                      ...f,
-                                      isRequired: event.currentTarget.checked,
-                                    }
-                                  : f
-                              )
-                            );
-                          }}
-                        />
-                      )}
+                      {field.isEditable &&
+                        allowedEditableColumnTypes.includes(field.type) && (
+                          <Switch
+                            checked={field.isRequired}
+                            label="Required"
+                            onChange={(event) => {
+                              boardConfigurationForm.setFieldValue(
+                                "fields",
+                                boardConfigurationForm.values.fields.map((f) =>
+                                  f.tempId === field.tempId
+                                    ? {
+                                        ...f,
+                                        isRequired: event.currentTarget.checked,
+                                      }
+                                    : f
+                                )
+                              );
+                            }}
+                            disabled={
+                              !allowedEditableColumnTypes.includes(field.type)
+                            }
+                          />
+                        )}
                     </div>
                   </div>
                 </SortableField>
