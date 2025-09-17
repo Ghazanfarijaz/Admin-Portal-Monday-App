@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API_BASE_URL =
-  "https://bc008-service-23360785-a4c1a002.us.monday.app/api";
+  "https://f8cb9-service-23360785-a4c1a002.us.monday.app/api";
 
 // const API_BASE_URL = "http://localhost:8080/api";
 
