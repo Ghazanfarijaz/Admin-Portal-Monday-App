@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import mondaySdk from "monday-sdk-js";
 import { authAPIs } from "../api/auth";
 import { AttentionBox } from "@vibe/core";
+import { useEffect, useState } from "react";
+import { Loader } from "@mantine/core";
 
 // Monday SDK initialization
 const monday = mondaySdk();
@@ -9,13 +11,18 @@ const monday = mondaySdk();
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const AuthProvider = ({ children }) => {
+  // Session Token
+  const [sessionToken, setSessionToken] = useState(null);
+  const [loadingContext, setLoadingContext] = useState(false);
+  const [isUserAdmin, setIsUserAdmin] = useState(false);
+
   const { isPending, isError, error } = useQuery({
-    queryKey: ["monday-slug"],
+    queryKey: ["monday-slug", sessionToken],
     queryFn: async () => {
       try {
-        const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
-
-        const authResponse = await authAPIs.checkUserAuth({ slug: userSlug });
+        const authResponse = await authAPIs.checkUserAuth({
+          sessionToken,
+        });
 
         if (authResponse?.action === "do_oauth") {
           // Redirect the user to the auth URL, this will unload the app, but they will be redirected back
@@ -36,28 +43,58 @@ const AuthProvider = ({ children }) => {
         throw new Error("Authentication Failed!");
       }
     },
+    enabled: !!sessionToken && isUserAdmin === true,
   });
 
-  if (isPending) {
+  useEffect(() => {
+    setLoadingContext(true);
+    monday.listen("context", ({ data }) => {
+      setIsUserAdmin(data.user.isAdmin);
+    });
+    monday.listen("sessionToken", ({ data: token }) => {
+      setSessionToken(token);
+    });
+    setLoadingContext(false);
+  }, []);
+
+  if (isPending || loadingContext) {
     return (
       <div className="text-white h-screen w-screen flex justify-center items-center">
-        Loading...
+        <Loader color="#007F9B" size="md" type="bars" />
       </div>
     );
   }
 
   if (isError) {
-      console.error("Authentication Failed!", error);
-      return (
-        <div className="flex justify-center mt-4">
-          <AttentionBox
-            title="Authentication Failed!"
-            text={error?.message || "Something went wrong"}
-            type="danger"
-          />
-        </div>
-      );
-    }
+    console.error("Authentication Failed!", error);
+    return (
+      <div className="flex justify-center mt-4">
+        <AttentionBox
+          title="Authentication Failed!"
+          text={error?.message || "Something went wrong"}
+          type="danger"
+        />
+      </div>
+    );
+  }
+
+  if (!isUserAdmin) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <AttentionBox
+          title="Access Denied!"
+          text={
+            <div>
+              <p>You need to be an admin to use this app.</p>
+              <p>Please contact your administrator.</p>
+            </div>
+          }
+          type="danger"
+          className="w-1/2"
+        />
+      </div>
+    );
+  }
 
   return <>{children}</>;
 };

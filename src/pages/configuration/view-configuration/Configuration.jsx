@@ -1,16 +1,19 @@
 import { Link } from "react-router-dom";
 import mondaySdk from "monday-sdk-js";
 import { useQuery } from "@tanstack/react-query";
-import customizationAPIs from "../../api/customization";
-import { authAPIs } from "../../api/auth";
-import CustomizationSkeleton from "../../components/CustomizationSkeleton";
-import { LinkIcon } from "lucide-react";
+import customizationAPIs from "../../../api/customization";
+import CustomizationSkeleton from "../../../components/CustomizationSkeleton";
+import { Info, LinkIcon } from "lucide-react";
 import { CopyButton, Group, Radio, Switch, Tooltip } from "@mantine/core";
 import { AttentionBox } from "@vibe/core";
+import { useEffect, useState } from "react";
 
 const monday = mondaySdk();
 
-export default function Configuration() {
+export default function ViewConfiguration() {
+  // Local States
+  const [sessionToken, setSessionToken] = useState(null);
+
   // Fetch board details and customization data using react-query
   const {
     data: customization,
@@ -18,15 +21,53 @@ export default function Configuration() {
     error,
     isFetching,
   } = useQuery({
-    queryKey: ["customizationData"],
+    queryKey: ["customizationData", sessionToken],
     queryFn: async () => {
-      const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
-
-      return customizationAPIs.getCustomization({
-        slug: userSlug,
+      const response = await customizationAPIs.getCustomization({
+        sessionToken,
       });
+
+      if (!response) {
+        return null;
+      }
+
+      const selectedBoardIds = response.selectedBoardsData.map(
+        (board) => board.boardId
+      );
+
+      const query = `
+      query {
+        boards (ids: [${selectedBoardIds}]) {
+          name
+          id
+        }
+      }`;
+
+      const boardsResponse = await monday.api(query);
+
+      const updatedSelectedBoardsData = response.selectedBoardsData.map(
+        (board) => ({
+          ...board,
+          boardName: boardsResponse.data.boards.find(
+            (b) => b.id === board.boardId
+          ).name,
+        })
+      );
+
+      return {
+        ...response,
+        selectedBoardsData: updatedSelectedBoardsData,
+      };
     },
+    enabled: !!sessionToken,
   });
+
+  // Fetch session token
+  useEffect(() => {
+    monday.listen("sessionToken", ({ data: token }) => {
+      setSessionToken(token);
+    });
+  }, []);
 
   if (isError) {
     console.error("Error loading customization:", error);
@@ -51,7 +92,7 @@ export default function Configuration() {
         <>
           <div className="flex justify-end">
             <Link
-              to={`/edit-customization`}
+              to={`/edit-configuration`}
               className="bg-[#007F9B] text-white font-medium px-4 py-2 w-fit rounded hover:bg-[#007F9B]/80"
             >
               Edit Details
@@ -126,41 +167,19 @@ export default function Configuration() {
               </div>
             </div>
           </div>
-          <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
+          <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-2">
             {/* Board Section */}
-            <div className="flex flex-col gap-3">
-              <h2 className="text-gray-800 font-semibold text-lg leading-none">
-                Board
-              </h2>
-              <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center">
-                {customization.boardName}
+            <h2 className="text-gray-800 font-semibold text-lg leading-none">
+              Boards
+            </h2>
+            {customization?.selectedBoardsData?.map((board) => (
+              <div
+                key={board.boardId}
+                className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center"
+              >
+                {board.boardName}
               </div>
-            </div>
-
-            {/* Fields Section */}
-            <div className="flex flex-col gap-3">
-              <h2 className="text-gray-800 font-semibold text-lg leading-none">
-                Fields
-              </h2>
-              <div className="flex flex-col gap-3">
-                {customization.fields?.map((field) => (
-                  <div key={field.columnId}>
-                    <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center">
-                      {field.columnName}
-                    </div>
-                    {field.isEditable ? (
-                      <p className="text-[12px] text-gray-500 mt-1">
-                        (Editable)
-                      </p>
-                    ) : (
-                      <p className="text-[12px] text-gray-500 mt-1">
-                        (Not Editable)
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
 
           <div className="rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col gap-5">
@@ -168,60 +187,63 @@ export default function Configuration() {
               Systems Flags
             </h2>
             <div className="flex flex-col gap-3">
-              <Tooltip
-                label="If Allowed, it will allow the external users on to create new values for 'Dropdown' columns. - if the value is not present in the column options."
-                refProp="rootRef"
-                withArrow
-                multiline
-                w={220}
-                transitionProps={{ duration: 200 }}
-              >
+              {/* Email-based item visibility restriction */}
+              <div className="flex items-center gap-2">
                 <Switch
-                  label="Allow user to create new values in Dropdown columns"
-                  checked={customization.allowNewValueCreation === "true"}
+                  label="Show items Assigned To Me only"
+                  checked={customization.filterItemsByEmail === "true"}
                   disabled
+                  className="!w-fit"
                 />
-              </Tooltip>
-
-              <div className="flex flex-col gap-1">
                 <Tooltip
-                  label="When enabled, users will only see items where their email matches in the selected email column. You’ll be prompted to choose the column after turning this on."
-                  refProp="rootRef"
+                  label="This attribute restrict the user permissions to view the items that are assigned to him only."
                   withArrow
+                  maw={220}
                   multiline
-                  w={220}
                   transitionProps={{ duration: 200 }}
                 >
-                  <Switch
-                    label="Enable email-based item visibility restriction"
-                    checked={customization.filterItemsByEmail === "true"}
-                    disabled
-                    className="!w-fit"
-                  />
+                  <Info size={16} className="text-gray-500 cursor-pointer" />
                 </Tooltip>
-                {customization.filterItemsByEmail === "true" && (
-                  <div className="bg-gray-100 border border-gray-200 p-2 rounded-lg w-full h-[42px] max-w-[450px] flex items-center text-gray-500">
-                    {JSON.parse(customization.selectedEmailColumn)?.title ||
-                      "No email column selected"}
-                  </div>
-                )}
               </div>
 
-              <Tooltip
-                label="When enabled, external users will be able to create new items in the board."
-                refProp="rootRef"
-                withArrow
-                multiline
-                w={220}
-                transitionProps={{ duration: 200 }}
-              >
+              {/* Allow external users to create new item. - Switch */}
+              <div className="flex items-center gap-2">
                 <Switch
-                  label="Allow External Users to Create New Items"
+                  label="Allow external users to create new item."
                   checked={customization.allowUsersToCreateNewItems === "true"}
                   disabled
                   className="!w-fit"
                 />
-              </Tooltip>
+                <Tooltip
+                  label="This attribute provide the user with the permissions to create new items from the portal to your board."
+                  withArrow
+                  maw={220}
+                  multiline
+                  transitionProps={{ duration: 200 }}
+                >
+                  <Info size={16} className="text-gray-500 cursor-pointer" />
+                </Tooltip>
+              </div>
+
+              {/* Allow user to create new values in Dropdown - Switch  */}
+              <div className="flex items-center gap-2">
+                <Switch
+                  label="Allow external users to create new values."
+                  checked={customization.allowNewValueCreation === "true"}
+                  disabled
+                />
+                <Tooltip
+                  label="This attribute provide the user with the permissions to create new values in the Dropdown fields."
+                  withArrow
+                  maw={220}
+                  multiline
+                  transitionProps={{ duration: 200 }}
+                >
+                  <Info size={16} className="text-gray-500 cursor-pointer" />
+                </Tooltip>
+              </div>
+
+              {/* Sign Up Method */}
               <Radio.Group
                 name="signUpMethod"
                 label="Sign Up Method"
@@ -261,14 +283,14 @@ export default function Configuration() {
       ) : (
         <>
           <p className="text-gray-500">
-            No customization settings found. <br /> Please add your
-            customization settings to personalize your board.
+            No configuration settings found. <br /> Please add your
+            configuration settings to personalize your board.
           </p>
           <Link
-            to="/add-customization"
+            to="/add-configuration"
             className="bg-[#007F9B] text-white font-medium px-4 py-2 w-fit rounded hover:bg-[#007F9B]/80"
           >
-            Add Customization
+            Add Configuration
           </Link>
         </>
       )}

@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { userAPIs } from "../../api/users";
 import { Skeleton } from "@mantine/core";
 import { Link } from "react-router-dom";
-import { authAPIs } from "../../api/auth";
 import mondaySdk from "monday-sdk-js";
 import { ImportUsersPopup } from "../../components/import-users-list-modal/ImportUsersPopup";
 import { AttentionBox } from "@vibe/core";
@@ -20,18 +19,25 @@ const UsersList = () => {
   const [openImportUsersModal, setOpenImportUsersModal] = useState(false);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
+  const [sessionToken, setSessionToken] = useState(null);
   const queryClient = useQueryClient();
 
   // Fetch All Users
   const { data, isFetching, isError, error } = useQuery({
-    queryKey: ["users"],
+    queryKey: ["users", sessionToken],
     queryFn: async () => {
-      const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
       return userAPIs.getAllUsers({
-        userSlug,
+        sessionToken,
       });
     },
+    enabled: !!sessionToken,
   });
+
+  useEffect(() => {
+    monday.listen("sessionToken", ({ data: token }) => {
+      setSessionToken(token);
+    });
+  }, []);
 
   useEffect(() => {
     if (data) {
@@ -52,8 +58,6 @@ const UsersList = () => {
 
   const updateUser = useMutation({
     mutationFn: async (userId) => {
-      const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
-
       const userToUpdate = users.find((user) => user.id === userId);
       if (!userToUpdate) {
         throw new Error("User not found");
@@ -65,7 +69,7 @@ const UsersList = () => {
           name: userToUpdate.name,
           password: userToUpdate.password,
         },
-        slug: userSlug,
+        sessionToken,
       });
     },
 
@@ -96,14 +100,13 @@ const UsersList = () => {
 
   const approveUser = useMutation({
     mutationFn: async (userId) => {
-      const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
       const userToUpdate = users.find((user) => user.id === userId);
       if (!userToUpdate) {
         throw new Error("User not found");
       }
       return userAPIs.approveSpecificUser({
         email: userToUpdate.email,
-        slug: userSlug,
+        sessionToken,
       });
     },
 
@@ -131,14 +134,13 @@ const UsersList = () => {
 
   const deleteUser = useMutation({
     mutationFn: async (userEmail) => {
-      const userSlug = await authAPIs.findUserSlug({ mondayAPI: monday });
       const userToDelete = users.find((user) => user.email === userEmail);
       if (!userToDelete) {
         throw new Error("User not found");
       }
       return userAPIs.deleteSpecificUser({
         email: userEmail,
-        slug: userSlug,
+        sessionToken,
       });
     },
 

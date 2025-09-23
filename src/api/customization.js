@@ -2,12 +2,18 @@ import axiosInstance from "../utils/axiosInstance";
 
 const customizationAPIs = {
   // Get the Customization settings
-  getCustomization: async ({ slug }) => {
+  getCustomization: async ({ sessionToken }) => {
     try {
       const response = await axiosInstance.get(
-        `/customization/getCustomization?slug=${slug}`
+        `/customization/getCustomization`,
+        {
+          headers: {
+            Authorization: sessionToken,
+          },
+        }
       );
-      return response.data.data;
+
+      return response?.data?.data;
     } catch (error) {
       console.error("Error fetching customization:", error);
       throw new Error(
@@ -18,13 +24,14 @@ const customizationAPIs = {
   },
 
   // Add new Customization settings
-  addCustomization: async ({ customizationData, slug }) => {
+  addCustomization: async ({ customizationData, sessionToken }) => {
     try {
       const response = await axiosInstance.post(
-        `/customization/addCustomization?slug=${slug}`,
+        `/customization/addCustomization`,
         customizationData,
         {
           headers: {
+            Authorization: sessionToken,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -39,13 +46,14 @@ const customizationAPIs = {
   },
 
   // Update existing Customization settings
-  updateCustomization: async ({ customizationData, slug }) => {
+  updateCustomization: async ({ customizationData, sessionToken }) => {
     try {
       const response = await axiosInstance.put(
-        `/customization/updateCustomization?slug=${slug}`,
+        `/customization/updateCustomization`,
         customizationData,
         {
           headers: {
+            Authorization: sessionToken,
             "Content-Type": "multipart/form-data",
           },
         }
@@ -60,62 +68,37 @@ const customizationAPIs = {
     }
   },
 
-  // Delete current Customization settings
-  deleteCustomization: async ({ slug }) => {
+  // Get all boards
+  getAllBoards: async ({ sessionToken }) => {
     try {
-      await axiosInstance.delete(
-        `/customization/deleteCustomization?slug=${slug}`
-      );
-      console.log("Customization deleted successfully");
-      return true;
+      const response = await axiosInstance.get(`/users/getUserBoardsData`, {
+        headers: {
+          Authorization: sessionToken,
+        },
+      });
+
+      return response.data.data;
     } catch (error) {
-      console.error("Error deleting customization:", error);
-      throw new Error(
-        error.response?.data?.message ||
-          `Failed to delete customization settings`
-      );
+      console.error("Error fetching boards:", error);
+      throw new Error(error.message || `Failed to fetch boards`);
     }
   },
 
-  getAllBoards: async ({ monday }) => {
+  // Get Columns of a specific board
+  getBoardColumns: async ({ sessionToken, boardId }) => {
     try {
-      const query = `
-      query {
-        boards {
-          name
-          id
-          columns {
-            id
-            title
-            type
-          }
+      const response = await axiosInstance.get(
+        `/users/getSpecificBoardColumns?boardId=${boardId}`,
+        {
+          headers: {
+            Authorization: sessionToken,
+          },
         }
-      }
-    `;
-      const response = await monday.api(query);
+      );
 
-      // Go Through all the boards and filter out the columns of types
-      // ["board_relation", "mirror","button", "dependency", "formula", "auto_number", "progress"]
-
-      response.data.boards = response.data.boards.map((board) => {
-        board.columns = board.columns.filter(
-          (column) =>
-            ![
-              "board_relation",
-              "mirror",
-              "button",
-              "dependency",
-              "formula",
-              "auto_number",
-              "progress",
-            ].includes(column.type)
-        );
-        return board;
-      });
-
-      return response.data.boards;
+      return response.data.data;
     } catch (error) {
-      console.error("Error fetching boards:", error);
+      console.error("Error fetching board columns:", error);
       throw new Error(error.message || `Failed to fetch boards`);
     }
   },
